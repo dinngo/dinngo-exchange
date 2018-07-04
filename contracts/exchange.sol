@@ -16,6 +16,7 @@ contract Dinngo {
     mapping (address => mapping (address => uint256)) private balance;
 
     event Deposit(address token, address user, uint256 amount);
+    event Withdraw(address token, address user, uint256 amount);
 
     function deposit() public payable {
         require(msg.value > 0);
@@ -31,8 +32,19 @@ contract Dinngo {
         emit Deposit(token, msg.sender, amount);
     }
 
-    function withdraw(address token, uint256 amount) public returns (bool) {
-        return true;
+    function withdraw(uint256 amount) public {
+        require(amount <= balance[0][msg.sender]);
+        msg.sender.transfer(amount);
+        balance[0][msg.sender] = balance[0][msg.sender].sub(amount);
+        emit Withdraw(0, msg.sender, amount);
+    }
+
+    function withdrawToken(address token, uint256 amount) public {
+        require(token != address(0));
+        require(amount > 0);
+        ERC20(token).safeTransfer(msg.sender, amount);
+        balance[token][msg.sender] = balance[token][msg.sender].sub(amount);
+        emit Withdraw(token, msg.sender, amount);
     }
 
     function settle() public returns (bool) {
