@@ -18,13 +18,13 @@ contract Dinngo {
     event Deposit(address token, address user, uint256 amount, uint256 balance);
     event Withdraw(address token, address user, uint256 amount, uint256 balance);
 
-    function deposit() public payable {
+    function deposit() external payable {
         require(msg.value > 0);
         balance[0][msg.sender] = balance[0][msg.sender].add(msg.value);
         emit Deposit(0, msg.sender, msg.value, balance[0][msg.sender]);
     }
 
-    function depositToken(address token, uint256 amount) public {
+    function depositToken(address token, uint256 amount) external {
         require(token != address(0));
         require(amount > 0);
         ERC20(token).safeTransferFrom(msg.sender, this, amount);
@@ -32,14 +32,14 @@ contract Dinngo {
         emit Deposit(token, msg.sender, amount, balance[token][msg.sender]);
     }
 
-    function withdraw(uint256 amount) public {
+    function withdraw(uint256 amount) external {
         require(amount <= balance[0][msg.sender]);
         msg.sender.transfer(amount);
         balance[0][msg.sender] = balance[0][msg.sender].sub(amount);
         emit Withdraw(0, msg.sender, amount, balance[0][msg.sender]);
     }
 
-    function withdrawToken(address token, uint256 amount) public {
+    function withdrawToken(address token, uint256 amount) external {
         require(token != address(0));
         require(amount > 0);
         ERC20(token).safeTransfer(msg.sender, amount);
