@@ -48,6 +48,10 @@ contract Dinngo {
         emit Withdraw(token, msg.sender, amount, balance[token][msg.sender]);
     }
 
+    function getBalance(address token, address user) external view returns (uint256) {
+        return balance[token][user];
+    }
+
     function settle() public returns (bool) {
         return true;
     }
