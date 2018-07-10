@@ -34,6 +34,7 @@ contract Dinngo {
     }
 
     function withdraw(uint256 amount) external {
+        require(amount > 0);
         require(amount <= balance[0][msg.sender]);
         msg.sender.transfer(amount);
         balance[0][msg.sender] = balance[0][msg.sender].sub(amount);
@@ -43,6 +44,7 @@ contract Dinngo {
     function withdrawToken(address token, uint256 amount) external {
         require(token != address(0));
         require(amount > 0);
+        require(amount <= balance[token][msg.sender]);
         ERC20(token).safeTransfer(msg.sender, amount);
         balance[token][msg.sender] = balance[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balance[token][msg.sender]);
