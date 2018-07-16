@@ -39,6 +39,11 @@ contract Dinngo is Ownable {
         tokenID[1] = dinngoToken;
     }
 
+    /**
+     * @notice The deposit function for ether. The ether that is sent with the function
+     * call will be deposited. The first time user will be added to the user list.
+     * Event Deposit will be emitted after execution.
+     */
     function deposit() external payable {
         require(msg.value > 0);
         balance[0][msg.sender] = balance[0][msg.sender].add(msg.value);
@@ -46,6 +51,12 @@ contract Dinngo is Ownable {
         emit Deposit(0, msg.sender, msg.value, balance[0][msg.sender]);
     }
 
+    /**
+     * @notice The deposit function for tokens. The first time user will be added to
+     * the user list. Event Deposit will be emitted after execution.
+     * @param token Address of the token contract to be deposited
+     * @param amount Amount of the token to be depositied
+     */
     function depositToken(address token, uint256 amount) external {
         require(token != address(0));
         require(amount > 0);
