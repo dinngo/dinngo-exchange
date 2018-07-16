@@ -118,6 +118,11 @@ contract Dinngo is Ownable {
         tokenRank[token] = rank;
     }
 
+    /**
+     * @notice The withdraw function for ether. Event Withdraw will be emitted
+     * after execution.
+     * @param amount The amount to be withdrawn.
+     */
     function withdraw(uint256 amount) external {
         require(amount > 0);
         require(amount <= balance[0][msg.sender]);
@@ -126,6 +131,12 @@ contract Dinngo is Ownable {
         emit Withdraw(0, msg.sender, amount, balance[0][msg.sender]);
     }
 
+    /**
+     * @notice The withdraw function for tokens. Event Withdraw will be emitted
+     * after execution.
+     * @param token The token contract address to be withdrawn.
+     * @param amount The token amount to be withdrawn.
+     */
     function withdrawToken(address token, uint256 amount) external {
         require(token != address(0));
         require(amount > 0);
