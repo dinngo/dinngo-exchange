@@ -66,6 +66,13 @@ contract Dinngo is Ownable {
         emit Deposit(token, msg.sender, amount, balance[token][msg.sender]);
     }
 
+    /**
+     * @notice Add the address to the user list. Event AddUser will be emitted
+     * after execution.
+     * @dev Record the user list to map the user address to a specific user ID, in
+     * order to compact the data size when transferring user address information
+     * @param user The user address to be added
+     */
     function addUser(address user) internal {
         if (userRank[user] != 0)
             return;
