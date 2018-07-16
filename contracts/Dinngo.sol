@@ -82,6 +82,14 @@ contract Dinngo is Ownable {
         emit AddUser(userCount, user);
     }
 
+    /**
+     * @notice Add the token to the token list. Event AddToken will be emitted
+     * after execution.
+     * @dev Record the token list to map the token contract address to a specific
+     * token ID, in order to compact the data size when transferring token contract
+     * address information
+     * @param token The token contract address to be added
+     */
     function addToken(address token) external onlyOwner {
         require(tokenRank[token] == 0);
         tokenCount++;
