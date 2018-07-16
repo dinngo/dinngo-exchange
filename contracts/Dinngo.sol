@@ -98,6 +98,11 @@ contract Dinngo is Ownable {
         emit AddToken(tokenCount, token);
     }
 
+    /**
+     * @notice Update the rank of user. Can only be called by owner.
+     * @param user The user address
+     * @param rank The rank to be assigned
+     */
     function updateUserRank(address user, uint8 rank) external onlyOwner {
         require(userRank[user] != 0);
         userRank[user] = rank;
