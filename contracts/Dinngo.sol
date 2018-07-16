@@ -146,6 +146,11 @@ contract Dinngo is Ownable {
         emit Withdraw(token, msg.sender, amount, balance[token][msg.sender]);
     }
 
+    /**
+     * @notice Get the user balance of given token
+     * @param token The token contract address
+     * @param user The user address
+     */
     function getBalance(address token, address user) external view returns (uint256) {
         return balance[token][user];
     }
