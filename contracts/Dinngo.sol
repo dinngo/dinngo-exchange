@@ -6,7 +6,8 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 /**
  * @title Dinngo
- * @dev Main exchange contract for Dinngo
+ * @author Ben Huang
+ * @notice Main exchange contract for Dinngo
  */
 contract Dinngo {
     using SafeMath for uint256;
