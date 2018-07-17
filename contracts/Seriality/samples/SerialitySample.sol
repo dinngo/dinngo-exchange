@@ -1,6 +1,6 @@
 pragma solidity ^0.4.16;
 
-import "./Seriality.sol";
+import "../src/Seriality.sol";
 
 
 contract SerialitySample is Seriality {
