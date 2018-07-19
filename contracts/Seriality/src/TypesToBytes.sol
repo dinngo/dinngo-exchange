@@ -22,7 +22,6 @@ contract TypesToBytes {
 
         assembly {
             mstore(add(_output, _offst), _input)
-            mstore(add(add(_output, _offst),32), add(_input,32))
         }
     }
     

@@ -66,11 +66,10 @@ contract BytesToTypes {
         }
     }
 
-    function bytesToBytes32(uint _offst, bytes memory  _input, bytes32 _output) internal pure {
+    function bytesToBytes32(uint _offst, bytes memory  _input) internal pure returns (bytes32 _output) {
         
         assembly {
-            mstore(_output , add(_input, _offst))
-            mstore(add(_output,32) , add(add(_input, _offst),32))
+            _output := mload(add(_input, _offst))
         }
     }
     
