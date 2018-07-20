@@ -3,10 +3,32 @@ pragma solidity ^0.4.24;
 import "./Seriality/src/Seriality.sol";
 import "./Order.sol";
 
+/**
+ * @title Serializable Order
+ * @author Ben Huang
+ * @notice Let order support serialization and deserialization
+ */
 contract SerializableOrder is Order, Seriality {
-    uint constant order_size = 174;
-    uint constant unsigned_order_size = 109;
 
+    uint constant public order_size = 174;
+    uint constant public unsigned_order_size = 109;
+
+    /**
+     * @notice Serialize the order and output a hex string
+     * @dev Mind the serialization sequence
+     * @param _userID The user ID of order maker
+     * @param _tokenGetID The token ID of the order is getting
+     * @param _amountGet The getting amount
+     * @param _tokenGiveID The token ID of the order is giving
+     * @param _amountGive The giving amount
+     * @param _fee The fee providing method
+     * @param _DGOPrice The DGO price when order is created (for paying fee)
+     * @param _nonce The nonce of order
+     * @param _r Signature r
+     * @param _s Signature s
+     * @param _v Signature v
+     * @return buffer The serialized hex string
+     */
     function serializeOrder(
         uint32 _userID,
         uint16 _tokenGetID,
@@ -21,9 +43,10 @@ contract SerializableOrder is Order, Seriality {
         uint8 _v
     )
         public
-        returns (bytes)
+        pure
+        returns (bytes memory buffer)
     {
-        bytes memory buffer = new bytes(order_size);
+        buffer = new bytes(order_size);
         uint offset = order_size;
 
         uintToBytes(offset, _userID, buffer);
@@ -57,10 +80,21 @@ contract SerializableOrder is Order, Seriality {
         offset -= 32;
 
         bytes32ToBytes(offset, _s, buffer);
-
-        return buffer;
     }
 
+    /**
+     * @notice Hash the order content to be signed
+     * @dev Mind the sequence
+     * @param _userID The user ID of order maker
+     * @param _tokenGetID The token ID of the order is getting
+     * @param _amountGet The getting amount
+     * @param _tokenGiveID The token ID of the order is giving
+     * @param _amountGive The giving amount
+     * @param _fee The fee providing method
+     * @param _DGOPrice The DGO price when order is created (for paying fee)
+     * @param _nonce The nonce of order
+     * @return hash The hash value of order
+     */
     function hashOrder(
         uint32 _userID,
         uint16 _tokenGetID,
@@ -72,7 +106,8 @@ contract SerializableOrder is Order, Seriality {
         uint32 _nonce
     )
         public
-        returns (bytes32)
+        pure
+        returns (bytes32 hash)
     {
         bytes memory buffer = new bytes(unsigned_order_size);
         uint offset = unsigned_order_size;
@@ -100,10 +135,11 @@ contract SerializableOrder is Order, Seriality {
 
         uintToBytes(offset, _DGOPrice, buffer);
 
-        return keccak256(buffer);
+        hash = keccak256(buffer);
     }
 
-    function testHash() public returns (bytes32) {
+    // @dev To be removed
+    function testHash() public pure returns (bytes32) {
         return hashOrder(
             323,
             123,
@@ -116,7 +152,8 @@ contract SerializableOrder is Order, Seriality {
         );
     }
 
-    function testSerialize() public returns (bytes) {
+    // @dev To be removed
+    function testSerialize() public pure returns (bytes) {
         // signed with 0x627306090abab3a6e1400e9345bc60c78a8bef57
         return serializeOrder(
             323,
@@ -133,7 +170,23 @@ contract SerializableOrder is Order, Seriality {
         );
     }
 
-    function deserializeOrder(bytes ser_data) public
+    /**
+     * @notice Deserialize the order hex and output order components
+     * @dev Mind the deserialization sequence
+     * @param ser_data The serialized hex string
+     * @return userID The user ID of order maker
+     * @return tokenGetID The token ID of the order is getting
+     * @return amountGet The getting amount
+     * @return tokenGiveID The token ID of the order is giving
+     * @return amountGive The giving amount
+     * @return fee The fee providing method
+     * @return DGOPrice The DGO price when order is created (for paying fee)
+     * @return nonce The nonce of order
+     * @return r Signature r
+     * @return s Signature s
+     * @return v Signature v
+     */
+    function deserializeOrder(bytes ser_data) public view
         returns (
             uint32 userID,
             uint16 tokenGetID,
