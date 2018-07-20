@@ -13,10 +13,10 @@ require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-contract('Dinngo', function ([_, user]) {
+contract('Dinngo', function ([_, user, tokenWallet, tokenContract]) {
     describe('deposit', function() {
         beforeEach(async function() {
-            this.Dinngo = await DinngoMock.new();
+            this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract);
         });
 
         describe('ether', function() {
@@ -72,7 +72,7 @@ contract('Dinngo', function ([_, user]) {
         const exceed = ether(11);
         describe('ether', function() {
             beforeEach(async function() {
-                this.Dinngo = await DinngoMock.new();
+                this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract);
                 await this.Dinngo.deposit({ value: depositValue, from: user });
             });
 
@@ -100,7 +100,7 @@ contract('Dinngo', function ([_, user]) {
 
         describe('token', function() {
             beforeEach(async function() {
-                this.Dinngo = await DinngoMock.new();
+                this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract);
                 this.Token = await SimpleToken.new({ from: user });
                 await this.Token.approve(this.Dinngo.address, depositValue, { from: user });
                 await this.Dinngo.depositToken(this.Token.address, depositValue, { from: user });
