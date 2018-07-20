@@ -5,7 +5,7 @@ import "./Seriality/src/Seriality.sol";
 contract SerializableOrder is Seriality {
     uint constant order_size = 174;
 
-    function serialize(
+    function serializeOrder(
         uint32 _userID,
         uint16 _tokenGetID,
         uint256 _amountGet,
@@ -59,7 +59,7 @@ contract SerializableOrder is Seriality {
         return buffer;
     }
 
-    function deserialize(bytes ser_data) public
+    function deserializeOrder(bytes ser_data) public
         returns (
             uint32 userID,
             uint16 tokenGetID,
