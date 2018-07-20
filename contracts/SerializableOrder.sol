@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "./Seriality/src/Seriality.sol";
+import "./Order.sol";
 
-contract SerializableOrder is Seriality {
+contract SerializableOrder is Order, Seriality {
     uint constant order_size = 174;
     uint constant unsigned_order_size = 109;
 
@@ -179,5 +180,19 @@ contract SerializableOrder is Seriality {
         offset -= 32;
 
         s = bytesToBytes32(offset, ser_data);
+
+        _validateOrder(
+            userID,
+            tokenGetID,
+            amountGet,
+            tokenGiveID,
+            amountGive,
+            fee,
+            DGOPrice,
+            nonce,
+            r,
+            s,
+            v
+        );
     }
 }
