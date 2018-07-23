@@ -8,4 +8,10 @@ contract DinngoMock is Dinngo {
         public
     {
     }
+
+    function addUserMock(address user) external {
+        userCount++;
+        userID_Address[userCount] = user;
+        userRank[user] = 1;
+    }
 }

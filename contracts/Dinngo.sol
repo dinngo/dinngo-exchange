@@ -17,7 +17,7 @@ contract Dinngo is Ownable {
     using SafeERC20 for ERC20;
 
     mapping (address => mapping (address => uint256)) private balance;
-    mapping (uint256 => address) private userID;
+    mapping (uint256 => address) private userID_Address;
     mapping (address => uint8) private userRank;
     uint256 private userCount;
     mapping (uint256 => address) private tokenID;
@@ -35,7 +35,7 @@ contract Dinngo is Ownable {
      */
     constructor (address dinngoWallet, address dinngoToken) public {
         userCount = 0;
-        userID[0] = dinngoWallet;
+        userID_Address[0] = dinngoWallet;
         userRank[dinngoWallet] = 255;
         tokenID[1] = dinngoToken;
     }
@@ -78,7 +78,7 @@ contract Dinngo is Ownable {
         if (userRank[user] != 0)
             return;
         userCount++;
-        userID[userCount] = user;
+        userID_Address[userCount] = user;
         userRank[user] = 1;
         emit AddUser(userCount, user);
     }
@@ -154,6 +154,14 @@ contract Dinngo is Ownable {
      */
     function getBalance(address token, address user) external view returns (uint256) {
         return balance[token][user];
+    }
+
+    /**
+     * @notice Get the user address of given address
+     * @param userID The user ID
+     */
+    function getUserAddress(uint256 userID) public returns (address) {
+        return userID_Address[userID];
     }
 
     function settle() public returns (bool) {
