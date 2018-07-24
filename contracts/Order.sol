@@ -34,9 +34,12 @@ contract Order {
         bytes32 _s,
         uint8 _v
     )
-        internal view returns (bool)
+        internal view
     {
-        // to be overriden
+        // extend by overriding
+        require(_amountGet != 0);
+        require(_amountGive != 0);
+        require(_DGOPrice != 0);
     }
 
 }

@@ -5,13 +5,15 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
+import "./SerializableOrder.sol";
+
 
 /**
  * @title Dinngo
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is Ownable {
+contract Dinngo is SerializableOrder, Ownable {
     using SafeMath for uint256;
     using ECRecovery for bytes32;
     using SafeERC20 for ERC20;
@@ -189,6 +191,56 @@ contract Dinngo is Ownable {
      */
     function getTokenRank(address token) external view returns (uint8 retr) {
        retr = tokenRank[token];
+    }
+
+    function _validateOrder(
+        uint32 _userID,
+        uint16 _tokenGetID,
+        uint256 _amountGet,
+        uint16 _tokenGiveID,
+        uint256 _amountGive,
+        uint8 _fee,
+        uint256 _DGOPrice,
+        uint32 _nonce,
+        bytes32 _r,
+        bytes32 _s,
+        uint8 _v
+    )
+        internal view
+    {
+        super._validateOrder(
+            _userID,
+            _tokenGetID,
+            _amountGet,
+            _tokenGiveID,
+            _amountGive,
+            _fee,
+            _DGOPrice,
+            _nonce,
+            _r,
+            _s,
+            _v
+        );
+
+        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+        if (_v < 27) {
+          _v += 27;
+        }
+        require(_v == 27 || _v == 28);
+
+        bytes32 hash = hashOrder(
+            _userID,
+            _tokenGetID,
+            _amountGet,
+            _tokenGiveID,
+            _amountGive,
+            _fee,
+            _DGOPrice,
+            _nonce
+        );
+
+        bytes32 sigHash = hash.toEthSignedMessageHash();
+        require(userID_Address[_userID] == ecrecover(sigHash, _v, _r, _s));
     }
 
     function settle() public returns (bool) {
