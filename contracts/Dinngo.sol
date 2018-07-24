@@ -20,7 +20,7 @@ contract Dinngo is Ownable {
     mapping (uint256 => address) private userID_Address;
     mapping (address => uint8) private userRank;
     uint256 private userCount;
-    mapping (uint256 => address) private tokenID;
+    mapping (uint256 => address) private tokenID_Address;
     mapping (address => uint8) private tokenRank;
     uint256 private tokenCount;
 
@@ -35,9 +35,10 @@ contract Dinngo is Ownable {
      */
     constructor (address dinngoWallet, address dinngoToken) public {
         userCount = 0;
+        tokenCount = 1;
         userID_Address[0] = dinngoWallet;
         userRank[dinngoWallet] = 255;
-        tokenID[1] = dinngoToken;
+        tokenID_Address[1] = dinngoToken;
     }
 
     /**
@@ -94,7 +95,7 @@ contract Dinngo is Ownable {
     function addToken(address token) external onlyOwner {
         require(tokenRank[token] == 0);
         tokenCount++;
-        tokenID[tokenCount] = token;
+        tokenID_Address[tokenCount] = token;
         tokenRank[token] = 1;
         emit AddToken(tokenCount, token);
     }
@@ -117,6 +118,7 @@ contract Dinngo is Ownable {
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
         require(tokenRank[token] != 0);
+        require(tokenRank[token] != rank);
         tokenRank[token] = rank;
     }
 
@@ -166,11 +168,27 @@ contract Dinngo is Ownable {
     }
 
     /**
+     * @notice Get the token address of given address
+     * @param tokenID The token ID
+     */
+    function getTokenAddress(uint256 tokenID) external view returns (address) {
+        return tokenID_Address[tokenID];
+    }
+
+    /**
      * @notice Get the rank of given address
      * @param user The user address
      */
     function getUserRank(address user) external view returns (uint8 retr) {
        retr = userRank[user];
+    }
+
+    /**
+     * @notice Get the rank of given token
+     * @param token The token address
+     */
+    function getTokenRank(address token) external view returns (uint8 retr) {
+       retr = tokenRank[token];
     }
 
     function settle() public returns (bool) {
