@@ -106,6 +106,7 @@ contract Dinngo is Ownable {
      */
     function updateUserRank(address user, uint8 rank) external onlyOwner {
         require(userRank[user] != 0);
+        require(userRank[user] != rank);
         userRank[user] = rank;
     }
 
@@ -160,8 +161,16 @@ contract Dinngo is Ownable {
      * @notice Get the user address of given address
      * @param userID The user ID
      */
-    function getUserAddress(uint256 userID) public returns (address) {
+    function getUserAddress(uint256 userID) external view returns (address) {
         return userID_Address[userID];
+    }
+
+    /**
+     * @notice Get the rank of given address
+     * @param user The user address
+     */
+    function getUserRank(address user) external view returns (uint8 retr) {
+       retr = userRank[user];
     }
 
     function settle() public returns (bool) {
