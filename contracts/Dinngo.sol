@@ -239,8 +239,8 @@ contract Dinngo is SerializableOrder, Ownable {
             _nonce
         );
 
-        bytes32 sigHash = hash.toEthSignedMessageHash();
-        require(userID_Address[_userID] == ecrecover(sigHash, _v, _r, _s));
+        address sigAddr = ecrecover(hash.toEthSignedMessageHash(), _v, _r, _s);
+        require(userID_Address[_userID] == sigAddr);
     }
 
     function settle() public returns (bool) {

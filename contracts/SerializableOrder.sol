@@ -141,7 +141,7 @@ contract SerializableOrder is Order, Seriality {
     // @dev To be removed
     function testHash() public pure returns (bytes32) {
         return hashOrder(
-            323,
+            1,
             123,
             23 ether,
             321,
@@ -156,7 +156,7 @@ contract SerializableOrder is Order, Seriality {
     function testSerialize() public pure returns (bytes) {
         // signed with 0x627306090abab3a6e1400e9345bc60c78a8bef57
         return serializeOrder(
-            323,
+            1,
             123,
             23 ether,
             321,
@@ -164,9 +164,9 @@ contract SerializableOrder is Order, Seriality {
             1,
             2000,
             17,
-            0xbc0d6e379e0dabce205aa6c599ac8b9fcb04c39007f7b988d013e535c4496120,
-            0x0ad5694d7af2dab7bc9283fa9944af162f6fa880dad299b780958a99581a7120,
-            0x01
+            0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e,
+            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b,
+            0x00
         );
     }
 
