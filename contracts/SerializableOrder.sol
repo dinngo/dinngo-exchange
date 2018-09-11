@@ -21,8 +21,11 @@ contract SerializableOrder is Order, Seriality {
      * @param _amountGet The getting amount
      * @param _tokenGiveID The token ID of the order is giving
      * @param _amountGive The giving amount
-     * @param _fee The fee providing method
-     * @param _DGOPrice The DGO price when order is created (for paying fee)
+     * @param _fee Fee related configuration.
+     * Bit 0: is buy order
+     * Bit 1: is paid by major token
+     * Bit 2-7: TBD
+     * @param _feePrice The fee token price when order is created
      * @param _nonce The nonce of order
      * @param _r Signature r
      * @param _s Signature s
@@ -36,7 +39,7 @@ contract SerializableOrder is Order, Seriality {
         uint16 _tokenGiveID,
         uint256 _amountGive,
         uint8 _fee,
-        uint256 _DGOPrice,
+        uint256 _feePrice,
         uint32 _nonce,
         bytes32 _r,
         bytes32 _s,
@@ -70,7 +73,7 @@ contract SerializableOrder is Order, Seriality {
         uintToBytes(offset, _nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _DGOPrice, buffer);
+        uintToBytes(offset, _feePrice, buffer);
         offset -= sizeOfUint(256);
 
         uintToBytes(offset, _v, buffer);
@@ -90,8 +93,11 @@ contract SerializableOrder is Order, Seriality {
      * @param _amountGet The getting amount
      * @param _tokenGiveID The token ID of the order is giving
      * @param _amountGive The giving amount
-     * @param _fee The fee providing method
-     * @param _DGOPrice The DGO price when order is created (for paying fee)
+     * @param _fee Fee related configuration.
+     * Bit 0: is buy order
+     * Bit 1: is paid by major token
+     * Bit 2-7: TBD
+     * @param _feePrice The fee token price when order is created
      * @param _nonce The nonce of order
      * @return hash The hash value of order
      */
@@ -102,7 +108,7 @@ contract SerializableOrder is Order, Seriality {
         uint16 _tokenGiveID,
         uint256 _amountGive,
         uint8 _fee,
-        uint256 _DGOPrice,
+        uint256 _feePrice,
         uint32 _nonce
     )
         public
@@ -133,7 +139,7 @@ contract SerializableOrder is Order, Seriality {
         uintToBytes(offset, _nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _DGOPrice, buffer);
+        uintToBytes(offset, _feePrice, buffer);
 
         hash = keccak256(buffer);
     }
@@ -179,8 +185,11 @@ contract SerializableOrder is Order, Seriality {
      * @return amountGet The getting amount
      * @return tokenGiveID The token ID of the order is giving
      * @return amountGive The giving amount
-     * @return fee The fee providing method
-     * @return DGOPrice The DGO price when order is created (for paying fee)
+     * @return fee Fee related configuration.
+     * Bit 0: is buy order
+     * Bit 1: is paid by major token
+     * Bit 2-7: TBD
+     * @return feePrice The fee token price when order is created
      * @return nonce The nonce of order
      * @return r Signature r
      * @return s Signature s
@@ -194,7 +203,7 @@ contract SerializableOrder is Order, Seriality {
             uint16 tokenGiveID,
             uint256 amountGive,
             uint8 fee,
-            uint256 DGOPrice,
+            uint256 feePrice,
             uint32 nonce,
             bytes32 r,
             bytes32 s,
@@ -223,7 +232,7 @@ contract SerializableOrder is Order, Seriality {
         nonce = bytesToUint32(offset, ser_data);
         offset -= sizeOfUint(32);
 
-        DGOPrice = bytesToUint256(offset, ser_data);
+        feePrice = bytesToUint256(offset, ser_data);
         offset -= sizeOfUint(256);
 
         v = bytesToUint8(offset, ser_data);
@@ -241,7 +250,7 @@ contract SerializableOrder is Order, Seriality {
             tokenGiveID,
             amountGive,
             fee,
-            DGOPrice,
+            feePrice,
             nonce,
             r,
             s,

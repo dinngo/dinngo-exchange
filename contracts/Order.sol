@@ -14,8 +14,11 @@ contract Order {
      * @param _amountGet The getting amount
      * @param _tokenGiveID The token ID of the order is giving
      * @param _amountGive The giving amount
-     * @param _fee The fee providing method
-     * @param _DGOPrice The DGO price when order is created (for paying fee)
+     * @param _fee Fee related configuration.
+     * Bit 0: is buy order
+     * Bit 1: is paid by major token
+     * Bit 2-7: TBD
+     * @param _feePrice The fee token price when order is created
      * @param _nonce The nonce of order
      * @param _r Signature r
      * @param _s Signature s
@@ -28,7 +31,7 @@ contract Order {
         uint16 _tokenGiveID,
         uint256 _amountGive,
         uint8 _fee,
-        uint256 _DGOPrice,
+        uint256 _feePrice,
         uint32 _nonce,
         bytes32 _r,
         bytes32 _s,
@@ -39,7 +42,7 @@ contract Order {
         // extend by overriding
         require(_amountGet != 0);
         require(_amountGive != 0);
-        require(_DGOPrice != 0);
+        require(_feePrice != 0);
     }
 
 }
