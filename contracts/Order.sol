@@ -10,11 +10,11 @@ contract Order {
     /**
      * @dev Validate the order information. Can be extended.
      * @param _userID The user ID of order maker
-     * @param _tokenGetID The token ID of the order is getting
-     * @param _amountGet The getting amount
-     * @param _tokenGiveID The token ID of the order is giving
-     * @param _amountGive The giving amount
-     * @param _fee Fee related configuration.
+     * @param _mainTokenID The token ID of main token in the order
+     * @param _mainAmount The main token amount
+     * @param _subTokenID The token ID of sub token in the order
+     * @param _subAmount The sub token amount
+     * @param _config Fee related configuration.
      * Bit 0: is buy order
      * Bit 1: is paid by major token
      * Bit 2-7: TBD
@@ -26,11 +26,11 @@ contract Order {
      */
     function _validateOrder(
         uint32 _userID,
-        uint16 _tokenGetID,
-        uint256 _amountGet,
-        uint16 _tokenGiveID,
-        uint256 _amountGive,
-        uint8 _fee,
+        uint16 _mainTokenID,
+        uint256 _mainAmount,
+        uint16 _subTokenID,
+        uint256 _subAmount,
+        uint8 _config,
         uint256 _feePrice,
         uint32 _nonce,
         bytes32 _r,
@@ -40,8 +40,8 @@ contract Order {
         internal view
     {
         // extend by overriding
-        require(_amountGet != 0);
-        require(_amountGive != 0);
+        require(_mainAmount != 0);
+        require(_subAmount != 0);
         require(_feePrice != 0);
     }
 

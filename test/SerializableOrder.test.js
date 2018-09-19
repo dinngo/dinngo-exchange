@@ -20,12 +20,13 @@ contract('SerializableOrder', function([_, user]) {
     const token2 = 321;
     const amount1 = ether(23);
     const amount2 = ether(43);
+    const config = 1;
     const amount3 = 2000;
-    const fee = 1;
     const nonce = 17;
     const r = "0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e";
     const s = "0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b";
     const v = "0x00"
+    const hash = "0x9e88ff67c7885b471e842df3323bae08b8c7025137902e6649a828026c46f3da";
     const ser_hex = "0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e0000000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc000001410000000000000000000000000000000000000000000000013f306a2409fc0000007b00000001";
 
     describe('serialize', function() {
@@ -36,7 +37,7 @@ contract('SerializableOrder', function([_, user]) {
                 amount1,
                 token2,
                 amount2,
-                fee,
+                config,
                 amount3,
                 nonce,
                 r,
@@ -55,12 +56,72 @@ contract('SerializableOrder', function([_, user]) {
             order_data[2].should.be.bignumber.eq(amount1);
             order_data[3].should.be.bignumber.eq(token2);
             order_data[4].should.be.bignumber.eq(amount2);
-            order_data[5].should.be.bignumber.eq(fee);
+            order_data[5].should.be.bignumber.eq(config);
             order_data[6].should.be.bignumber.eq(amount3);
             order_data[7].should.be.bignumber.eq(nonce);
             order_data[8].should.eq(r);
             order_data[9].should.eq(s);
             order_data[10].should.be.bignumber.eq(v);
+        });
+
+        it('get user ID', async function() {
+            let order_data = await this.SerializableOrder.getUserID.call(ser_hex);
+            order_data.should.be.bignumber.eq(userID);
+        });
+
+        it('get main token ID', async function() {
+            let order_data = await this.SerializableOrder.getMainTokenID.call(ser_hex);
+            order_data.should.be.bignumber.eq(token1);
+        });
+
+        it('get main amount', async function() {
+            let order_data = await this.SerializableOrder.getMainAmount.call(ser_hex);
+            order_data.should.be.bignumber.eq(amount1);
+        });
+
+        it('get sub token ID', async function() {
+            let order_data = await this.SerializableOrder.getSubTokenID.call(ser_hex);
+            order_data.should.be.bignumber.eq(token2);
+        });
+
+        it('get sub amount', async function() {
+            let order_data = await this.SerializableOrder.getSubAmount.call(ser_hex);
+            order_data.should.be.bignumber.eq(amount2);
+        });
+
+        it('get config', async function() {
+            let order_data = await this.SerializableOrder.getConfig.call(ser_hex);
+            order_data.should.be.bignumber.eq(config);
+        });
+
+        it('get fee price', async function() {
+            let order_data = await this.SerializableOrder.getFeePrice.call(ser_hex);
+            order_data.should.be.bignumber.eq(amount3);
+        });
+
+        it('get nonce', async function() {
+            let order_data = await this.SerializableOrder.getNonce.call(ser_hex);
+            order_data.should.be.bignumber.eq(nonce);
+        });
+
+        it('get r', async function() {
+            let order_data = await this.SerializableOrder.getR.call(ser_hex);
+            order_data.should.eq(r);
+        });
+
+        it('get s', async function() {
+            let order_data = await this.SerializableOrder.getS.call(ser_hex);
+            order_data.should.eq(s);
+        });
+
+        it('get v', async function() {
+            let order_data = await this.SerializableOrder.getV.call(ser_hex);
+            order_data.should.be.bignumber.eq(v);
+        });
+
+        it('get hash', async function() {
+            let order_data = await this.SerializableOrder.getHash.call(ser_hex);
+            order_data.should.eq(hash);
         });
     });
 });
@@ -75,8 +136,8 @@ contract('Dinngo', function([_, user, owner, tokenWallet, tokenContract]) {
     const token2 = 321;
     const amount1 = ether(23);
     const amount2 = ether(43);
+    const config = 1;
     const amount3 = 2000;
-    const fee = 1;
     const nonce = 17;
     const r = "0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e";
     const s = "0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b";
@@ -92,7 +153,7 @@ contract('Dinngo', function([_, user, owner, tokenWallet, tokenContract]) {
             order_data[2].should.be.bignumber.eq(amount1);
             order_data[3].should.be.bignumber.eq(token2);
             order_data[4].should.be.bignumber.eq(amount2);
-            order_data[5].should.be.bignumber.eq(fee);
+            order_data[5].should.be.bignumber.eq(config);
             order_data[6].should.be.bignumber.eq(amount3);
             order_data[7].should.be.bignumber.eq(nonce);
             order_data[8].should.eq(r);
