@@ -313,6 +313,24 @@ contract SerializableOrder is Order, Seriality {
     }
 
     /**
+     * @notice Check if the order is a buy order
+     * @param ser_data Serialized order data
+     * @return fBuy Is buy order or not
+     */
+    function isBuy(bytes ser_data) public pure returns (bool fBuy) {
+        fBuy = (bytesToUint8(order_size - 72, ser_data) & MASK_IS_BUY != 0);
+    }
+
+    /**
+     * @notice Check if the fee is paid by main token
+     * @param ser_data Serialized order data
+     * @return fMain Is the fee paid in main token or not
+     */
+    function isMain(bytes ser_data) public pure returns (bool fMain) {
+        fMain = (bytesToUint8(order_size - 72, ser_data) & MASK_IS_MAIN != 0);
+    }
+
+    /**
      * @notice Get nonce from the serialized order data
      * @param ser_data Serialized order data
      * @return nonce Nonce
