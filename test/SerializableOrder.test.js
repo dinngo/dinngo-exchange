@@ -70,22 +70,22 @@ contract('SerializableOrder', function([_, user]) {
         });
 
         it('get main token ID', async function() {
-            let order_data = await this.SerializableOrder.getMainTokenID.call(ser_hex);
+            let order_data = await this.SerializableOrder.getTokenMain.call(ser_hex);
             order_data.should.be.bignumber.eq(token1);
         });
 
         it('get main amount', async function() {
-            let order_data = await this.SerializableOrder.getMainAmount.call(ser_hex);
+            let order_data = await this.SerializableOrder.getAmountMain.call(ser_hex);
             order_data.should.be.bignumber.eq(amount1);
         });
 
         it('get sub token ID', async function() {
-            let order_data = await this.SerializableOrder.getSubTokenID.call(ser_hex);
+            let order_data = await this.SerializableOrder.getTokenSub.call(ser_hex);
             order_data.should.be.bignumber.eq(token2);
         });
 
         it('get sub amount', async function() {
-            let order_data = await this.SerializableOrder.getSubAmount.call(ser_hex);
+            let order_data = await this.SerializableOrder.getAmountSub.call(ser_hex);
             order_data.should.be.bignumber.eq(amount2);
         });
 

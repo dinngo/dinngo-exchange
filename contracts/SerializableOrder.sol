@@ -270,37 +270,37 @@ contract SerializableOrder is Order, Seriality {
     /**
      * @notice Get main token ID from the serialized order data
      * @param ser_data Serialized order data
-     * @return mainTokenID Main token ID
+     * @return tokenMain Main token ID
      */
-    function getMainTokenID(bytes ser_data) public pure returns (uint16 mainTokenID) {
-        mainTokenID = bytesToUint16(order_size - 4 , ser_data);
+    function getTokenMain(bytes ser_data) public pure returns (uint16 tokenMain) {
+        tokenMain = bytesToUint16(order_size - 4 , ser_data);
     }
 
     /**
      * @notice Get main token amount from the serialized order data
      * @param ser_data Serialized order data
-     * @return mainAmount Main token amount
+     * @return amountMain Main token amount
      */
-    function getMainAmount(bytes ser_data) public pure returns (uint256 mainAmount) {
-        mainAmount = bytesToUint256(order_size - 6, ser_data);
+    function getAmountMain(bytes ser_data) public pure returns (uint256 amountMain) {
+        amountMain = bytesToUint256(order_size - 6, ser_data);
     }
 
     /**
      * @notice Get sub token ID from the serialized order data
      * @param ser_data Serialized order data
-     * @return subTokenID Sub token ID
+     * @return tokenSub Sub token ID
      */
-    function getSubTokenID(bytes ser_data) public pure returns (uint16 subTokenID) {
-        subTokenID = bytesToUint16(order_size - 38, ser_data);
+    function getTokenSub(bytes ser_data) public pure returns (uint16 tokenSub) {
+        tokenSub = bytesToUint16(order_size - 38, ser_data);
     }
 
     /**
      * @notice Get sub token amount from the serialized order data
      * @param ser_data Serialized order data
-     * @return subAmount Sub token amount
+     * @return amountSub Sub token amount
      */
-    function getSubAmount(bytes ser_data) public pure returns (uint256 subAmount) {
-        subAmount = bytesToUint256(order_size - 40, ser_data);
+    function getAmountSub(bytes ser_data) public pure returns (uint256 amountSub) {
+        amountSub = bytesToUint256(order_size - 40, ser_data);
     }
 
     /**
