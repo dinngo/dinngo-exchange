@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "bytes/BytesLib.sol";
 import "./Seriality/src/Seriality.sol";
 import "./Order.sol";
 
@@ -9,6 +10,7 @@ import "./Order.sol";
  * @notice Let order support serialization and deserialization
  */
 contract SerializableOrder is Order, Seriality {
+    using BytesLib for bytes;
 
     uint constant public order_size = 174;
     uint constant public unsigned_order_size = 109;
@@ -381,31 +383,6 @@ contract SerializableOrder is Order, Seriality {
      * @return hash Order hash without signature
      */
     function getHash(bytes ser_data) public pure returns (bytes32 hash) {
-        require(ser_data.length >= unsigned_order_size);
-        bytes memory tempBytes;
-        uint offset = unsigned_order_size;
-
-        assembly {
-            tempBytes := mload(0x40)
-
-            let lengthmod := and(offset, 31)
-
-            let mc := add(add(tempBytes, lengthmod), mul(0x20, iszero(lengthmod)))
-            let end := add(mc, offset)
-
-            for {
-                let cc := add(add(add(ser_data, lengthmod), mul(0x20, iszero(lengthmod))), 65)
-            } lt(mc, end) {
-                mc := add(mc, 0x20)
-                cc := add(cc, 0x20)
-            } {
-                mstore(mc, mload(cc))
-            }
-            mstore(tempBytes, offset)
-
-            mstore(0x40, and(add(mc, 31), not(31)))
-        }
-
-        hash = keccak256(tempBytes);
+        hash = keccak256(ser_data.slice(65, unsigned_order_size));
     }
 }
