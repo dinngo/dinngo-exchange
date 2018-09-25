@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "bytes/BytesLib.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Seriality/src/Seriality.sol";
 import "./Order.sol";
 
@@ -10,6 +11,7 @@ import "./Order.sol";
  * @notice Let order support serialization and deserialization
  */
 contract SerializableOrder is Order, Seriality {
+    using SafeMath for uint256;
     using BytesLib for bytes;
 
     uint constant public order_size = 174;
@@ -86,7 +88,6 @@ contract SerializableOrder is Order, Seriality {
 
         bytes32ToBytes(offset, _s, buffer);
     }
-
     /**
      * @notice Hash the order content to be signed
      * @dev Mind the sequence
@@ -145,25 +146,63 @@ contract SerializableOrder is Order, Seriality {
 
         hash = keccak256(buffer);
     }
+    /**
+      test order
+        {1,123,23 ether,321,43 ether,1,2000,17}
+        hash:
+            0x9e88ff67c7885b471e842df3323bae08b8c7025137902e6649a828026c46f3da
+        signature (by 0x627306090abab3a6e1400e9345bc60c78a8bef57):
+            0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e
+            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b
+            0x00
+        hex:
+            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e0000000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc000001410000000000000000000000000000000000000000000000013f306a2409fc0000007b00000001
 
+        {2,321,21.5 ether,123,11.5 ether,2,1000,10}
+        hash:
+            0x1c82bb971704cd95a896923e4c616d31eaa5bd5a95692fce6bad68be8747724c
+        signature (by 0xf17f52151ebef6c7334fad080c5704d77216b732):
+            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b
+            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df
+            0x01
+        hex:
+            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415dfca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b0100000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000009f98351204fe0000007b0000000000000000000000000000000000000000000000012a5f58168ee60000014100000002
+    */
     // @dev To be removed
     function testHash() public pure returns (bytes32) {
         return hashOrder(
-            1,
-            123,
-            23 ether,
+            2,
             321,
-            43 ether,
-            1,
-            2000,
-            17
+            21.5 ether,
+            123,
+            11.5 ether,
+            2,
+            1000,
+            10
         );
     }
 
     // @dev To be removed
     function testSerialize() public pure returns (bytes) {
-        // signed with 0x627306090abab3a6e1400e9345bc60c78a8bef57
         return serializeOrder(
+            2,
+            321,
+            21.5 ether,
+            123,
+            11.5 ether,
+            2,
+            1000,
+            10,
+            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b,
+            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df,
+            0x01
+        );
+    }
+
+    // @dev To be removed
+    function testSerialize2() public pure returns (bytes) {
+        bytes memory hex1;
+        hex1 = serializeOrder(
             1,
             123,
             23 ether,
@@ -176,6 +215,22 @@ contract SerializableOrder is Order, Seriality {
             0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b,
             0x00
         );
+        bytes memory hex2;
+        hex2 = serializeOrder(
+            2,
+            321,
+            21.5 ether,
+            123,
+            11.5 ether,
+            2,
+            1000,
+            10,
+            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b,
+            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df,
+            0x01
+        );
+
+        return hex1.concat(hex2);
     }
 
     /**
@@ -384,5 +439,17 @@ contract SerializableOrder is Order, Seriality {
      */
     function getHash(bytes ser_data) public pure returns (bytes32 hash) {
         hash = keccak256(ser_data.slice(65, unsigned_order_size));
+    }
+
+    /**
+     * @notice Fetch the serialized order data with the given index
+     * @param ser_data Serialized order data
+     * @param index The index of order to be fetched
+     * @return order_data The fetched order data
+     */
+    function getOrder(bytes ser_data, uint index) public pure returns (bytes order_data) {
+        require(order_size.mul(index.add(1)) <= ser_data.length);
+        uint nOrder = ser_data.length.div(order_size);
+        order_data = ser_data.slice(order_size.mul(index), order_size);
     }
 }
