@@ -22,6 +22,9 @@ contract Dinngo is SerializableOrder, Ownable {
     mapping (bytes32 => uint256) private orderFill;
     mapping (uint256 => address) private userID_Address;
     mapping (address => uint8) private userRank;
+    mapping (uint8 => uint256) private takerFee;
+    mapping (uint8 => uint256) private makerFee;
+    uint256 constant BASE = 10000;
     uint256 private userCount;
     mapping (uint256 => address) private tokenID_Address;
     mapping (address => uint8) private tokenRank;
@@ -43,6 +46,19 @@ contract Dinngo is SerializableOrder, Ownable {
         userID_Address[0] = dinngoWallet;
         userRank[dinngoWallet] = 255;
         tokenID_Address[1] = dinngoToken;
+        takerFee[1] = 20;
+        takerFee[2] = 19;
+        takerFee[3] = 17;
+        takerFee[4] = 15;
+        takerFee[5] = 12;
+        takerFee[6] = 9;
+        takerFee[7] = 6;
+        takerFee[8] = 2;
+        makerFee[1] = 10;
+        makerFee[2] = 9;
+        makerFee[3] = 7;
+        makerFee[4] = 5;
+        makerFee[5] = 2;
     }
 
     /**
@@ -195,73 +211,20 @@ contract Dinngo is SerializableOrder, Ownable {
        retr = tokenRank[token];
     }
 
-    /**
-     * @notice Extend the order check with the signature verification
-     * @param _userID The user ID of order maker
-     * @param _tokenGetID The token ID of the order is getting
-     * @param _amountGet The getting amount
-     * @param _tokenGiveID The token ID of the order is giving
-     * @param _amountGive The giving amount
-     * @param _fee The fee providing method
-     * @param _DGOPrice The DGO price when order is created (for paying fee)
-     * @param _nonce The nonce of order
-     * @param _r Signature r
-     * @param _s Signature s
-     * @param _v Signature v
-     */
-    function _validateOrder(
-        uint32 _userID,
-        uint16 _tokenGetID,
-        uint256 _amountGet,
-        uint16 _tokenGiveID,
-        uint256 _amountGive,
-        uint8 _fee,
-        uint256 _DGOPrice,
-        uint32 _nonce,
-        bytes32 _r,
-        bytes32 _s,
-        uint8 _v
-    )
-        internal view
-    {
-        super._validateOrder(
-            _userID,
-            _tokenGetID,
-            _amountGet,
-            _tokenGiveID,
-            _amountGive,
-            _fee,
-            _DGOPrice,
-            _nonce,
-            _r,
-            _s,
-            _v
-        );
-
+    function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal {
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (_v < 27) {
           _v += 27;
         }
         require(_v == 27 || _v == 28);
 
-        bytes32 hash = hashOrder(
-            _userID,
-            _tokenGetID,
-            _amountGet,
-            _tokenGiveID,
-            _amountGive,
-            _fee,
-            _DGOPrice,
-            _nonce
-        );
-
-        address sigAddr = ecrecover(hash.toEthSignedMessageHash(), _v, _r, _s);
-        require(userID_Address[_userID] == sigAddr);
+        address sigAddr = ecrecover(_hash.toEthSignedMessageHash(), _v, _r, _s);
+        require(_user == sigAddr);
     }
 
     function payFee(
         bool isTaker,
-        bool isMain,
+        address tokenFee,
         address user,
         uint256 feePrice,
         uint256 amount
@@ -269,7 +232,10 @@ contract Dinngo is SerializableOrder, Ownable {
         internal
         view
     {
-        return;
+        uint256 amountFee = amount.mul(isTaker? takerFee[userRank[user]] : makerFee[userRank[user]]).div(BASE);
+        amountFee = amountFee.mul(feePrice).div(BASE);
+        balance[user][tokenFee] = balance[user][tokenFee].sub(amountFee);
+        balance[userID_Address[0]][tokenFee] = balance[userID_Address[0]][tokenFee].add(amountFee);
     }
 
     struct SettleAmount {
@@ -300,7 +266,7 @@ contract Dinngo is SerializableOrder, Ownable {
         // calculate fee
         payFee(
             false,
-            isMain(_order),
+            isMain(_order)? getTokenMain(_order) : tokenID_Address[1],
             user,
             getFeePrice(_order),
             tradeAmountMain
@@ -355,7 +321,7 @@ contract Dinngo is SerializableOrder, Ownable {
         // calculate fee
         payFee(
             true,
-            isMain(takerOrder),
+            isMain(takerOrder)? getTokenMain(takerOrder) : tokenID_Address[1],
             taker,
             getFeePrice(takerOrder),
             s.fillAmountMain

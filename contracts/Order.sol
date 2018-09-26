@@ -47,5 +47,4 @@ contract Order {
         require(_subAmount != 0);
         require(_feePrice != 0);
     }
-
 }

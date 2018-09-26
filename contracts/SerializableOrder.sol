@@ -299,20 +299,6 @@ contract SerializableOrder is Order, Seriality {
         offset -= 32;
 
         s = bytesToBytes32(offset, ser_data);
-
-        _validateOrder(
-            userID,
-            mainTokenID,
-            mainAmount,
-            subTokenID,
-            subAmount,
-            config,
-            feePrice,
-            nonce,
-            r,
-            s,
-            v
-        );
     }
 
     /**
