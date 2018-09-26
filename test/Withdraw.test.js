@@ -28,7 +28,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(1);
             const { logs } = await this.Dinngo.withdraw(value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
-            let balance = await this.Dinngo.getBalance.call(0, user);
+            let balance = await this.Dinngo.balance.call(0, user);
             event.args.token.should.eq(ZERO_ADDRESS);
             event.args.user.should.eq(user);
             event.args.amount.should.be.bignumber.eq(value);
@@ -57,7 +57,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(1);
             const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
-            let balance = await this.Dinngo.getBalance.call(this.Token.address, user);
+            let balance = await this.Dinngo.balance.call(this.Token.address, user);
             event.args.token.should.eq(this.Token.address);
             event.args.user.should.eq(user);
             event.args.amount.should.be.bignumber.eq(value);

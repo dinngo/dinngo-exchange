@@ -18,16 +18,16 @@ contract Dinngo is SerializableOrder, Ownable {
     using ECRecovery for bytes32;
     using SafeERC20 for ERC20;
 
-    mapping (address => mapping (address => uint256)) private balance;
-    mapping (bytes32 => uint256) private orderFill;
-    mapping (uint256 => address) private userID_Address;
-    mapping (address => uint8) private userRank;
-    mapping (uint8 => uint256) private takerFee;
-    mapping (uint8 => uint256) private makerFee;
+    mapping (address => mapping (address => uint256)) public balance;
+    mapping (bytes32 => uint256) public orderFill;
+    mapping (uint256 => address) public userID_Address;
+    mapping (address => uint8) public userRank;
+    mapping (uint8 => uint256) public takerFee;
+    mapping (uint8 => uint256) public makerFee;
     uint256 constant BASE = 10000;
     uint256 private userCount;
-    mapping (uint256 => address) private tokenID_Address;
-    mapping (address => uint8) private tokenRank;
+    mapping (uint256 => address) public tokenID_Address;
+    mapping (address => uint8) public tokenRank;
     uint256 private tokenCount;
 
     event AddUser(uint256 userID, address user);
@@ -168,47 +168,6 @@ contract Dinngo is SerializableOrder, Ownable {
         ERC20(token).safeTransfer(msg.sender, amount);
         balance[token][msg.sender] = balance[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balance[token][msg.sender]);
-    }
-
-    /**
-     * @notice Get the user balance of given token
-     * @param token The token contract address
-     * @param user The user address
-     */
-    function getBalance(address token, address user) external view returns (uint256) {
-        return balance[token][user];
-    }
-
-    /**
-     * @notice Get the user address of given address
-     * @param userID The user ID
-     */
-    function getUserAddress(uint256 userID) external view returns (address) {
-        return userID_Address[userID];
-    }
-
-    /**
-     * @notice Get the token address of given address
-     * @param tokenID The token ID
-     */
-    function getTokenAddress(uint256 tokenID) external view returns (address) {
-        return tokenID_Address[tokenID];
-    }
-
-    /**
-     * @notice Get the rank of given address
-     * @param user The user address
-     */
-    function getUserRank(address user) external view returns (uint8 retr) {
-       retr = userRank[user];
-    }
-
-    /**
-     * @notice Get the rank of given token
-     * @param token The token address
-     */
-    function getTokenRank(address token) external view returns (uint8 retr) {
-       retr = tokenRank[token];
     }
 
     function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal {
