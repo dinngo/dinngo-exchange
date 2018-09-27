@@ -148,34 +148,34 @@ contract SerializableOrder is Order, Seriality {
     }
     /**
       test order
-        {1,123,23 ether,321,43 ether,1,2000,17}
+        {11,0,23 ether,11,43 ether,1,2000,17}
         hash:
-            0x9e88ff67c7885b471e842df3323bae08b8c7025137902e6649a828026c46f3da
+            0x30fb1686eefe31b098fb1e2e418ceeffe3b3a5effbf5a50cd1483e420244a6c7
         signature (by 0x627306090abab3a6e1400e9345bc60c78a8bef57):
-            0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e
-            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b
-            0x00
-        hex:
-            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e0000000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc000001410000000000000000000000000000000000000000000000013f306a2409fc0000007b00000001
-
-        {2,321,21.5 ether,123,11.5 ether,2,1000,10}
-        hash:
-            0x1c82bb971704cd95a896923e4c616d31eaa5bd5a95692fce6bad68be8747724c
-        signature (by 0xf17f52151ebef6c7334fad080c5704d77216b732):
-            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b
-            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df
+            0xb3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a86
+            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2
             0x01
         hex:
-            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415dfca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b0100000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000009f98351204fe0000007b0000000000000000000000000000000000000000000000012a5f58168ee60000014100000002
+            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2b3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a860100000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc0000000b0000000000000000000000000000000000000000000000013f306a2409fc000000000000000b
+
+        {12,0,11.5 ether,11,21.5 ether,2,1000,10}
+        hash:
+            0xc6df8e62380ee431b4049d1af5602368f567b53816a6780189fbcd1435b667d4
+        signature (by 0xf17f52151ebef6c7334fad080c5704d77216b732):
+            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8
+            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba
+            0x00
+        hex:
+            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e80000000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000012a5f58168ee60000000b0000000000000000000000000000000000000000000000009f98351204fe000000000000000c
     */
     // @dev To be removed
     function testHash() public pure returns (bytes32) {
         return hashOrder(
-            2,
-            321,
-            21.5 ether,
-            123,
+            12,
+            0,
             11.5 ether,
+            11,
+            21.5 ether,
             2,
             1000,
             10
@@ -185,17 +185,17 @@ contract SerializableOrder is Order, Seriality {
     // @dev To be removed
     function testSerialize() public pure returns (bytes) {
         return serializeOrder(
-            2,
-            321,
-            21.5 ether,
-            123,
+            12,
+            0,
             11.5 ether,
+            11,
+            21.5 ether,
             2,
             1000,
             10,
-            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b,
-            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df,
-            0x01
+            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8,
+            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba,
+            0x00
         );
     }
 
@@ -203,31 +203,31 @@ contract SerializableOrder is Order, Seriality {
     function testSerialize2() public pure returns (bytes) {
         bytes memory hex1;
         hex1 = serializeOrder(
-            1,
-            123,
+            11,
+            0,
             23 ether,
-            321,
+            11,
             43 ether,
             1,
             2000,
             17,
-            0x4d7d48db3242b9029d8ae67f5c86fafffd8a2168fc5aa6071e55c504d55a678e,
-            0x690cb3cbd35a82fa20d98c45ada097dc07f7235174ea6bf0efb12f9359cca96b,
-            0x00
+            0xb3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a86,
+            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2,
+            0x01
         );
         bytes memory hex2;
         hex2 = serializeOrder(
-            2,
-            321,
-            21.5 ether,
-            123,
+            12,
+            0,
             11.5 ether,
+            11,
+            21.5 ether,
             2,
             1000,
             10,
-            0xca045276abe56c06da3c47f70c863d35500775ab124dc72464b255ec939f6a2b,
-            0x587611b537430c6e0b5598d2edbf84e8920322923cee2b7366c19e95700415df,
-            0x01
+            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8,
+            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba,
+            0x00
         );
 
         return hex1.concat(hex2);
