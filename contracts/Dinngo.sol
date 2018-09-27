@@ -189,12 +189,13 @@ contract Dinngo is SerializableOrder, Ownable {
         uint256 amount
     )
         internal
-        view
     {
         uint256 amountFee = amount.mul(isTaker? takerFee[userRank[user]] : makerFee[userRank[user]]).div(BASE);
         amountFee = amountFee.mul(feePrice).div(BASE);
-        balance[user][tokenFee] = balance[user][tokenFee].sub(amountFee);
-        balance[userID_Address[0]][tokenFee] = balance[userID_Address[0]][tokenFee].add(amountFee);
+        if (tokenFee == tokenID_Address[1])
+            amountFee = amountFee.div(2);
+        balance[tokenFee][user] = balance[tokenFee][user].sub(amountFee);
+        balance[tokenFee][userID_Address[0]] = balance[tokenFee][userID_Address[0]].add(amountFee);
     }
 
     struct SettleAmount {
@@ -244,9 +245,7 @@ contract Dinngo is SerializableOrder, Ownable {
         uint256 amountTrade
     )
         internal
-        returns (
-            uint256 amount
-        )
+        returns (uint256 amount)
     {
         amount = amountTrade.mul(amountMain).div(amountSub);
         if (isBuy) {
