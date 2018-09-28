@@ -325,11 +325,11 @@ contract Dinngo is SerializableOrder, Ownable {
     {
         amount = amountTrade.mul(amountMain).div(amountSub);
         if (isBuy) {
-            balance[user][tokenSub] = balance[user][tokenSub].add(amountTrade);
-            balance[user][tokenMain] = balance[user][tokenMain].sub(amount);
+            balance[tokenSub][user] = balance[tokenSub][user].add(amountTrade);
+            balance[tokenMain][user] = balance[tokenMain][user].sub(amount);
         } else {
-            balance[user][tokenSub] = balance[user][tokenSub].sub(amountTrade);
-            balance[user][tokenMain] = balance[user][tokenMain].sub(amount);
+            balance[tokenSub][user] = balance[tokenSub][user].sub(amountTrade);
+            balance[tokenMain][user] = balance[tokenMain][user].add(amount);
         }
         emit Trade(user, isBuy, tokenMain, amount, tokenSub, amountTrade);
     }
