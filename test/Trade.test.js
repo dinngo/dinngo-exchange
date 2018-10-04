@@ -11,7 +11,7 @@ require('chai')
 
 contract('Trade', function([_, owner, tokenWallet, token]) {
     const user1 = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
-    const user2 = "0xf17f52151ebef6c7334fad080c5704d77216b732"
+    const user2 = "0xf17f52151ebef6c7334fad080c5704d77216b732";
     beforeEach(async function() {
         this.Dinngo = await DinngoMock.new(tokenWallet, token, { from: owner });
         await this.Dinngo.setUser(11, user1, 1);

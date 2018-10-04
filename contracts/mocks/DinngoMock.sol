@@ -52,4 +52,13 @@ contract DinngoMock is Dinngo {
         returns (uint256 amount) {
         amount = trade(isBuy, user, tokenMain, amountMain, tokenSub, amountSub, amountTrade);
     }
+
+    event TestMaker(uint256 fillAmountMain, uint256 restAmountSub);
+    function processMakerMock(bytes _order, uint256 _tradeAmountSub)
+        external
+    {
+        SettleAmount memory s = SettleAmount(0, _tradeAmountSub);
+        _processMaker(s, _order);
+        emit TestMaker(s.fillAmountMain, s.restAmountSub);
+    }
 }

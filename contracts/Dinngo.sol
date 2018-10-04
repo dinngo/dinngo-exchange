@@ -201,7 +201,6 @@ contract Dinngo is SerializableOrder, Ownable {
     struct SettleAmount {
         uint256 fillAmountMain;
         uint256 restAmountSub;
-        uint256 fillAmountSub;
     }
 
     function _processMaker(
@@ -215,9 +214,9 @@ contract Dinngo is SerializableOrder, Ownable {
         uint256 tradeAmountMain = trade(
             isBuy(_order),
             user,
-            getTokenMain(_order),
+            tokenID_Address[getTokenMain(_order)],
             getAmountMain(_order),
-            getTokenSub(_order),
+            tokenID_Address[getTokenSub(_order)],
             getAmountSub(_order),
             tradeAmountSub
         );
@@ -258,28 +257,40 @@ contract Dinngo is SerializableOrder, Ownable {
         emit Trade(user, isBuy, tokenMain, amount, tokenSub, amountTrade);
     }
 
-    function settle(bytes orders) public {
+    function settle(bytes orders) public returns (uint256 debug) {
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
-        SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder), 0);
-        for (uint i = 1; i < orders.length; i++) {
+        SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
+        for (uint i = 1; i < orders.length.div(order_size); i++) {
             _processMaker(s, getOrder(orders, i));
         }
-        s.fillAmountSub = getAmountSub(takerOrder).sub(s.restAmountSub);
+        uint256 fillAmountSub = getAmountSub(takerOrder).sub(s.restAmountSub);
         if (isBuy(takerOrder)) {
-            balance[taker][getTokenSub(takerOrder)] = balance[taker][getTokenSub(takerOrder)].add(s.fillAmountSub);
-            balance[taker][getTokenMain(takerOrder)] = balance[taker][getTokenMain(takerOrder)].sub(s.fillAmountMain);
+            balance[tokenID_Address[getTokenSub(takerOrder)]][taker] =
+                balance[tokenID_Address[getTokenSub(takerOrder)]][taker].add(fillAmountSub);
+            balance[tokenID_Address[getTokenMain(takerOrder)]][taker] =
+                balance[tokenID_Address[getTokenMain(takerOrder)]][taker].sub(s.fillAmountMain);
         } else {
-            balance[taker][getTokenSub(takerOrder)] = balance[taker][getTokenSub(takerOrder)].sub(s.fillAmountSub);
-            balance[taker][getTokenMain(takerOrder)] = balance[taker][getTokenMain(takerOrder)].add(s.fillAmountMain);
+            balance[tokenID_Address[getTokenSub(takerOrder)]][taker] =
+                balance[tokenID_Address[getTokenSub(takerOrder)]][taker].sub(fillAmountSub);
+            balance[tokenID_Address[getTokenMain(takerOrder)]][taker] =
+                balance[tokenID_Address[getTokenMain(takerOrder)]][taker].add(s.fillAmountMain);
         }
-        emit Trade(taker, isBuy(takerOrder), getTokenMain(takerOrder), s.fillAmountMain, getTokenSub(takerOrder), s.fillAmountSub);
+        emit Trade
+        (
+            taker,
+            isBuy(takerOrder),
+            tokenID_Address[getTokenMain(takerOrder)],
+            s.fillAmountMain,
+            tokenID_Address[getTokenSub(takerOrder)],
+            fillAmountSub
+        );
         bytes32 hash = getHash(takerOrder);
-        orderFill[hash] = orderFill[hash].add(s.fillAmountSub);
+        orderFill[hash] = orderFill[hash].add(fillAmountSub);
         // calculate fee
         payFee(
             true,
-            isMain(takerOrder)? getTokenMain(takerOrder) : tokenID_Address[1],
+            isMain(takerOrder)? tokenID_Address[getTokenMain(takerOrder)] : tokenID_Address[1],
             taker,
             getFeePrice(takerOrder),
             s.fillAmountMain
