@@ -1,4 +1,5 @@
 import ether from 'openzeppelin-solidity/test/helpers/ether';
+import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -10,7 +11,7 @@ const should = require('chai')
     .use(require('chai-as-promised'))
     .should();
 
-contract('Settle', function([_, owner, dinngoWallet, DGO, token]) {
+contract('Settle', function([_, owner, user, dinngoWallet, DGO, token]) {
     const user1 = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
     const user2 = "0xf17f52151ebef6c7334fad080c5704d77216b732";
     beforeEach(async function() {
@@ -133,6 +134,9 @@ contract('Settle', function([_, owner, dinngoWallet, DGO, token]) {
             let amount2 = await this.Dinngo.orderFill.call("0x30fb1686eefe31b098fb1e2e418ceeffe3b3a5effbf5a50cd1483e420244a6c7");
             amount1.should.be.bignumber.eq(ether(21.5));
             amount2.should.be.bignumber.eq(ether(21.5));
+        });
+        it('Not owner', async function() {
+            await expectThrow(this.Dinngo.settle(orders, { from: user }));
         });
     });
 });

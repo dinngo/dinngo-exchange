@@ -203,10 +203,7 @@ contract Dinngo is SerializableOrder, Ownable {
         uint256 restAmountSub;
     }
 
-    function _processMaker(
-        SettleAmount s,
-        bytes _order
-    ) internal {
+    function _processMaker(SettleAmount s, bytes _order) internal {
         address user = userID_Address[getUserID(_order)];
         // trade
         SettleAmount memory tmp = s;
@@ -257,7 +254,7 @@ contract Dinngo is SerializableOrder, Ownable {
         emit Trade(user, isBuy, tokenMain, amount, tokenSub, amountTrade);
     }
 
-    function settle(bytes orders) public returns (uint256 debug) {
+    function settle(bytes orders) external onlyOwner {
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
         SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
