@@ -258,7 +258,7 @@ contract Dinngo is SerializableOrder, Ownable {
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
         SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
-        for (uint i = 1; i < orders.length.div(order_size); i++) {
+        for (uint i = 1; i < getOrderCount(orders); i++) {
             _processMaker(s, getOrder(orders, i));
         }
         uint256 fillAmountSub = getAmountSub(takerOrder).sub(s.restAmountSub);

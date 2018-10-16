@@ -7,9 +7,6 @@ pragma solidity ^0.4.24;
  */
 contract Order {
 
-    uint8 constant internal MASK_IS_BUY = 0x01;
-    uint8 constant internal MASK_IS_MAIN = 0x02;
-
     /**
      * @dev Validate the order information. Can be extended.
      * @param _userID The user ID of order maker
