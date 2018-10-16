@@ -6,6 +6,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./SerializableOrder.sol";
+import "./SerializableWithdrawal.sol";
 
 
 /**
@@ -13,7 +14,7 @@ import "./SerializableOrder.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, Ownable {
+contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
     using SafeMath for uint256;
     using ECRecovery for bytes32;
     using SafeERC20 for ERC20;
@@ -45,6 +46,7 @@ contract Dinngo is SerializableOrder, Ownable {
         tokenCount = 1;
         userID_Address[0] = dinngoWallet;
         userRank[dinngoWallet] = 255;
+        tokenID_Address[0] = address(0);
         tokenID_Address[1] = dinngoToken;
         takerFee[1] = 20;
         takerFee[2] = 19;
@@ -168,6 +170,25 @@ contract Dinngo is SerializableOrder, Ownable {
         ERC20(token).safeTransfer(msg.sender, amount);
         balance[token][msg.sender] = balance[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balance[token][msg.sender]);
+    }
+
+    /**
+     * @notice The withdraw function that can only be triggered by owner
+     * @param withdrawal The serialized withdrawal data
+     */
+    function withdrawByAdmin(bytes withdrawal) external onlyOwner {
+        require(getWithdrawalAmount(withdrawal) > 0);
+        address user = userID_Address[getWithdrawalUserID(withdrawal)];
+        address token = tokenID_Address[getWithdrawalTokenID(withdrawal)];
+        require(getWithdrawalAmount(withdrawal) <= balance[token][user]);
+        if (token == address(0)) {
+            user.transfer(getWithdrawalAmount(withdrawal));
+        } else {
+            ERC20(token).safeTransfer(user, getWithdrawalAmount(withdrawal));
+        }
+        balance[token][user] = balance[token][user].sub(getWithdrawalAmount(withdrawal));
+        payFee(tokenID_Address[isWithdrawalETH(withdrawal)? 0 : 1], user, getWithdrawalAmount(withdrawal));
+        emit Withdraw(token, user, getWithdrawalAmount(withdrawal), balance[token][user]);
     }
 
     function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal {
