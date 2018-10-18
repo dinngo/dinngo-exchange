@@ -20,74 +20,6 @@ contract SerializableOrder is Order, Seriality {
     uint8 constant internal MASK_IS_MAIN = 0x02;
 
     /**
-     * @notice Deserialize the order hex and output order components
-     * @dev Mind the deserialization sequence
-     * @param ser_data The serialized hex string
-     * @return userID The user ID of order maker
-     * @return mainTokenID The token ID of main token in the order
-     * @return mainAmount The main token amount
-     * @return subTokenID The token ID of sub topken in the order
-     * @return subAmount The sub token amount
-     * @return config Fee related configuration.
-     * Bit 0: is buy order
-     * Bit 1: is paid by major token
-     * Bit 2-7: TBD
-     * @return feePrice The fee token price when order is created
-     * @return nonce The nonce of order
-     * @return r Signature r
-     * @return s Signature s
-     * @return v Signature v
-     */
-    function deserializeOrder(bytes ser_data) public view
-        returns (
-            uint32 userID,
-            uint16 mainTokenID,
-            uint256 mainAmount,
-            uint16 subTokenID,
-            uint256 subAmount,
-            uint8 config,
-            uint256 feePrice,
-            uint32 nonce,
-            bytes32 r,
-            bytes32 s,
-            uint8 v
-        )
-    {
-        uint offset = ORDER_SIZE;
-        userID = bytesToUint32(offset, ser_data);
-        offset -= sizeOfUint(32);
-
-        mainTokenID = bytesToUint16(offset, ser_data);
-        offset -= sizeOfUint(16);
-
-        mainAmount = bytesToUint256(offset, ser_data);
-        offset -= sizeOfUint(256);
-
-        subTokenID = bytesToUint16(offset, ser_data);
-        offset -= sizeOfUint(16);
-
-        subAmount = bytesToUint256(offset, ser_data);
-        offset -= sizeOfUint(256);
-
-        config = bytesToUint8(offset, ser_data);
-        offset -= sizeOfUint(8);
-
-        nonce = bytesToUint32(offset, ser_data);
-        offset -= sizeOfUint(32);
-
-        feePrice = bytesToUint256(offset, ser_data);
-        offset -= sizeOfUint(256);
-
-        v = bytesToUint8(offset, ser_data);
-        offset -= sizeOfUint(8);
-
-        r = bytesToBytes32(offset, ser_data);
-        offset -= 32;
-
-        s = bytesToBytes32(offset, ser_data);
-    }
-
-    /**
      * @notice Get user ID from the serialized order data
      * @param ser_data Serialized order data
      * @return userID User ID
@@ -130,15 +62,6 @@ contract SerializableOrder is Order, Seriality {
      */
     function getAmountSub(bytes ser_data) public pure returns (uint256 amountSub) {
         amountSub = bytesToUint256(ORDER_SIZE - 40, ser_data);
-    }
-
-    /**
-     * @notice Get config from the serialized order data
-     * @param ser_data Serialized order data
-     * @return config Configuration
-     */
-    function getConfig(bytes ser_data) public pure returns (uint8 config) {
-        config = bytesToUint8(ORDER_SIZE - 72, ser_data);
     }
 
     /**

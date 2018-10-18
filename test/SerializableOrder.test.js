@@ -90,11 +90,6 @@ contract('SerializableOrder', function([_, user]) {
             order_data.should.be.bignumber.eq(amount2);
         });
 
-        it('get config', async function() {
-            let order_data = await this.SerializableOrder.getConfig.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(config);
-        });
-
         it('is buy order', async function() {
             let order_data = await this.SerializableOrder.isBuy.call(ser_hex_0);
             order_data.should.eq(true);
