@@ -181,7 +181,14 @@ contract Dinngo is SerializableOrder, Ownable {
         require(_user == sigAddr);
     }
 
-    function payFee(
+    function payFee(address token, address user, uint256 amount) internal {
+        if (token == tokenID_Address[1])
+            amount = amount.div(2);
+        balance[token][user] = balance[token][user].sub(amount);
+        balance[token][userID_Address[0]] = balance[token][userID_Address[0]].add(amount);
+    }
+
+    function payTradingFee(
         bool isTaker,
         address tokenFee,
         address user,
@@ -192,10 +199,7 @@ contract Dinngo is SerializableOrder, Ownable {
     {
         uint256 amountFee = amount.mul(isTaker? takerFee[userRank[user]] : makerFee[userRank[user]]).div(BASE);
         amountFee = amountFee.mul(feePrice).div(BASE);
-        if (tokenFee == tokenID_Address[1])
-            amountFee = amountFee.div(2);
-        balance[tokenFee][user] = balance[tokenFee][user].sub(amountFee);
-        balance[tokenFee][userID_Address[0]] = balance[tokenFee][userID_Address[0]].add(amountFee);
+        payFee(tokenFee, user, amountFee);
     }
 
     struct SettleAmount {
@@ -220,7 +224,7 @@ contract Dinngo is SerializableOrder, Ownable {
         bytes32 hash = getHash(_order);
         orderFill[hash] = orderFill[hash].add(tradeAmountSub);
         // calculate fee
-        payFee(
+        payTradingFee(
             false,
             isMain(_order)? getTokenMain(_order) : tokenID_Address[1],
             user,
@@ -285,7 +289,7 @@ contract Dinngo is SerializableOrder, Ownable {
         bytes32 hash = getHash(takerOrder);
         orderFill[hash] = orderFill[hash].add(fillAmountSub);
         // calculate fee
-        payFee(
+        payTradingFee(
             true,
             isMain(takerOrder)? tokenID_Address[getTokenMain(takerOrder)] : tokenID_Address[1],
             taker,

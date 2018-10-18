@@ -27,7 +27,7 @@ contract DinngoMock is Dinngo {
         addUser(user);
     }
 
-    function payFeeMock(
+    function payTradingFeeMock(
         bool isTaker,
         address tokenFee,
         address user,
@@ -36,7 +36,7 @@ contract DinngoMock is Dinngo {
     )
         external
     {
-        payFee(isTaker, tokenFee, user, feePrice, amount);
+        payTradingFee(isTaker, tokenFee, user, feePrice, amount);
     }
 
     function tradeMock(
