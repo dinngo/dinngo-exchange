@@ -129,27 +129,27 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
     // @dev To be removed
     function testWithdrawalHash() public pure returns (bytes32) {
         return hashWithdrawal(
-            12,
+            11,
             0,
-            11.5 ether,
-            2,
-            1000,
-            10
+            23 ether,
+            1,
+            0.1 ether,
+            17
         );
     }
 
     // @dev To be removed
     function testWithdrawalSerialize() public pure returns (bytes) {
         return serializeWithdrawal(
-            12,
+            11,
             0,
-            11.5 ether,
-            2,
-            1000,
-            10,
-            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8,
-            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba,
-            0x00
+            23 ether,
+            1,
+            0.1 ether,
+            17,
+            0x2ff29230014283c7b30f7edaa75cb8b4f397fbc6fd438acdfabed16330f9fb6d,
+            0x5216167f7eb4f43cdfa1a094b1525ff00ec19d8fd33fef5383cb553f56f8c61c,
+            0x01
         );
     }
 
@@ -215,7 +215,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return userID User ID
      */
-    function getWithdrawalUserID(bytes ser_data) internal pure returns (uint32 userID) {
+    function getWithdrawalUserID(bytes ser_data) public pure returns (uint32 userID) {
         userID = bytesToUint32(WITHDRAWAL_SIZE, ser_data);
     }
 
@@ -224,7 +224,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return tokenID Withdrawal token ID
      */
-    function getWithdrawalTokenID(bytes ser_data) internal pure returns (uint16 tokenID) {
+    function getWithdrawalTokenID(bytes ser_data) public pure returns (uint16 tokenID) {
         tokenID = bytesToUint16(WITHDRAWAL_SIZE - 4 , ser_data);
     }
 
@@ -233,7 +233,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return amount Withdrawal token amount
      */
-    function getWithdrawalAmount(bytes ser_data) internal pure returns (uint256 amount) {
+    function getWithdrawalAmount(bytes ser_data) public pure returns (uint256 amount) {
         amount = bytesToUint256(WITHDRAWAL_SIZE - 6, ser_data);
     }
 
@@ -242,7 +242,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return config Configuration
      */
-    function getWithdrawalConfig(bytes ser_data) internal pure returns (uint8 config) {
+    function getWithdrawalConfig(bytes ser_data) public pure returns (uint8 config) {
         config = bytesToUint8(WITHDRAWAL_SIZE - 38, ser_data);
     }
 
@@ -251,7 +251,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return fETH Is the fee paid in ETH or DGO
      */
-    function isWithdrawalETH(bytes ser_data) internal pure returns (bool fETH) {
+    function isWithdrawalETH(bytes ser_data) public pure returns (bool fETH) {
         fETH = (bytesToUint8(WITHDRAWAL_SIZE - 38, ser_data) & MASK_IS_ETH != 0);
     }
 
@@ -260,7 +260,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return nonce Nonce
      */
-    function getWithdrawalNonce(bytes ser_data) internal pure returns (uint32 nonce) {
+    function getWithdrawalNonce(bytes ser_data) public pure returns (uint32 nonce) {
         nonce = bytesToUint32(WITHDRAWAL_SIZE - 39, ser_data);
     }
 
@@ -269,7 +269,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return fee Fee amount
      */
-    function getWithdrawalFee(bytes ser_data) internal pure returns (uint256 fee) {
+    function getWithdrawalFee(bytes ser_data) public pure returns (uint256 fee) {
         fee = bytesToUint256(WITHDRAWAL_SIZE - 43, ser_data);
     }
 
@@ -278,7 +278,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return v Signature v
      */
-    function getWithdrawalV(bytes ser_data) internal pure returns (uint8 v) {
+    function getWithdrawalV(bytes ser_data) public pure returns (uint8 v) {
         v = bytesToUint8(WITHDRAWAL_SIZE - 75, ser_data);
     }
 
@@ -287,7 +287,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return r Signature r
      */
-    function getWithdrawalR(bytes ser_data) internal pure returns (bytes32 r) {
+    function getWithdrawalR(bytes ser_data) public pure returns (bytes32 r) {
         r = bytesToBytes32(WITHDRAWAL_SIZE - 76, ser_data);
     }
 
@@ -296,7 +296,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return s Signature s
      */
-    function getWithdrawalS(bytes ser_data) internal pure returns (bytes32 s) {
+    function getWithdrawalS(bytes ser_data) public pure returns (bytes32 s) {
         s = bytesToBytes32(WITHDRAWAL_SIZE - 108, ser_data);
     }
 
@@ -305,7 +305,7 @@ contract SerializableWithdrawal is Withdrawal, Seriality {
      * @param ser_data Serialized withdrawal data
      * @return hash Withdrawal hash without signature
      */
-    function getWithdrawalHash(bytes ser_data) internal pure returns (bytes32 hash) {
+    function getWithdrawalHash(bytes ser_data) public pure returns (bytes32 hash) {
         hash = keccak256(ser_data.slice(65, UNSIGNED_WITHDRAWAL_SIZE));
     }
 }
