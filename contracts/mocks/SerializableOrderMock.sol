@@ -291,4 +291,65 @@ contract SerializableOrderMock is SerializableOrder {
 
         hash = keccak256(buffer);
     }
+
+    function getUserIDMock(bytes ser_data) external pure returns (uint32 userID) {
+        return getUserID(ser_data);
+    }
+
+    function getTokenMainMock(bytes ser_data) external pure returns (uint16 tokenMain) {
+        return getTokenMain(ser_data);
+    }
+
+    function getAmountMainMock(bytes ser_data) external pure returns (uint256 amountMain) {
+        return getAmountMain(ser_data);
+    }
+
+    function getTokenSubMock(bytes ser_data) external pure returns (uint16 tokenSub) {
+        return getTokenSub(ser_data);
+    }
+
+    function getAmountSubMock(bytes ser_data) external pure returns (uint256 amountSub) {
+        return getAmountSub(ser_data);
+    }
+
+    function isBuyMock(bytes ser_data) external pure returns (bool fBuy) {
+        return isBuy(ser_data);
+    }
+
+    function isMainMock(bytes ser_data) external pure returns (bool fMain) {
+        return isMain(ser_data);
+    }
+
+    function getNonceMock(bytes ser_data) external pure returns (uint32 nonce) {
+        return getNonce(ser_data);
+    }
+
+    function getFeePriceMock(bytes ser_data) external pure returns (uint256 feePrice) {
+        return getFeePrice(ser_data);
+    }
+
+    function getVMock(bytes ser_data) external pure returns (uint8 v) {
+        return getV(ser_data);
+    }
+
+    function getRMock(bytes ser_data) external pure returns (bytes32 r) {
+        return getR(ser_data);
+    }
+
+    function getSMock(bytes ser_data) external pure returns (bytes32 s) {
+        return getS(ser_data);
+    }
+
+    function getHashMock(bytes ser_data) external pure returns (bytes32 hash) {
+        return getHash(ser_data);
+    }
+
+    function getOrderMock(bytes ser_data, uint index) external pure returns (bytes order_data) {
+        return getOrder(ser_data, index);
+    }
+
+    function getOrderCountMock(bytes ser_data) internal pure returns (uint amount) {
+        return getOrderCount(ser_data);
+    }
+
 }

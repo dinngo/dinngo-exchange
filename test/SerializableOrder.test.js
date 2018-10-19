@@ -66,74 +66,74 @@ contract('SerializableOrder', function([_, user]) {
         });
 
         it('get user ID', async function() {
-            let order_data = await this.SerializableOrder.getUserID.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getUserIDMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(userID);
         });
 
         it('get main token ID', async function() {
-            let order_data = await this.SerializableOrder.getTokenMain.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getTokenMainMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(token1);
         });
 
         it('get main amount', async function() {
-            let order_data = await this.SerializableOrder.getAmountMain.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getAmountMainMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(amount1);
         });
 
         it('get sub token ID', async function() {
-            let order_data = await this.SerializableOrder.getTokenSub.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getTokenSubMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(token2);
         });
 
         it('get sub amount', async function() {
-            let order_data = await this.SerializableOrder.getAmountSub.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getAmountSubMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(amount2);
         });
 
         it('is buy order', async function() {
-            let order_data = await this.SerializableOrder.isBuy.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.isBuyMock.call(ser_hex_0);
             order_data.should.eq(true);
         });
 
         it('is main fee', async function() {
-            let order_data = await this.SerializableOrder.isMain.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.isMainMock.call(ser_hex_0);
             order_data.should.eq(false);
         });
 
         it('get fee price', async function() {
-            let order_data = await this.SerializableOrder.getFeePrice.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getFeePriceMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(amount3);
         });
 
         it('get nonce', async function() {
-            let order_data = await this.SerializableOrder.getNonce.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getNonceMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(nonce);
         });
 
         it('get r', async function() {
-            let order_data = await this.SerializableOrder.getR.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getRMock.call(ser_hex_0);
             order_data.should.eq(r);
         });
 
         it('get s', async function() {
-            let order_data = await this.SerializableOrder.getS.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getSMock.call(ser_hex_0);
             order_data.should.eq(s);
         });
 
         it('get v', async function() {
-            let order_data = await this.SerializableOrder.getV.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getVMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(v);
         });
 
         it('get hash', async function() {
-            let order_data = await this.SerializableOrder.getHash.call(ser_hex_0);
+            let order_data = await this.SerializableOrder.getHashMock.call(ser_hex_0);
             order_data.should.eq(hash);
         });
 
         it('get order', async function() {
-            let order_data = await this.SerializableOrder.getOrder.call(ser_hex_2, 0);
+            let order_data = await this.SerializableOrder.getOrderMock.call(ser_hex_2, 0);
             order_data.should.eq(ser_hex_0);
-            order_data = await this.SerializableOrder.getOrder.call(ser_hex_2, 1);
+            order_data = await this.SerializableOrder.getOrderMock.call(ser_hex_2, 1);
             order_data.should.eq(ser_hex_1);
         });
 
