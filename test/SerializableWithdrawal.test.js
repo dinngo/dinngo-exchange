@@ -61,52 +61,52 @@ contract('SerializableWithdrawal', function([_, user]) {
         });
 
         it('get user ID', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalUserID.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalUserIDMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(userID);
         });
 
         it('get token ID', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalTokenID.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalTokenIDMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(token1);
         });
 
         it('get amount', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalAmount.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalAmountMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(amount1);
         });
 
         it('is fee ETH', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.isWithdrawalETH.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.isWithdrawalETHMock.call(ser_hex);
             withdrawal_data.should.eq(true);
         });
 
         it('get fee amount', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalFee.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalFeeMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(fee1);
         });
 
         it('get nonce', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalNonce.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalNonceMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(nonce);
         });
 
         it('get r', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalR.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalRMock.call(ser_hex);
             withdrawal_data.should.eq(r);
         });
 
         it('get s', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalS.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalSMock.call(ser_hex);
             withdrawal_data.should.eq(s);
         });
 
         it('get v', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalV.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalVMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(v);
         });
 
         it('get hash', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalHash.call(ser_hex);
+            let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalHashMock.call(ser_hex);
             withdrawal_data.should.eq(hash1);
         });
 
