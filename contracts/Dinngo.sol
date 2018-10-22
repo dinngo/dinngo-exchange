@@ -187,7 +187,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
             ERC20(token).safeTransfer(user, getWithdrawalAmount(withdrawal));
         }
         balance[token][user] = balance[token][user].sub(getWithdrawalAmount(withdrawal));
-        payFee(tokenID_Address[isWithdrawalETH(withdrawal)? 0 : 1], user, getWithdrawalAmount(withdrawal));
+        if (isWithdrawalETH(withdrawal)) {
+            payFee(tokenID_Address[0], user, getWithdrawalFee(withdrawal));
+        } else {
+            payFee(tokenID_Address[1], user, getWithdrawalFee(withdrawal));
+        }
         emit Withdraw(token, user, getWithdrawalAmount(withdrawal), balance[token][user]);
     }
 
