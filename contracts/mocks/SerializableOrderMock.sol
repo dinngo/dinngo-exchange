@@ -147,38 +147,38 @@ contract SerializableOrderMock is SerializableOrder {
     }
 
     /**
-      test order
-        {11,0,23 ether,11,43 ether,1,2000,17}
+    test order1
+        {11, 0, 3 ether, 11, 100 ether, 1, 10, 1}
         hash:
-            0x30fb1686eefe31b098fb1e2e418ceeffe3b3a5effbf5a50cd1483e420244a6c7
+            0xa1179f9c81f330f47cbde5e73ff87a87c1195bc5a056dad4df90b3ff3844ca71
         signature (by 0x627306090abab3a6e1400e9345bc60c78a8bef57):
-            0xb3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a86
-            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2
-            0x01
-        hex:
-            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2b3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a860100000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc0000000b0000000000000000000000000000000000000000000000013f306a2409fc000000000000000b
-
-        {12,0,11.5 ether,11,21.5 ether,2,1000,10}
-        hash:
-            0xc6df8e62380ee431b4049d1af5602368f567b53816a6780189fbcd1435b667d4
-        signature (by 0xf17f52151ebef6c7334fad080c5704d77216b732):
-            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8
-            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba
+            0xdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd
+            0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524f
             0x00
         hex:
-            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e80000000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000012a5f58168ee60000000b0000000000000000000000000000000000000000000000009f98351204fe000000000000000c
+            0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b
+    test order2
+        {12, 0, 1.5 ether, 11, 80 ether, 2, 10000, 2}
+        hash:
+            0x41a07794e4f991056ec1316f7a5c3a63ed88a877e68a186921699ea23d365936
+        signature (by 0xf17f52151ebef6c7334fad080c5704d77216b732):
+            0x88a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe2
+            0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff8
+            0x01
+        hex:
+            0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c
     */
     // @dev To be removed
     function testHash() public pure returns (bytes32) {
         return hashOrder(
             12,
             0,
-            11.5 ether,
+            1.5 ether,
             11,
-            21.5 ether,
+            80 ether,
             2,
-            1000,
-            10
+            10000,
+            2
         );
     }
 
@@ -187,15 +187,15 @@ contract SerializableOrderMock is SerializableOrder {
         return serializeOrder(
             12,
             0,
-            11.5 ether,
+            1.5 ether,
             11,
-            21.5 ether,
+            80 ether,
             2,
-            1000,
-            10,
-            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8,
-            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba,
-            0x00
+            10000,
+            2,
+            0x88a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe2,
+            0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff8,
+            0x01
         );
     }
 
@@ -205,29 +205,29 @@ contract SerializableOrderMock is SerializableOrder {
         hex1 = serializeOrder(
             11,
             0,
-            23 ether,
+            3 ether,
             11,
-            43 ether,
+            100 ether,
             1,
-            2000,
-            17,
-            0xb3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a86,
-            0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2,
-            0x01
+            10,
+            1,
+            0xdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd,
+            0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524f,
+            0x00
         );
         bytes memory hex2;
         hex2 = serializeOrder(
             12,
             0,
-            11.5 ether,
+            1.5 ether,
             11,
-            21.5 ether,
+            80 ether,
             2,
-            1000,
-            10,
-            0x46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e8,
-            0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba,
-            0x00
+            10000,
+            2,
+            0x88a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe2,
+            0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff8,
+            0x01
         );
 
         return hex1.concat(hex2);

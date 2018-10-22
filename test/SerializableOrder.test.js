@@ -15,31 +15,31 @@ contract('SerializableOrder', function([_, user]) {
     });
     const userID = 11;
     const userAddress = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
-    const token1 = 0;
-    const token2 = 11;
-    const amount1 = ether(23);
-    const amount2 = ether(43);
+    const mainToken = 0;
+    const subToken = 11;
+    const mainAmount = ether(3);
+    const subAmount = ether(100);
     const config = 1;
-    const amount3 = 2000;
-    const nonce = 17;
-    const r = "0xb3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a86";
-    const s = "0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2";
-    const v = "0x01"
-    const hash = "0x30fb1686eefe31b098fb1e2e418ceeffe3b3a5effbf5a50cd1483e420244a6c7";
-    const ser_hex_0 = "0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2b3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a860100000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc0000000b0000000000000000000000000000000000000000000000013f306a2409fc000000000000000b";
-    const ser_hex_1 = "0x75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e80000000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000012a5f58168ee60000000b0000000000000000000000000000000000000000000000009f98351204fe000000000000000c";
-    const ser_hex_2 = "0x0a6dc56354ded2afa70070011218247d8ee31ae796925025d45dd7f15e5ffdc2b3b5ac4d8911c21371e6206d8ef790be1861aa819c6b802a2ebd849e9e214a860100000000000000000000000000000000000000000000000000000000000007d0000000110100000000000000000000000000000000000000000000000254beb02d1dcc0000000b0000000000000000000000000000000000000000000000013f306a2409fc000000000000000b75f47c89a6031ea52f092f0ae79f44489ad462a1513d24ffa10f5efde1b797ba46b4a6fb4f1efc688f6b461825dd686fa19f8cbb014ab8e33e88a220c23eb5e80000000000000000000000000000000000000000000000000000000000000003e80000000a020000000000000000000000000000000000000000000000012a5f58168ee60000000b0000000000000000000000000000000000000000000000009f98351204fe000000000000000c";
+    const feePrice = 10;
+    const nonce = 1;
+    const r = "0xdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd";
+    const s = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524f";
+    const v = "0x00";
+    const hash = "0xa1179f9c81f330f47cbde5e73ff87a87c1195bc5a056dad4df90b3ff3844ca71";
+    const ser_hex_0 = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b";
+    const ser_hex_1 = "0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
+    const ser_hex_2 = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
 
     describe('serialize', function() {
         it('normal order', async function() {
             let ser_data = await this.SerializableOrder.serializeOrder.call(
                 userID,
-                token1,
-                amount1,
-                token2,
-                amount2,
+                mainToken,
+                mainAmount,
+                subToken,
+                subAmount,
                 config,
-                amount3,
+                feePrice,
                 nonce,
                 r,
                 s,
@@ -53,12 +53,12 @@ contract('SerializableOrder', function([_, user]) {
         it('normal hex', async function() {
             let order_data = await this.SerializableOrder.deserializeOrder.call(ser_hex_0);
             order_data[0].should.be.bignumber.eq(userID);
-            order_data[1].should.be.bignumber.eq(token1);
-            order_data[2].should.be.bignumber.eq(amount1);
-            order_data[3].should.be.bignumber.eq(token2);
-            order_data[4].should.be.bignumber.eq(amount2);
+            order_data[1].should.be.bignumber.eq(mainToken);
+            order_data[2].should.be.bignumber.eq(mainAmount);
+            order_data[3].should.be.bignumber.eq(subToken);
+            order_data[4].should.be.bignumber.eq(subAmount);
             order_data[5].should.be.bignumber.eq(config);
-            order_data[6].should.be.bignumber.eq(amount3);
+            order_data[6].should.be.bignumber.eq(feePrice);
             order_data[7].should.be.bignumber.eq(nonce);
             order_data[8].should.eq(r);
             order_data[9].should.eq(s);
@@ -72,22 +72,22 @@ contract('SerializableOrder', function([_, user]) {
 
         it('get main token ID', async function() {
             let order_data = await this.SerializableOrder.getTokenMainMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(token1);
+            order_data.should.be.bignumber.eq(mainToken);
         });
 
         it('get main amount', async function() {
             let order_data = await this.SerializableOrder.getAmountMainMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(amount1);
+            order_data.should.be.bignumber.eq(mainAmount);
         });
 
         it('get sub token ID', async function() {
             let order_data = await this.SerializableOrder.getTokenSubMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(token2);
+            order_data.should.be.bignumber.eq(subToken);
         });
 
         it('get sub amount', async function() {
             let order_data = await this.SerializableOrder.getAmountSubMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(amount2);
+            order_data.should.be.bignumber.eq(subAmount);
         });
 
         it('is buy order', async function() {
@@ -102,7 +102,7 @@ contract('SerializableOrder', function([_, user]) {
 
         it('get fee price', async function() {
             let order_data = await this.SerializableOrder.getFeePriceMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(amount3);
+            order_data.should.be.bignumber.eq(feePrice);
         });
 
         it('get nonce', async function() {
