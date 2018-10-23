@@ -115,15 +115,37 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         hash = keccak256(buffer);
     }
 
+    /**
+    test withdrawal1
+        {11, 11, 3 ether, 0, 0.01 ether, 3}
+        hash:
+            0xc73b805a44ca67043d0eb99234ced3032c0ac658232bf3b8e60b5fd641f13f63
+        signature (by 0x627306090abab3a6e1400e9345bc60c78a8bef57):
+            0xff082cf088f83143f4c81253d8e1f0a4b67be4c0036fcc96fce640b8a6bfbfad
+            0x11327a5d4c094374f596d51b2edfd3461acb31e0c2e3395eb94d51912116e2b7
+            0x01
+        hex:
+            0x11327a5d4c094374f596d51b2edfd3461acb31e0c2e3395eb94d51912116e2b7ff082cf088f83143f4c81253d8e1f0a4b67be4c0036fcc96fce640b8a6bfbfad01000000000000000000000000000000000000000000000000002386f26fc10000000000030000000000000000000000000000000000000000000000000029a2241af62c0000000b0000000b
+    test withdrawal2
+        {11, 0, 2 ether, 1, 0.005 ether, 4}
+        hash:
+            0x5da079753c00ab7d0a895a805ee0f9dcec5414d7bb74a546c0965a7d3862bedb
+        signature (by 0x627306090abab3a6e1400e9345bc60c78a8bef57):
+            0xcbab9d2e50d30a98f207c50f3d7e5b8dd80c4d9aa4f9e7a6bff89813b7f31303
+            0x794b55b74debf180f7b0428238032dee64b2622d6a4c1d04faa4a3b4c6d6e584
+            0x01
+        hex:
+            0x794b55b74debf180f7b0428238032dee64b2622d6a4c1d04faa4a3b4c6d6e584cbab9d2e50d30a98f207c50f3d7e5b8dd80c4d9aa4f9e7a6bff89813b7f31303010000000000000000000000000000000000000000000000000011c37937e0800000000004010000000000000000000000000000000000000000000000001bc16d674ec8000000000000000b
+    */
     // @dev To be removed
     function testWithdrawalHash() public pure returns (bytes32) {
         return hashWithdrawal(
             11,
             0,
-            23 ether,
+            2 ether,
             1,
-            0.1 ether,
-            17
+            0.005 ether,
+            4
         );
     }
 
@@ -132,12 +154,12 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         return serializeWithdrawal(
             11,
             0,
-            23 ether,
+            2 ether,
             1,
-            0.1 ether,
-            17,
-            0x2ff29230014283c7b30f7edaa75cb8b4f397fbc6fd438acdfabed16330f9fb6d,
-            0x5216167f7eb4f43cdfa1a094b1525ff00ec19d8fd33fef5383cb553f56f8c61c,
+            0.005 ether,
+            4,
+            0xcbab9d2e50d30a98f207c50f3d7e5b8dd80c4d9aa4f9e7a6bff89813b7f31303,
+            0x794b55b74debf180f7b0428238032dee64b2622d6a4c1d04faa4a3b4c6d6e584,
             0x01
         );
     }
