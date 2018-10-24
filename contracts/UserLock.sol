@@ -1,0 +1,50 @@
+pragma solidity ^0.4.24;
+
+/**
+ * @title UserLock
+ * @author Ben Huang
+ * @notice Maintain a structure for user to announce lock
+ */
+contract UserLock {
+    mapping (address => uint256) public lockTime;
+
+    uint256 constant PROCESS_TIME = 3 days;
+
+    event Lock(address indexed user, uint256 lockTime);
+    event Unlock(address indexed user);
+
+    /**
+     * @notice Return if the give user has announced lock
+     * @param user The user address to be queried
+     * @return Query result
+     */
+    function _isLocking(address user) internal view returns (bool) {
+        return lockTime[user] > 0;
+    }
+
+    /**
+     * @notice Return if the user is locked
+     * @param user The user address to be queried
+     */
+    function _isLocked(address user) internal view returns (bool) {
+        return _isLocking(user) && lockTime[user] < now;
+    }
+
+    /**
+     * @notice Announce lock of the sender
+     */
+    function lock() external {
+        require(!_isLocking(msg.sender));
+        lockTime[msg.sender] = now + PROCESS_TIME;
+        emit Lock(msg.sender, lockTime[msg.sender]);
+    }
+
+    /**
+     * @notice Unlock the sender
+     */
+    function unlock() external {
+        require(_isLocking(msg.sender));
+        lockTime[msg.sender] = 0;
+        emit Unlock(msg.sender);
+    }
+}

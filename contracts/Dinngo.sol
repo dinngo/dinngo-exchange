@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
+import "./UserLock.sol";
 
 
 /**
@@ -14,7 +15,7 @@ import "./SerializableWithdrawal.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
+contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable {
     using SafeMath for uint256;
     using ECRecovery for bytes32;
     using SafeERC20 for ERC20;
@@ -69,6 +70,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
      * Event Deposit will be emitted after execution.
      */
     function deposit() external payable {
+        require(!_isLocking(msg.sender));
         require(msg.value > 0);
         balance[0][msg.sender] = balance[0][msg.sender].add(msg.value);
         addUser(msg.sender);
@@ -82,6 +84,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
      * @param amount Amount of the token to be depositied
      */
     function depositToken(address token, uint256 amount) external {
+        require(!_isLocking(msg.sender));
         require(token != address(0));
         require(amount > 0);
         ERC20(token).safeTransferFrom(msg.sender, this, amount);
@@ -146,10 +149,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
 
     /**
      * @notice The withdraw function for ether. Event Withdraw will be emitted
-     * after execution.
+     * after execution. User needs to be locked before calling withdraw.
      * @param amount The amount to be withdrawn.
      */
     function withdraw(uint256 amount) external {
+        require(_isLocked(msg.sender));
         require(amount > 0);
         require(amount <= balance[0][msg.sender]);
         msg.sender.transfer(amount);
@@ -159,11 +163,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
 
     /**
      * @notice The withdraw function for tokens. Event Withdraw will be emitted
-     * after execution.
+     * after execution. User needs to be locked before calling withdraw.
      * @param token The token contract address to be withdrawn.
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
+        require(_isLocked(msg.sender));
         require(token != address(0));
         require(amount > 0);
         require(amount <= balance[token][msg.sender]);
@@ -234,6 +239,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
 
     function _processMaker(SettleAmount s, bytes _order) internal {
         address user = userID_Address[getUserID(_order)];
+        require(!_isLocking(user));
         // trade
         SettleAmount memory tmp = s;
         uint256 tradeAmountSub = (tmp.restAmountSub < getAmountSub(_order))? tmp.restAmountSub : getAmountSub(_order);
@@ -286,6 +292,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, Ownable {
     function settle(bytes orders) external onlyOwner {
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
+        require(!_isLocking(taker));
         SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
         for (uint i = 1; i < getOrderCount(orders); i++) {
             _processMaker(s, getOrder(orders, i));

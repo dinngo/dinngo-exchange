@@ -1,4 +1,6 @@
 import ether from 'openzeppelin-solidity/test/helpers/ether';
+import { increaseTimeTo, duration } from 'openzeppelin-solidity/test/helpers/increaseTime';
+import latestTime from 'openzeppelin-solidity/test/helpers/latestTime';
 import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
 import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
 
@@ -26,6 +28,8 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when normal', async function () {
             const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
             const { logs } = await this.Dinngo.withdraw(value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balance.call(0, user);
@@ -35,17 +39,32 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             event.args.balance.should.be.bignumber.eq(balance);
         });
 
+        it('when user not locked', async function() {
+            const value = ether(1);
+            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+        });
+
+        it('when user not yet locked', async function() {
+            const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(1));
+            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+        });
+
         it('when value with amount 0', async function () {
             const value = ether(0);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
             await expectThrow(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user balance is not sufficient', async function () {
             const value = ether(11);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
             await expectThrow(this.Dinngo.withdraw(value, { from: user }));
         });
     });
-
     describe('token', function () {
         beforeEach(async function () {
             this.Token = await SimpleToken.new({ from: user });
@@ -55,6 +74,8 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when normal', async function () {
             const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
             const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balance.call(this.Token.address, user);
@@ -62,6 +83,18 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             event.args.user.should.eq(user);
             event.args.amount.should.be.bignumber.eq(value);
             event.args.balance.should.be.bignumber.eq(balance);
+        });
+
+        it('when user not locked', async function() {
+            const value = ether(1);
+            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+        });
+
+        it('when user not yet locked', async function() {
+            const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(1));
+            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
         it('when token with address 0', async function () {
