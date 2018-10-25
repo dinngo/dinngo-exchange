@@ -216,6 +216,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param orders The serialized orders.
      */
     function settle(bytes orders) external onlyOwner {
+        require(getOrderCount(orders) >= 2);
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
         _verifySig(taker, getHash(takerOrder), getR(takerOrder), getS(takerOrder), getV(takerOrder));
