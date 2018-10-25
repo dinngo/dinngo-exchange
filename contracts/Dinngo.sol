@@ -32,11 +32,18 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     uint256 private userCount;
     uint256 private tokenCount;
 
-    event AddUser(uint256 userID, address user);
-    event AddToken(uint256 tokenID, address token);
-    event Deposit(address token, address user, uint256 amount, uint256 balance);
-    event Withdraw(address token, address user, uint256 amount, uint256 balance);
-    event Trade(address user, bool isBuy, address tokenMain, uint256 amountMain, address tokenSub, uint256 amountSub);
+    event AddUser(uint256 userID, address indexed user);
+    event AddToken(uint256 tokenID, address indexed token);
+    event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
+    event Withdraw(address token, address indexed user, uint256 amount, uint256 balance);
+    event Trade(
+        address indexed user,
+        bool isBuy,
+        address indexed tokenMain,
+        uint256 amountMain,
+        address indexed tokenSub,
+        uint256 amountSub
+    );
 
     /**
      * @param dinngoWallet The main address of dinngo
