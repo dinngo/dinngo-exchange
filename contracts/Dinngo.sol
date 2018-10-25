@@ -46,6 +46,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     );
 
     /**
+     * @dev Maker and taker fee rate is defined here.
      * @param dinngoWallet The main address of dinngo
      * @param dinngoToken The contract address of DGO
      */
@@ -71,6 +72,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         makerFee[5] = 2;
     }
 
+    /**
+     * @dev All ether directly sent to contract will be refunded
+     */
     function() public payable {
         revert();
     }
@@ -85,6 +89,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function addToken(address token) external onlyOwner {
         require(tokenRank[token] == 0);
+        require(token != address(0));
         tokenCount++;
         tokenID_Address[tokenCount] = token;
         tokenRank[token] = 1;
@@ -97,6 +102,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint8 rank) external onlyOwner {
+        require(user != address(0));
         require(userRank[user] != 0);
         require(userRank[user] != rank);
         userRank[user] = rank;
@@ -108,6 +114,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param rank The rank to be assigned.
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
+        require(token != address(0));
         require(tokenRank[token] != 0);
         require(tokenRank[token] != rank);
         tokenRank[token] = rank;
@@ -173,7 +180,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     }
 
     /**
-     * @notice The withdraw function that can only be triggered by owner
+     * @notice The withdraw function that can only be triggered by owner.
+     * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
@@ -257,6 +265,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param user The user address to be added
      */
     function addUser(address user) internal {
+        require(user != address(0));
         if (userRank[user] != 0)
             return;
         userCount++;
@@ -272,6 +281,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param amount The fee amount
      */
     function payFee(address token, address user, uint256 amount) internal {
+        require(user != address(0));
         if (token == tokenID_Address[1])
             amount = amount.div(2);
         balance[token][user] = balance[token][user].sub(amount);
@@ -295,6 +305,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     )
         internal
     {
+        require(user != address(0));
         uint256 amountFee = amount.mul(isTaker? takerFee[userRank[user]] : makerFee[userRank[user]]).div(BASE);
         amountFee = amountFee.mul(feePrice).div(BASE);
         payFee(tokenFee, user, amountFee);
@@ -341,7 +352,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     }
 
     /**
-     * @notice Trading process
+     * @notice Trading process. Event Trade will be emitted after execution.
      * @param isBuy If the trade is a buying process
      * @param user The trading user
      * @param tokenMain The trading main token
@@ -363,6 +374,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         internal
         returns (uint256 amount)
     {
+        require(user != address(0));
         amount = amountTrade.mul(amountMain).div(amountSub);
         if (isBuy) {
             balance[tokenSub][user] = balance[tokenSub][user].add(amountTrade);
