@@ -185,6 +185,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(getWithdrawalAmount(withdrawal) > 0);
         address user = userID_Address[getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[getWithdrawalTokenID(withdrawal)];
+        _verifySig(user, getWithdrawalHash(withdrawal), getWithdrawalR(withdrawal), getWithdrawalS(withdrawal), getWithdrawalV(withdrawal));
         require(getWithdrawalAmount(withdrawal) <= balance[token][user]);
         if (token == address(0)) {
             user.transfer(getWithdrawalAmount(withdrawal));
@@ -200,7 +201,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         emit Withdraw(token, user, getWithdrawalAmount(withdrawal), balance[token][user]);
     }
 
-    function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal {
+    function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal pure {
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (_v < 27) {
           _v += 27;
@@ -239,6 +240,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     function _processMaker(SettleAmount s, bytes _order) internal {
         address user = userID_Address[getUserID(_order)];
+        _verifySig(user, getHash(_order), getR(_order), getS(_order), getV(_order));
         require(!_isLocking(user));
         // trade
         SettleAmount memory tmp = s;
@@ -292,6 +294,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function settle(bytes orders) external onlyOwner {
         bytes memory takerOrder = getOrder(orders, 0);
         address taker = userID_Address[getUserID(takerOrder)];
+        _verifySig(taker, getHash(takerOrder), getR(takerOrder), getS(takerOrder), getV(takerOrder));
         require(!_isLocking(taker));
         SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
         for (uint i = 1; i < getOrderCount(orders); i++) {
