@@ -143,8 +143,7 @@ contract SerializableOrder is Order, Seriality {
      * @return order_data The fetched order data
      */
     function _getOrder(bytes ser_data, uint index) internal pure returns (bytes order_data) {
-        require(ORDER_SIZE.mul(index.add(1)) <= ser_data.length);
-        uint nOrder = ser_data.length.div(ORDER_SIZE);
+        require(index < _getOrderCount(ser_data));
         order_data = ser_data.slice(ORDER_SIZE.mul(index), ORDER_SIZE);
     }
 
