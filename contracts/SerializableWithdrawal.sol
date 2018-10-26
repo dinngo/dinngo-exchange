@@ -3,14 +3,13 @@ pragma solidity ^0.4.24;
 import "bytes/BytesLib.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Seriality/src/Seriality.sol";
-import "./Withdrawal.sol";
 
 /**
  * @title Serializable Withdrawal
  * @author Ben Huang
  * @notice Let withdrawal support serialization and deserialization
  */
-contract SerializableWithdrawal is Withdrawal, Seriality {
+contract SerializableWithdrawal is Seriality {
     using SafeMath for uint256;
     using BytesLib for bytes;
 

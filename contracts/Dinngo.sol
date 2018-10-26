@@ -219,6 +219,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(_getOrderCount(orders) >= 2);
         bytes memory takerOrder = _getOrder(orders, 0);
         address taker = userID_Address[_getOrderUserID(takerOrder)];
+        require(_getOrderAmountMain(takerOrder) > 0);
+        require(_getOrderAmountSub(takerOrder) > 0);
+        require(_getOrderFeePrice(takerOrder) > 0);
         _verifySig(taker, _getOrderHash(takerOrder), _getOrderR(takerOrder), _getOrderS(takerOrder), _getOrderV(takerOrder));
         require(!_isLocking(taker));
         SettleAmount memory s = SettleAmount(0, _getOrderAmountSub(takerOrder));
@@ -324,6 +327,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param order The maker order
      */
     function _processMaker(SettleAmount s, bytes order) internal {
+        require(_getOrderAmountMain(order) > 0);
+        require(_getOrderAmountSub(order) > 0);
+        require(_getOrderFeePrice(order) > 0);
         address user = userID_Address[_getOrderUserID(order)];
         _verifySig(user, _getOrderHash(order), _getOrderR(order), _getOrderS(order), _getOrderV(order));
         require(!_isLocking(user));

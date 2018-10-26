@@ -3,14 +3,13 @@ pragma solidity ^0.4.24;
 import "bytes/BytesLib.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Seriality/src/Seriality.sol";
-import "./Order.sol";
 
 /**
  * @title Serializable Order
  * @author Ben Huang
  * @notice Let order support serialization and deserialization
  */
-contract SerializableOrder is Order, Seriality {
+contract SerializableOrder is Seriality {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
