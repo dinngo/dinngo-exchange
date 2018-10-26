@@ -24,7 +24,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return userID User ID
      */
-    function _getUserID(bytes ser_data) internal pure returns (uint32 userID) {
+    function _getOrderUserID(bytes ser_data) internal pure returns (uint32 userID) {
         userID = bytesToUint32(ORDER_SIZE, ser_data);
     }
 
@@ -33,7 +33,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return tokenMain Main token ID
      */
-    function _getTokenMain(bytes ser_data) internal pure returns (uint16 tokenMain) {
+    function _getOrderTokenIDMain(bytes ser_data) internal pure returns (uint16 tokenMain) {
         tokenMain = bytesToUint16(ORDER_SIZE - 4 , ser_data);
     }
 
@@ -42,7 +42,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return amountMain Main token amount
      */
-    function _getAmountMain(bytes ser_data) internal pure returns (uint256 amountMain) {
+    function _getOrderAmountMain(bytes ser_data) internal pure returns (uint256 amountMain) {
         amountMain = bytesToUint256(ORDER_SIZE - 6, ser_data);
     }
 
@@ -51,7 +51,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return tokenSub Sub token ID
      */
-    function _getTokenSub(bytes ser_data) internal pure returns (uint16 tokenSub) {
+    function _getOrderTokenIDSub(bytes ser_data) internal pure returns (uint16 tokenSub) {
         tokenSub = bytesToUint16(ORDER_SIZE - 38, ser_data);
     }
 
@@ -60,7 +60,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return amountSub Sub token amount
      */
-    function _getAmountSub(bytes ser_data) internal pure returns (uint256 amountSub) {
+    function _getOrderAmountSub(bytes ser_data) internal pure returns (uint256 amountSub) {
         amountSub = bytesToUint256(ORDER_SIZE - 40, ser_data);
     }
 
@@ -69,7 +69,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return fBuy Is buy order or not
      */
-    function _isBuy(bytes ser_data) internal pure returns (bool fBuy) {
+    function _isOrderBuy(bytes ser_data) internal pure returns (bool fBuy) {
         fBuy = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_IS_BUY != 0);
     }
 
@@ -78,7 +78,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return fMain Is the fee paid in main token or not
      */
-    function _isMain(bytes ser_data) internal pure returns (bool fMain) {
+    function _isOrderFeeMain(bytes ser_data) internal pure returns (bool fMain) {
         fMain = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_IS_MAIN != 0);
     }
 
@@ -87,7 +87,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return nonce Nonce
      */
-    function _getNonce(bytes ser_data) internal pure returns (uint32 nonce) {
+    function _getOrderNonce(bytes ser_data) internal pure returns (uint32 nonce) {
         nonce = bytesToUint32(ORDER_SIZE - 73, ser_data);
     }
 
@@ -96,7 +96,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return feePrice Fee price
      */
-    function _getFeePrice(bytes ser_data) internal pure returns (uint256 feePrice) {
+    function _getOrderFeePrice(bytes ser_data) internal pure returns (uint256 feePrice) {
         feePrice = bytesToUint256(ORDER_SIZE - 77, ser_data);
     }
 
@@ -105,7 +105,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return v Signature v
      */
-    function _getV(bytes ser_data) internal pure returns (uint8 v) {
+    function _getOrderV(bytes ser_data) internal pure returns (uint8 v) {
         v = bytesToUint8(ORDER_SIZE - 109, ser_data);
     }
 
@@ -114,7 +114,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return r Signature r
      */
-    function _getR(bytes ser_data) internal pure returns (bytes32 r) {
+    function _getOrderR(bytes ser_data) internal pure returns (bytes32 r) {
         r = bytesToBytes32(ORDER_SIZE - 110, ser_data);
     }
 
@@ -123,7 +123,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return s Signature s
      */
-    function _getS(bytes ser_data) internal pure returns (bytes32 s) {
+    function _getOrderS(bytes ser_data) internal pure returns (bytes32 s) {
         s = bytesToBytes32(ORDER_SIZE - 142, ser_data);
     }
 
@@ -132,7 +132,7 @@ contract SerializableOrder is Order, Seriality {
      * @param ser_data Serialized order data
      * @return hash Order hash without signature
      */
-    function _getHash(bytes ser_data) internal pure returns (bytes32 hash) {
+    function _getOrderHash(bytes ser_data) internal pure returns (bytes32 hash) {
         hash = keccak256(ser_data.slice(65, UNSIGNED_ORDER_SIZE));
     }
 

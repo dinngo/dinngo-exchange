@@ -292,56 +292,56 @@ contract SerializableOrderMock is SerializableOrder {
         hash = keccak256(buffer);
     }
 
-    function getUserIDMock(bytes ser_data) external pure returns (uint32 userID) {
-        return _getUserID(ser_data);
+    function getOrderUserIDMock(bytes ser_data) external pure returns (uint32 userID) {
+        return _getOrderUserID(ser_data);
     }
 
-    function getTokenMainMock(bytes ser_data) external pure returns (uint16 tokenMain) {
-        return _getTokenMain(ser_data);
+    function getOrderTokenIDMainMock(bytes ser_data) external pure returns (uint16 tokenMain) {
+        return _getOrderTokenIDMain(ser_data);
     }
 
-    function getAmountMainMock(bytes ser_data) external pure returns (uint256 amountMain) {
-        return _getAmountMain(ser_data);
+    function getOrderAmountMainMock(bytes ser_data) external pure returns (uint256 amountMain) {
+        return _getOrderAmountMain(ser_data);
     }
 
-    function getTokenSubMock(bytes ser_data) external pure returns (uint16 tokenSub) {
-        return _getTokenSub(ser_data);
+    function getOrderTokenIDSubMock(bytes ser_data) external pure returns (uint16 tokenSub) {
+        return _getOrderTokenIDSub(ser_data);
     }
 
-    function getAmountSubMock(bytes ser_data) external pure returns (uint256 amountSub) {
-        return _getAmountSub(ser_data);
+    function getOrderAmountSubMock(bytes ser_data) external pure returns (uint256 amountSub) {
+        return _getOrderAmountSub(ser_data);
     }
 
-    function isBuyMock(bytes ser_data) external pure returns (bool fBuy) {
-        return _isBuy(ser_data);
+    function isOrderBuyMock(bytes ser_data) external pure returns (bool fBuy) {
+        return _isOrderBuy(ser_data);
     }
 
-    function isMainMock(bytes ser_data) external pure returns (bool fMain) {
-        return _isMain(ser_data);
+    function isOrderFeeMainMock(bytes ser_data) external pure returns (bool fMain) {
+        return _isOrderFeeMain(ser_data);
     }
 
-    function getNonceMock(bytes ser_data) external pure returns (uint32 nonce) {
-        return _getNonce(ser_data);
+    function getOrderNonceMock(bytes ser_data) external pure returns (uint32 nonce) {
+        return _getOrderNonce(ser_data);
     }
 
-    function getFeePriceMock(bytes ser_data) external pure returns (uint256 feePrice) {
-        return _getFeePrice(ser_data);
+    function getOrderFeePriceMock(bytes ser_data) external pure returns (uint256 feePrice) {
+        return _getOrderFeePrice(ser_data);
     }
 
-    function getVMock(bytes ser_data) external pure returns (uint8 v) {
-        return _getV(ser_data);
+    function getOrderVMock(bytes ser_data) external pure returns (uint8 v) {
+        return _getOrderV(ser_data);
     }
 
-    function getRMock(bytes ser_data) external pure returns (bytes32 r) {
-        return _getR(ser_data);
+    function getOrderRMock(bytes ser_data) external pure returns (bytes32 r) {
+        return _getOrderR(ser_data);
     }
 
-    function getSMock(bytes ser_data) external pure returns (bytes32 s) {
-        return _getS(ser_data);
+    function getOrderSMock(bytes ser_data) external pure returns (bytes32 s) {
+        return _getOrderS(ser_data);
     }
 
-    function getHashMock(bytes ser_data) external pure returns (bytes32 hash) {
-        return _getHash(ser_data);
+    function getOrderHashMock(bytes ser_data) external pure returns (bytes32 hash) {
+        return _getOrderHash(ser_data);
     }
 
     function getOrderMock(bytes ser_data, uint index) external pure returns (bytes order_data) {
