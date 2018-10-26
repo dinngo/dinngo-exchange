@@ -25,7 +25,7 @@ contract SerializableOrderMock is SerializableOrder {
      * @return s Signature s
      * @return v Signature v
      */
-    function deserializeOrder(bytes ser_data) public view
+    function deserializeOrder(bytes ser_data) public pure
         returns (
             uint32 userID,
             uint16 mainTokenID,

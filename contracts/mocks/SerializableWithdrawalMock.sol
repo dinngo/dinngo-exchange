@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "../SerializableWithdrawal.sol";
 
 contract SerializableWithdrawalMock is SerializableWithdrawal {
-    constructor () public {
+    constructor() public {
     }
 
     /**
@@ -180,7 +180,7 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
      * @return s Signature s
      * @return v Signature v
      */
-    function deserializeWithdrawal(bytes ser_data) public view
+    function deserializeWithdrawal(bytes ser_data) public pure
         returns (
             uint32 userID,
             uint16 tokenID,
