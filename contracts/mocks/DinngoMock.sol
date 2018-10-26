@@ -4,8 +4,8 @@ import "../Dinngo.sol";
 
 contract DinngoMock is Dinngo {
 
-    constructor(address _dinngoWallet, address _dinngoToken)
-        Dinngo(_dinngoWallet, _dinngoToken)
+    constructor(address dinngoWallet, address dinngoToken)
+        Dinngo(dinngoWallet, dinngoToken)
         public
     {
     }
@@ -25,7 +25,7 @@ contract DinngoMock is Dinngo {
     }
 
     function addUserMock(address user) external {
-        addUser(user);
+        _addUser(user);
     }
 
     function payTradingFeeMock(
@@ -37,7 +37,7 @@ contract DinngoMock is Dinngo {
     )
         external
     {
-        payTradingFee(isTaker, tokenFee, user, feePrice, amount);
+        _payTradingFee(isTaker, tokenFee, user, feePrice, amount);
     }
 
     function tradeMock(
@@ -51,15 +51,15 @@ contract DinngoMock is Dinngo {
     )
         external
         returns (uint256 amount) {
-        amount = trade(isBuy, user, tokenMain, amountMain, tokenSub, amountSub, amountTrade);
+        amount = _trade(isBuy, user, tokenMain, amountMain, tokenSub, amountSub, amountTrade);
     }
 
     event TestMaker(uint256 fillAmountMain, uint256 restAmountSub);
-    function processMakerMock(bytes _order, uint256 _tradeAmountSub)
+    function processMakerMock(bytes order, uint256 tradeAmountSub)
         external
     {
-        SettleAmount memory s = SettleAmount(0, _tradeAmountSub);
-        _processMaker(s, _order);
+        SettleAmount memory s = SettleAmount(0, tradeAmountSub);
+        _processMaker(s, order);
         emit TestMaker(s.fillAmountMain, s.restAmountSub);
     }
 }

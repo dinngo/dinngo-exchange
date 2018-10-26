@@ -77,34 +77,34 @@ contract SerializableOrderMock is SerializableOrder {
     /**
      * @notice Serialize the order and output a hex string
      * @dev Mind the serialization sequence
-     * @param _userID The user ID of order maker
-     * @param _mainTokenID The token ID of main token in the order
-     * @param _mainAmount The main token amount
-     * @param _subTokenID The token ID of sub token in the order
-     * @param _subAmount The sub token amount
-     * @param _config Order configurations
+     * @param userID The user ID of order maker
+     * @param mainTokenID The token ID of main token in the order
+     * @param mainAmount The main token amount
+     * @param subTokenID The token ID of sub token in the order
+     * @param subAmount The sub token amount
+     * @param config Order configurations
      * Bit 0: is buy order or not
      * Bit 1: is fee paid by major token or not
      * Bit 2-7: TBD
-     * @param _feePrice The fee token price when order is created
-     * @param _nonce The nonce of order
-     * @param _r Signature r
-     * @param _s Signature s
-     * @param _v Signature v
+     * @param feePrice The fee token price when order is created
+     * @param nonce The nonce of order
+     * @param r Signature r
+     * @param s Signature s
+     * @param v Signature v
      * @return buffer The serialized hex string
      */
     function serializeOrder(
-        uint32 _userID,
-        uint16 _mainTokenID,
-        uint256 _mainAmount,
-        uint16 _subTokenID,
-        uint256 _subAmount,
-        uint8 _config,
-        uint256 _feePrice,
-        uint32 _nonce,
-        bytes32 _r,
-        bytes32 _s,
-        uint8 _v
+        uint32 userID,
+        uint16 mainTokenID,
+        uint256 mainAmount,
+        uint16 subTokenID,
+        uint256 subAmount,
+        uint8 config,
+        uint256 feePrice,
+        uint32 nonce,
+        bytes32 r,
+        bytes32 s,
+        uint8 v
     )
         public
         pure
@@ -113,37 +113,37 @@ contract SerializableOrderMock is SerializableOrder {
         buffer = new bytes(ORDER_SIZE);
         uint offset = ORDER_SIZE;
 
-        uintToBytes(offset, _userID, buffer);
+        uintToBytes(offset, userID, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _mainTokenID, buffer);
+        uintToBytes(offset, mainTokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _mainAmount, buffer);
+        uintToBytes(offset, mainAmount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _subTokenID, buffer);
+        uintToBytes(offset, subTokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _subAmount, buffer);
+        uintToBytes(offset, subAmount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _config, buffer);
+        uintToBytes(offset, config, buffer);
         offset -= sizeOfUint(8);
 
-        uintToBytes(offset, _nonce, buffer);
+        uintToBytes(offset, nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _feePrice, buffer);
+        uintToBytes(offset, feePrice, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _v, buffer);
+        uintToBytes(offset, v, buffer);
         offset -= sizeOfUint(8);
 
-        bytes32ToBytes(offset, _r, buffer);
+        bytes32ToBytes(offset, r, buffer);
         offset -= 32;
 
-        bytes32ToBytes(offset, _s, buffer);
+        bytes32ToBytes(offset, s, buffer);
     }
 
     /**
@@ -236,28 +236,28 @@ contract SerializableOrderMock is SerializableOrder {
     /**
      * @notice Hash the order content to be signed
      * @dev Mind the sequence
-     * @param _userID The user ID of order maker
-     * @param _mainTokenID The token ID of main token in the order
-     * @param _mainAmount The main token amount
-     * @param _subTokenID The token ID of sub token in the order
-     * @param _subAmount The sub token amount
-     * @param _config Order configuration
+     * @param userID The user ID of order maker
+     * @param mainTokenID The token ID of main token in the order
+     * @param mainAmount The main token amount
+     * @param subTokenID The token ID of sub token in the order
+     * @param subAmount The sub token amount
+     * @param config Order configuration
      * Bit 0: is buy order
      * Bit 1: is paid by major token
      * Bit 2-7: TBD
-     * @param _feePrice The fee token price when order is created
-     * @param _nonce The nonce of order
+     * @param feePrice The fee token price when order is created
+     * @param nonce The nonce of order
      * @return hash The hash value of order
      */
     function hashOrder(
-        uint32 _userID,
-        uint16 _mainTokenID,
-        uint256 _mainAmount,
-        uint16 _subTokenID,
-        uint256 _subAmount,
-        uint8 _config,
-        uint256 _feePrice,
-        uint32 _nonce
+        uint32 userID,
+        uint16 mainTokenID,
+        uint256 mainAmount,
+        uint16 subTokenID,
+        uint256 subAmount,
+        uint8 config,
+        uint256 feePrice,
+        uint32 nonce
     )
         public
         pure
@@ -266,90 +266,90 @@ contract SerializableOrderMock is SerializableOrder {
         bytes memory buffer = new bytes(UNSIGNED_ORDER_SIZE);
         uint offset = UNSIGNED_ORDER_SIZE;
 
-        uintToBytes(offset, _userID, buffer);
+        uintToBytes(offset, userID, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _mainTokenID, buffer);
+        uintToBytes(offset, mainTokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _mainAmount, buffer);
+        uintToBytes(offset, mainAmount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _subTokenID, buffer);
+        uintToBytes(offset, subTokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _subAmount, buffer);
+        uintToBytes(offset, subAmount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _config, buffer);
+        uintToBytes(offset, config, buffer);
         offset -= sizeOfUint(8);
 
-        uintToBytes(offset, _nonce, buffer);
+        uintToBytes(offset, nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _feePrice, buffer);
+        uintToBytes(offset, feePrice, buffer);
 
         hash = keccak256(buffer);
     }
 
     function getUserIDMock(bytes ser_data) external pure returns (uint32 userID) {
-        return getUserID(ser_data);
+        return _getUserID(ser_data);
     }
 
     function getTokenMainMock(bytes ser_data) external pure returns (uint16 tokenMain) {
-        return getTokenMain(ser_data);
+        return _getTokenMain(ser_data);
     }
 
     function getAmountMainMock(bytes ser_data) external pure returns (uint256 amountMain) {
-        return getAmountMain(ser_data);
+        return _getAmountMain(ser_data);
     }
 
     function getTokenSubMock(bytes ser_data) external pure returns (uint16 tokenSub) {
-        return getTokenSub(ser_data);
+        return _getTokenSub(ser_data);
     }
 
     function getAmountSubMock(bytes ser_data) external pure returns (uint256 amountSub) {
-        return getAmountSub(ser_data);
+        return _getAmountSub(ser_data);
     }
 
     function isBuyMock(bytes ser_data) external pure returns (bool fBuy) {
-        return isBuy(ser_data);
+        return _isBuy(ser_data);
     }
 
     function isMainMock(bytes ser_data) external pure returns (bool fMain) {
-        return isMain(ser_data);
+        return _isMain(ser_data);
     }
 
     function getNonceMock(bytes ser_data) external pure returns (uint32 nonce) {
-        return getNonce(ser_data);
+        return _getNonce(ser_data);
     }
 
     function getFeePriceMock(bytes ser_data) external pure returns (uint256 feePrice) {
-        return getFeePrice(ser_data);
+        return _getFeePrice(ser_data);
     }
 
     function getVMock(bytes ser_data) external pure returns (uint8 v) {
-        return getV(ser_data);
+        return _getV(ser_data);
     }
 
     function getRMock(bytes ser_data) external pure returns (bytes32 r) {
-        return getR(ser_data);
+        return _getR(ser_data);
     }
 
     function getSMock(bytes ser_data) external pure returns (bytes32 s) {
-        return getS(ser_data);
+        return _getS(ser_data);
     }
 
     function getHashMock(bytes ser_data) external pure returns (bytes32 hash) {
-        return getHash(ser_data);
+        return _getHash(ser_data);
     }
 
     function getOrderMock(bytes ser_data, uint index) external pure returns (bytes order_data) {
-        return getOrder(ser_data, index);
+        return _getOrder(ser_data, index);
     }
 
-    function getOrderCountMock(bytes ser_data) internal pure returns (uint amount) {
-        return getOrderCount(ser_data);
+    function getOrderCountMock(bytes ser_data) external pure returns (uint amount) {
+        return _getOrderCount(ser_data);
     }
 
 }

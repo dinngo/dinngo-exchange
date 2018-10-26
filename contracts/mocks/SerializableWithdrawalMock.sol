@@ -9,29 +9,29 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
     /**
      * @notice Serialize the withdrawal and output a hex string
      * @dev Mind the serialization sequence
-     * @param _userID The user ID of withdrawer
-     * @param _tokenID The token ID of withdrawal
-     * @param _amount The withdrawal amount
-     * @param _config The withdrawal configurations
+     * @param userID The user ID of withdrawer
+     * @param tokenID The token ID of withdrawal
+     * @param amount The withdrawal amount
+     * @param config The withdrawal configurations
      * Bit 0: is fee paid by ETH or DGO
      * Bit 1-7: TBD
-     * @param _fee The fee amount
-     * @param _nonce The nonce of withdrawal
-     * @param _r Signature r
-     * @param _s Signature s
-     * @param _v Signature v
+     * @param fee The fee amount
+     * @param nonce The nonce of withdrawal
+     * @param r Signature r
+     * @param s Signature s
+     * @param v Signature v
      * @return buffer The serialized hex string
      */
     function serializeWithdrawal(
-        uint32 _userID,
-        uint16 _tokenID,
-        uint256 _amount,
-        uint8 _config,
-        uint256 _fee,
-        uint32 _nonce,
-        bytes32 _r,
-        bytes32 _s,
-        uint8 _v
+        uint32 userID,
+        uint16 tokenID,
+        uint256 amount,
+        uint8 config,
+        uint256 fee,
+        uint32 nonce,
+        bytes32 r,
+        bytes32 s,
+        uint8 v
     )
         public
         pure
@@ -40,53 +40,53 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         buffer = new bytes(WITHDRAWAL_SIZE);
         uint offset = WITHDRAWAL_SIZE;
 
-        uintToBytes(offset, _userID, buffer);
+        uintToBytes(offset, userID, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _tokenID, buffer);
+        uintToBytes(offset, tokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _amount, buffer);
+        uintToBytes(offset, amount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _config, buffer);
+        uintToBytes(offset, config, buffer);
         offset -= sizeOfUint(8);
 
-        uintToBytes(offset, _nonce, buffer);
+        uintToBytes(offset, nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _fee, buffer);
+        uintToBytes(offset, fee, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _v, buffer);
+        uintToBytes(offset, v, buffer);
         offset -= sizeOfUint(8);
 
-        bytes32ToBytes(offset, _r, buffer);
+        bytes32ToBytes(offset, r, buffer);
         offset -= 32;
 
-        bytes32ToBytes(offset, _s, buffer);
+        bytes32ToBytes(offset, s, buffer);
     }
 
     /**
      * @notice Hash the withdrawal content to be signed
      * @dev Mind the sequence
-     * @param _userID The user ID of withdrawer
-     * @param _tokenID The token ID of withdrawal
-     * @param _amount The withdrawal amount
-     * @param _config Withdrawal configuration
+     * @param userID The user ID of withdrawer
+     * @param tokenID The token ID of withdrawal
+     * @param amount The withdrawal amount
+     * @param config Withdrawal configuration
      * Bit 0: is fee paid by ETH or DGO
      * Bit 1-7: TBD
-     * @param _fee The fee amount
-     * @param _nonce The nonce of withdraw
+     * @param fee The fee amount
+     * @param nonce The nonce of withdraw
      * @return hash The hash value of withdrawal
      */
     function hashWithdrawal(
-        uint32 _userID,
-        uint16 _tokenID,
-        uint256 _amount,
-        uint8 _config,
-        uint256 _fee,
-        uint32 _nonce
+        uint32 userID,
+        uint16 tokenID,
+        uint256 amount,
+        uint8 config,
+        uint256 fee,
+        uint32 nonce
     )
         public
         pure
@@ -95,22 +95,22 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         bytes memory buffer = new bytes(UNSIGNED_WITHDRAWAL_SIZE);
         uint offset = UNSIGNED_WITHDRAWAL_SIZE;
 
-        uintToBytes(offset, _userID, buffer);
+        uintToBytes(offset, userID, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _tokenID, buffer);
+        uintToBytes(offset, tokenID, buffer);
         offset -= sizeOfUint(16);
 
-        uintToBytes(offset, _amount, buffer);
+        uintToBytes(offset, amount, buffer);
         offset -= sizeOfUint(256);
 
-        uintToBytes(offset, _config, buffer);
+        uintToBytes(offset, config, buffer);
         offset -= sizeOfUint(8);
 
-        uintToBytes(offset, _nonce, buffer);
+        uintToBytes(offset, nonce, buffer);
         offset -= sizeOfUint(32);
 
-        uintToBytes(offset, _fee, buffer);
+        uintToBytes(offset, fee, buffer);
 
         hash = keccak256(buffer);
     }
@@ -222,46 +222,46 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
     }
 
     function getWithdrawalUserIDMock(bytes ser_data) external pure returns (uint32 userID) {
-        return getWithdrawalUserID(ser_data);
+        return _getWithdrawalUserID(ser_data);
     }
 
     function getWithdrawalTokenIDMock(bytes ser_data) external pure returns (uint16 tokenID) {
-        return getWithdrawalTokenID(ser_data);
+        return _getWithdrawalTokenID(ser_data);
     }
 
     function getWithdrawalAmountMock(bytes ser_data) external pure returns (uint256 amount) {
-        return getWithdrawalAmount(ser_data);
+        return _getWithdrawalAmount(ser_data);
     }
 
     function getWithdrawalConfigMock(bytes ser_data) external pure returns (uint8 config) {
-        return getWithdrawalConfig(ser_data);
+        return _getWithdrawalConfig(ser_data);
     }
 
     function isWithdrawalETHMock(bytes ser_data) external pure returns (bool fETH) {
-        return isWithdrawalETH(ser_data);
+        return _isWithdrawalETH(ser_data);
     }
 
     function getWithdrawalNonceMock(bytes ser_data) external pure returns (uint32 nonce) {
-        return getWithdrawalNonce(ser_data);
+        return _getWithdrawalNonce(ser_data);
     }
 
     function getWithdrawalFeeMock(bytes ser_data) external pure returns (uint256 fee) {
-        return getWithdrawalFee(ser_data);
+        return _getWithdrawalFee(ser_data);
     }
 
     function getWithdrawalVMock(bytes ser_data) external pure returns (uint8 v) {
-        return getWithdrawalV(ser_data);
+        return _getWithdrawalV(ser_data);
     }
 
     function getWithdrawalRMock(bytes ser_data) external pure returns (bytes32 r) {
-        return getWithdrawalR(ser_data);
+        return _getWithdrawalR(ser_data);
     }
 
     function getWithdrawalSMock(bytes ser_data) external pure returns (bytes32 s) {
-        return getWithdrawalS(ser_data);
+        return _getWithdrawalS(ser_data);
     }
 
     function getWithdrawalHashMock(bytes ser_data) external pure returns (bytes32 hash) {
-        return getWithdrawalHash(ser_data);
+        return _getWithdrawalHash(ser_data);
     }
 }

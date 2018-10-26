@@ -9,20 +9,20 @@ contract Withdrawal {
 
     /**
      * @dev Validate the withdrawal information. Can be extended.
-     * @param _amount The withdrawal amount.
+     * @param amount The withdrawal amount.
      */
-    function _validateWithdrawal(uint256 _amount) internal view {
-        require(_amount > 0);
+    function _validateWithdrawal(uint256 amount) internal view {
+        require(amount > 0);
     }
 
     /**
      * @dev Validate the withdrawal token information. Can be extended.
-     * @param _token The withdrawal token address.
-     * @param _amount The withdrawal token amount.
+     * @param token The withdrawal token address.
+     * @param amount The withdrawal token amount.
      */
-    function _validateWithdrawalToken(address _token, uint256 _amount) internal view {
-        require(_token != address(0));
-        require(_amount > 0);
+    function _validateWithdrawalToken(address token, uint256 amount) internal view {
+        require(token != address(0));
+        require(amount > 0);
     }
 
 }

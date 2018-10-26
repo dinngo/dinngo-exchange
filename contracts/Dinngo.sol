@@ -29,8 +29,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (uint8 => uint256) public takerFee;
     mapping (uint8 => uint256) public makerFee;
     uint256 constant BASE = 10000;
-    uint256 private userCount;
-    uint256 private tokenCount;
+    uint256 private _userCount;
+    uint256 private _tokenCount;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -50,9 +50,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param dinngoWallet The main address of dinngo
      * @param dinngoToken The contract address of DGO
      */
-    constructor (address dinngoWallet, address dinngoToken) public {
-        userCount = 0;
-        tokenCount = 1;
+    constructor(address dinngoWallet, address dinngoToken) public {
+        _userCount = 0;
+        _tokenCount = 1;
         userID_Address[0] = dinngoWallet;
         userRank[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
@@ -90,10 +90,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function addToken(address token) external onlyOwner {
         require(tokenRank[token] == 0);
         require(token != address(0));
-        tokenCount++;
-        tokenID_Address[tokenCount] = token;
+        _tokenCount++;
+        tokenID_Address[_tokenCount] = token;
         tokenRank[token] = 1;
-        emit AddToken(tokenCount, token);
+        emit AddToken(_tokenCount, token);
     }
 
     /**
@@ -129,7 +129,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(!_isLocking(msg.sender));
         require(msg.value > 0);
         balance[0][msg.sender] = balance[0][msg.sender].add(msg.value);
-        addUser(msg.sender);
+        _addUser(msg.sender);
         emit Deposit(0, msg.sender, msg.value, balance[0][msg.sender]);
     }
 
@@ -145,7 +145,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(amount > 0);
         ERC20(token).safeTransferFrom(msg.sender, this, amount);
         balance[token][msg.sender] = balance[token][msg.sender].add(amount);
-        addUser(msg.sender);
+        _addUser(msg.sender);
         emit Deposit(token, msg.sender, amount, balance[token][msg.sender]);
     }
 
@@ -185,29 +185,29 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
-        require(getWithdrawalAmount(withdrawal) > 0);
-        address user = userID_Address[getWithdrawalUserID(withdrawal)];
-        address token = tokenID_Address[getWithdrawalTokenID(withdrawal)];
+        require(_getWithdrawalAmount(withdrawal) > 0);
+        address user = userID_Address[_getWithdrawalUserID(withdrawal)];
+        address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         _verifySig(
             user,
-            getWithdrawalHash(withdrawal),
-            getWithdrawalR(withdrawal),
-            getWithdrawalS(withdrawal),
-            getWithdrawalV(withdrawal)
+            _getWithdrawalHash(withdrawal),
+            _getWithdrawalR(withdrawal),
+            _getWithdrawalS(withdrawal),
+            _getWithdrawalV(withdrawal)
         );
-        require(getWithdrawalAmount(withdrawal) <= balance[token][user]);
+        require(_getWithdrawalAmount(withdrawal) <= balance[token][user]);
         if (token == address(0)) {
-            user.transfer(getWithdrawalAmount(withdrawal));
+            user.transfer(_getWithdrawalAmount(withdrawal));
         } else {
-            ERC20(token).safeTransfer(user, getWithdrawalAmount(withdrawal));
+            ERC20(token).safeTransfer(user, _getWithdrawalAmount(withdrawal));
         }
-        balance[token][user] = balance[token][user].sub(getWithdrawalAmount(withdrawal));
-        if (isWithdrawalETH(withdrawal)) {
-            payFee(tokenID_Address[0], user, getWithdrawalFee(withdrawal));
+        balance[token][user] = balance[token][user].sub(_getWithdrawalAmount(withdrawal));
+        if (_isWithdrawalETH(withdrawal)) {
+            _payFee(tokenID_Address[0], user, _getWithdrawalFee(withdrawal));
         } else {
-            payFee(tokenID_Address[1], user, getWithdrawalFee(withdrawal));
+            _payFee(tokenID_Address[1], user, _getWithdrawalFee(withdrawal));
         }
-        emit Withdraw(token, user, getWithdrawalAmount(withdrawal), balance[token][user]);
+        emit Withdraw(token, user, _getWithdrawalAmount(withdrawal), balance[token][user]);
     }
 
     /**
@@ -216,44 +216,44 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param orders The serialized orders.
      */
     function settle(bytes orders) external onlyOwner {
-        require(getOrderCount(orders) >= 2);
-        bytes memory takerOrder = getOrder(orders, 0);
-        address taker = userID_Address[getUserID(takerOrder)];
-        _verifySig(taker, getHash(takerOrder), getR(takerOrder), getS(takerOrder), getV(takerOrder));
+        require(_getOrderCount(orders) >= 2);
+        bytes memory takerOrder = _getOrder(orders, 0);
+        address taker = userID_Address[_getUserID(takerOrder)];
+        _verifySig(taker, _getHash(takerOrder), _getR(takerOrder), _getS(takerOrder), _getV(takerOrder));
         require(!_isLocking(taker));
-        SettleAmount memory s = SettleAmount(0, getAmountSub(takerOrder));
-        for (uint i = 1; i < getOrderCount(orders); i++) {
-            _processMaker(s, getOrder(orders, i));
+        SettleAmount memory s = SettleAmount(0, _getAmountSub(takerOrder));
+        for (uint i = 1; i < _getOrderCount(orders); i++) {
+            _processMaker(s, _getOrder(orders, i));
         }
-        uint256 fillAmountSub = getAmountSub(takerOrder).sub(s.restAmountSub);
-        if (isBuy(takerOrder)) {
-            balance[tokenID_Address[getTokenSub(takerOrder)]][taker] =
-                balance[tokenID_Address[getTokenSub(takerOrder)]][taker].add(fillAmountSub);
-            balance[tokenID_Address[getTokenMain(takerOrder)]][taker] =
-                balance[tokenID_Address[getTokenMain(takerOrder)]][taker].sub(s.fillAmountMain);
+        uint256 fillAmountSub = _getAmountSub(takerOrder).sub(s.restAmountSub);
+        if (_isBuy(takerOrder)) {
+            balance[tokenID_Address[_getTokenSub(takerOrder)]][taker] =
+                balance[tokenID_Address[_getTokenSub(takerOrder)]][taker].add(fillAmountSub);
+            balance[tokenID_Address[_getTokenMain(takerOrder)]][taker] =
+                balance[tokenID_Address[_getTokenMain(takerOrder)]][taker].sub(s.fillAmountMain);
         } else {
-            balance[tokenID_Address[getTokenSub(takerOrder)]][taker] =
-                balance[tokenID_Address[getTokenSub(takerOrder)]][taker].sub(fillAmountSub);
-            balance[tokenID_Address[getTokenMain(takerOrder)]][taker] =
-                balance[tokenID_Address[getTokenMain(takerOrder)]][taker].add(s.fillAmountMain);
+            balance[tokenID_Address[_getTokenSub(takerOrder)]][taker] =
+                balance[tokenID_Address[_getTokenSub(takerOrder)]][taker].sub(fillAmountSub);
+            balance[tokenID_Address[_getTokenMain(takerOrder)]][taker] =
+                balance[tokenID_Address[_getTokenMain(takerOrder)]][taker].add(s.fillAmountMain);
         }
         emit Trade
         (
             taker,
-            isBuy(takerOrder),
-            tokenID_Address[getTokenMain(takerOrder)],
+            _isBuy(takerOrder),
+            tokenID_Address[_getTokenMain(takerOrder)],
             s.fillAmountMain,
-            tokenID_Address[getTokenSub(takerOrder)],
+            tokenID_Address[_getTokenSub(takerOrder)],
             fillAmountSub
         );
-        bytes32 hash = getHash(takerOrder);
+        bytes32 hash = _getHash(takerOrder);
         orderFill[hash] = orderFill[hash].add(fillAmountSub);
         // calculate fee
-        payTradingFee(
+        _payTradingFee(
             true,
-            isMain(takerOrder)? tokenID_Address[getTokenMain(takerOrder)] : tokenID_Address[1],
+            _isMain(takerOrder)? tokenID_Address[_getTokenMain(takerOrder)] : tokenID_Address[1],
             taker,
-            getFeePrice(takerOrder),
+            _getFeePrice(takerOrder),
             s.fillAmountMain
         );
     }
@@ -265,14 +265,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * order to compact the data size when transferring user address information
      * @param user The user address to be added
      */
-    function addUser(address user) internal {
+    function _addUser(address user) internal {
         require(user != address(0));
         if (userRank[user] != 0)
             return;
-        userCount++;
-        userID_Address[userCount] = user;
+        _userCount++;
+        userID_Address[_userCount] = user;
         userRank[user] = 1;
-        emit AddUser(userCount, user);
+        emit AddUser(_userCount, user);
     }
 
     /**
@@ -281,7 +281,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param user The user paying fee
      * @param amount The fee amount
      */
-    function payFee(address token, address user, uint256 amount) internal {
+    function _payFee(address token, address user, uint256 amount) internal {
         require(user != address(0));
         if (token == tokenID_Address[1])
             amount = amount.div(2);
@@ -291,13 +291,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     /**
      * @notice Trading fee calculation
+     * @dev feePrice should be divided by BASE
      * @param isTaker If the order is a taker order
      * @param tokenFee The fee token
      * @param user The user paying fee
      * @param feePrice The fee price comparing to the main token
      * @param amount The trading amount based on main token
      */
-    function payTradingFee(
+    function _payTradingFee(
         bool isTaker,
         address tokenFee,
         address user,
@@ -309,7 +310,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(user != address(0));
         uint256 amountFee = amount.mul(isTaker? takerFee[userRank[user]] : makerFee[userRank[user]]).div(BASE);
         amountFee = amountFee.mul(feePrice).div(BASE);
-        payFee(tokenFee, user, amountFee);
+        _payFee(tokenFee, user, amountFee);
     }
 
     struct SettleAmount {
@@ -320,32 +321,32 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     /**
      * @notice Process the maker order
      * @param s Record the accumulated trading information of maker orders
-     * @param _order The maker order
+     * @param order The maker order
      */
-    function _processMaker(SettleAmount s, bytes _order) internal {
-        address user = userID_Address[getUserID(_order)];
-        _verifySig(user, getHash(_order), getR(_order), getS(_order), getV(_order));
+    function _processMaker(SettleAmount s, bytes order) internal {
+        address user = userID_Address[_getUserID(order)];
+        _verifySig(user, _getHash(order), _getR(order), _getS(order), _getV(order));
         require(!_isLocking(user));
         // trade
         SettleAmount memory tmp = s;
-        uint256 tradeAmountSub = (tmp.restAmountSub < getAmountSub(_order))? tmp.restAmountSub : getAmountSub(_order);
-        uint256 tradeAmountMain = trade(
-            isBuy(_order),
+        uint256 tradeAmountSub = (tmp.restAmountSub < _getAmountSub(order))? tmp.restAmountSub : _getAmountSub(order);
+        uint256 tradeAmountMain = _trade(
+            _isBuy(order),
             user,
-            tokenID_Address[getTokenMain(_order)],
-            getAmountMain(_order),
-            tokenID_Address[getTokenSub(_order)],
-            getAmountSub(_order),
+            tokenID_Address[_getTokenMain(order)],
+            _getAmountMain(order),
+            tokenID_Address[_getTokenSub(order)],
+            _getAmountSub(order),
             tradeAmountSub
         );
-        bytes32 hash = getHash(_order);
+        bytes32 hash = _getHash(order);
         orderFill[hash] = orderFill[hash].add(tradeAmountSub);
         // calculate fee
-        payTradingFee(
+        _payTradingFee(
             false,
-            isMain(_order)? getTokenMain(_order) : tokenID_Address[1],
+            _isMain(order)? _getTokenMain(order) : tokenID_Address[1],
             user,
-            getFeePrice(_order),
+            _getFeePrice(order),
             tradeAmountMain
         );
         tmp.restAmountSub = tmp.restAmountSub.sub(tradeAmountSub);
@@ -363,7 +364,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param amountTrade The target sub token amount to be traded
      * @return amount The calculated main token amount to be traded to meet the target
      */
-    function trade(
+    function _trade(
         bool isBuy,
         address user,
         address tokenMain,
@@ -389,20 +390,20 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     /**
      * @notice Verify if the data is signed by the given user and signature
-     * @param _user The signing user
-     * @param _hash The data hash to be verified
-     * @param _r The signature R
-     * @param _s The signature S
-     * @param _v The signature V
+     * @param user The signing user
+     * @param hash The data hash to be verified
+     * @param r The signature R
+     * @param s The signature S
+     * @param v The signature V
      */
-    function _verifySig(address _user, bytes32 _hash, bytes32 _r, bytes32 _s, uint8 _v) internal pure {
+    function _verifySig(address user, bytes32 hash, bytes32 r, bytes32 s, uint8 v) internal pure {
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-        if (_v < 27) {
-          _v += 27;
+        if (v < 27) {
+          v += 27;
         }
-        require(_v == 27 || _v == 28);
+        require(v == 27 || v == 28);
 
-        address sigAddr = ecrecover(_hash.toEthSignedMessageHash(), _v, _r, _s);
-        require(_user == sigAddr);
+        address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
+        require(user == sigAddr);
     }
 }
