@@ -11,17 +11,17 @@ contract DinngoMock is Dinngo {
     }
 
     function setUserBalance(address user, address token, uint256 amount) external {
-        balance[token][user] = amount;
+        balances[token][user] = amount;
     }
 
     function setUser(uint256 userID, address user, uint8 rank) external {
         userID_Address[userID] = user;
-        userRank[user] = rank;
+        userRanks[user] = rank;
     }
 
     function setToken(uint256 tokenID, address token, uint8 rank) external {
         tokenID_Address[tokenID] = token;
-        tokenRank[token] = rank;
+        tokenRanks[token] = rank;
     }
 
     function addUserMock(address user) external {

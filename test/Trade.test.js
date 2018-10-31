@@ -33,8 +33,8 @@ contract('Trade', function([_, owner, tokenWallet, token]) {
                 ether(21.5),
                 { from: owner }
             );
-            let tokenBalance = await this.Dinngo.balance(token, user1);
-            let etherBalance = await this.Dinngo.balance(ZERO_ADDRESS, user1);
+            let tokenBalance = await this.Dinngo.balances.call(token, user1);
+            let etherBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
             tokenBalance.should.be.bignumber.eq(ether(1000+21.5));
             etherBalance.should.be.bignumber.eq(ether(1000-11.5));
         });
@@ -52,8 +52,8 @@ contract('Trade', function([_, owner, tokenWallet, token]) {
                 ether(21.5),
                 { from: owner }
             );
-            let tokenBalance = await this.Dinngo.balance(token, user2);
-            let etherBalance = await this.Dinngo.balance(ZERO_ADDRESS, user2);
+            let tokenBalance = await this.Dinngo.balances.call(token, user2);
+            let etherBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, user2);
             tokenBalance.should.be.bignumber.eq(ether(1500-21.5));
             etherBalance.should.be.bignumber.eq(ether(1500+11.5));
         });

@@ -24,7 +24,7 @@ contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2]) 
             const event = await inLogs(logs, 'AddUser');
             event.args.userID.should.be.bignumber.eq(1);
             event.args.user.should.eq(user);
-            let rank = await this.Dinngo.userRank.call(user);
+            let rank = await this.Dinngo.userRanks.call(user);
             rank.should.be.bignumber.eq(1);
         });
 
@@ -44,10 +44,10 @@ contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2]) 
     describe('update rank', function () {
         it('when normal', async function () {
             await this.Dinngo.addUserMock(user);
-            let rank1 = await this.Dinngo.userRank.call(user);
+            let rank1 = await this.Dinngo.userRanks.call(user);
             rank1.should.be.bignumber.eq(1);
             await this.Dinngo.updateUserRank(user, 2, { from: owner });
-            let rank2 = await this.Dinngo.userRank.call(user);
+            let rank2 = await this.Dinngo.userRanks.call(user);
             rank2.should.be.bignumber.eq(2);
         });
 
@@ -57,7 +57,7 @@ contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2]) 
 
         it('when assigning same rank', async function () {
             await this.Dinngo.addUserMock(user);
-            let rank1 = await this.Dinngo.userRank.call(user);
+            let rank1 = await this.Dinngo.userRanks.call(user);
             rank1.should.be.bignumber.eq(1);
             await expectThrow(this.Dinngo.updateUserRank(user, 1, { from: owner }));
         });

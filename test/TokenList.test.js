@@ -25,7 +25,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
             const event = await inLogs(logs, 'AddToken');
             event.args.tokenID.should.be.bignumber.eq(2);
             event.args.token.should.eq(this.Token.address);
-            let rank = await this.Dinngo.tokenRank.call(this.Token.address);
+            let rank = await this.Dinngo.tokenRanks.call(this.Token.address);
             rank.should.be.bignumber.eq(1);
         });
 
@@ -42,10 +42,10 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
     describe('update rank', function () {
         it('when normal', async function () {
             await this.Dinngo.addToken(this.Token.address, { from: owner });
-            let rank1 = await this.Dinngo.tokenRank.call(this.Token.address);
+            let rank1 = await this.Dinngo.tokenRanks.call(this.Token.address);
             rank1.should.be.bignumber.eq(1);
             await this.Dinngo.updateTokenRank(this.Token.address, 2, { from: owner });
-            let rank2 = await this.Dinngo.tokenRank.call(this.Token.address);
+            let rank2 = await this.Dinngo.tokenRanks.call(this.Token.address);
             rank2.should.be.bignumber.eq(2);
         });
 
@@ -55,7 +55,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
 
         it('when assigning same rank', async function () {
             await this.Dinngo.addToken(this.Token.address, { from: owner });
-            let rank1 = await this.Dinngo.tokenRank.call(this.Token.address);
+            let rank1 = await this.Dinngo.tokenRanks.call(this.Token.address);
             rank1.should.be.bignumber.eq(1);
             await expectThrow(this.Dinngo.updateTokenRank(this.Token.address, 1, { from: owner }));
         });

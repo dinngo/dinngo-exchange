@@ -21,16 +21,16 @@ contract('Pay fee', function([_, owner, tokenWallet, token]) {
     describe('taker order', async function() {
         it('paid by main token', async function() {
             await this.Dinngo.payTradingFeeMock(true, ZERO_ADDRESS, user, 10000, ether(10));
-            let userBalance = await this.Dinngo.balance.call(ZERO_ADDRESS, user);
-            let walletBalance = await this.Dinngo.balance.call(ZERO_ADDRESS, tokenWallet);
+            let userBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, user);
+            let walletBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, tokenWallet);
             userBalance.should.be.bignumber.eq(ether(999.98));
             walletBalance.should.be.bignumber.eq(ether(0.02));
         });
 
         it('paid by DGO token', async function() {
             await this.Dinngo.payTradingFeeMock(true, token, user, 10000, ether(10));
-            let userBalance = await this.Dinngo.balance.call(token, user);
-            let walletBalance = await this.Dinngo.balance.call(token, tokenWallet);
+            let userBalance = await this.Dinngo.balances.call(token, user);
+            let walletBalance = await this.Dinngo.balances.call(token, tokenWallet);
             userBalance.should.be.bignumber.eq(ether(999.99));
             walletBalance.should.be.bignumber.eq(ether(0.01));
         });
@@ -39,16 +39,16 @@ contract('Pay fee', function([_, owner, tokenWallet, token]) {
     describe('maker order', async function() {
         it('paid by main token', async function() {
             await this.Dinngo.payTradingFeeMock(false, ZERO_ADDRESS, user, 10000, ether(10));
-            let userBalance = await this.Dinngo.balance.call(ZERO_ADDRESS, user);
-            let walletBalance = await this.Dinngo.balance.call(ZERO_ADDRESS, tokenWallet);
+            let userBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, user);
+            let walletBalance = await this.Dinngo.balances.call(ZERO_ADDRESS, tokenWallet);
             userBalance.should.be.bignumber.eq(ether(999.99));
             walletBalance.should.be.bignumber.eq(ether(0.01));
         });
 
         it('paid by DGO token', async function() {
             await this.Dinngo.payTradingFeeMock(false, token, user, 10000, ether(10));
-            let userBalance = await this.Dinngo.balance.call(token, user);
-            let walletBalance = await this.Dinngo.balance.call(token, tokenWallet);
+            let userBalance = await this.Dinngo.balances.call(token, user);
+            let walletBalance = await this.Dinngo.balances.call(token, tokenWallet);
             userBalance.should.be.bignumber.eq(ether(999.995));
             walletBalance.should.be.bignumber.eq(ether(0.005));
         });

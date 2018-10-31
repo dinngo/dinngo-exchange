@@ -23,7 +23,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(10);
             const { logs } = await this.Dinngo.deposit({ value: value, from: user });
             const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balance.call(0, user);
+            let balance = await this.Dinngo.balances.call(0, user);
             eventDeposit.args.token.should.eq(ZERO_ADDRESS);
             eventDeposit.args.user.should.eq(user);
             eventDeposit.args.amount.should.be.bignumber.eq(value);
@@ -39,7 +39,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             let userAddress1 = await this.Dinngo.userID_Address.call(1);
             const { logs } = await this.Dinngo.deposit({ value: value, from: user });
             const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balance.call(0, user);
+            let balance = await this.Dinngo.balances.call(0, user);
             let userAddress2 = await this.Dinngo.userID_Address.call(2);
             eventDeposit.args.token.should.eq(ZERO_ADDRESS);
             eventDeposit.args.user.should.eq(user);
@@ -65,7 +65,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             await this.Token.approve(this.Dinngo.address, value, { from: user });
             const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
             const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balance.call(this.Token.address, user);
+            let balance = await this.Dinngo.balances.call(this.Token.address, user);
             eventDeposit.args.token.should.eq(this.Token.address);
             eventDeposit.args.user.should.eq(user);
             eventDeposit.args.amount.should.be.bignumber.eq(value);
@@ -83,7 +83,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             await this.Token.approve(this.Dinngo.address, value, { from: user });
             const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balance.call(this.Token.address, user);
+            let balance = await this.Dinngo.balances.call(this.Token.address, user);
             let userAddress2 = await this.Dinngo.userID_Address.call(2);
             event.args.token.should.eq(this.Token.address);
             event.args.user.should.eq(user);
