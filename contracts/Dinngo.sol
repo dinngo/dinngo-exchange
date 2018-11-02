@@ -195,6 +195,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function withdraw(uint256 amount) external {
         require(_isLocked(msg.sender));
+        require(_isValidUser(msg.sender));
         require(amount > 0);
         require(amount <= balances[0][msg.sender]);
         msg.sender.transfer(amount);
@@ -210,6 +211,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function withdrawToken(address token, uint256 amount) external {
         require(_isLocked(msg.sender));
+        require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
         require(amount <= balances[token][msg.sender]);
