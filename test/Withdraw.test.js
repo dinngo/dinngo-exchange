@@ -65,6 +65,14 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             await increaseTimeTo(latestTime() + duration.days(3.1));
             await expectThrow(this.Dinngo.withdraw(value, { from: user }));
         });
+
+        it('when user is removed', async function () {
+            const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await this.Dinngo.removeUser(user, { from: owner });
+            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+        });
     });
     describe('token', function () {
         beforeEach(async function () {
@@ -113,6 +121,14 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(11);
             await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
+
+        it('when user is removed', async function () {
+            const value = ether(1);
+            await this.Dinngo.lock({ from: user });
+            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await this.Dinngo.removeUser(user, { from: owner });
+            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+        });
     });
 });
 
@@ -153,6 +169,12 @@ contract('WithdrawAdmin', function ([_, owner, someone, tokenWallet, tokenContra
 
         it('when user balance is not sufficient', async function () {
             await this.Dinngo.deposit({ value: ether(1), from: user });
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+        });
+
+        it('when user is removed', async function() {
+            await this.Dinngo.deposit({ from: user, value: ether(5) });
+            await this.Dinngo.removeUser(user, { from: owner });
             await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 
@@ -222,6 +244,15 @@ contract('WithdrawAdmin', function ([_, owner, someone, tokenWallet, tokenContra
             await this.Token.approve(this.Dinngo.address, amount, { from: user });
             await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
             await this.Dinngo.setUserBalance(user, tokenContract, amount);
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+        });
+
+        it('when user is removed', async function() {
+            let amount = ether(5);
+            await this.Token.approve(this.Dinngo.address, amount, {from: user });
+            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
+            await this.Dinngo.setUserBalance(user, tokenContract, amount);
+            await this.Dinngo.removeUser(user, { from: owner });
             await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 

@@ -182,6 +182,16 @@ contract('Settle', function([user1, user2, user3, user4, user5, owner, user, din
             console.log(receipt.receipt.gasUsed);
         });
 
+        it('taker invalid', async function() {
+            await this.Dinngo.removeUser(user2, { from: owner });
+            await expectThrow(this.Dinngo.settle(orders, { from: owner }));
+        });
+
+        it('maker invalid', async function() {
+            await this.Dinngo.removeUser(user1, { from: owner });
+            await expectThrow(this.Dinngo.settle(orders, { from: owner }));
+        });
+
         it('Not owner', async function() {
             await expectThrow(this.Dinngo.settle(orders, { from: user }));
         });

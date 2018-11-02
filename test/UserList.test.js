@@ -13,7 +13,7 @@ require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2]) {
+contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2, someone]) {
     beforeEach(async function () {
         this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
     });
@@ -63,6 +63,26 @@ contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2]) 
             let rank1 = await this.Dinngo.userRanks.call(user);
             rank1.should.be.bignumber.eq(1);
             await expectThrow(this.Dinngo.updateUserRank(user, 1, { from: owner }));
+        });
+    });
+
+    describe('remove user', function () {
+        it('when normal', async function() {
+            await this.Dinngo.setUser(id, user, 1);
+            await this.Dinngo.removeUser(user, { from: owner });
+            let rank = await this.Dinngo.userRanks.call(user);
+            let userCall = await this.Dinngo.userID_Address.call(id);
+            rank.should.be.bignumber.eq(0);
+            userCall.should.eq(user);
+        });
+
+        it('when call by non owner', async function() {
+            await this.Dinngo.setUser(id, user, 1);
+            await expectThrow(this.Dinngo.removeUser(user, { from: someone }));
+        });
+
+        it('when removing non-existed user', async function() {
+            await expectThrow(this.Dinngo.removeUser(user, { from: owner }));
         });
     });
 });
