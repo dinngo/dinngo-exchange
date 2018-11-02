@@ -24,10 +24,6 @@ contract DinngoMock is Dinngo {
         tokenRanks[token] = rank;
     }
 
-    function addUserMock(address user) external {
-        _addUser(user);
-    }
-
     function payTradingFeeMock(
         bool isTaker,
         address tokenFee,

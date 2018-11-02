@@ -24,13 +24,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (address => uint8) public userRanks;
-    mapping (address => uint8) public tokenRanks;
     mapping (uint8 => uint256) public takerFees;
     mapping (uint8 => uint256) public makerFees;
+    mapping (address => uint8) public userRanks;
+    mapping (address => uint8) public tokenRanks;
     uint256 constant BASE = 10000;
-    uint256 private _userCount;
-    uint256 private _tokenCount;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -51,8 +49,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param dinngoToken The contract address of DGO
      */
     constructor(address dinngoWallet, address dinngoToken) public {
-        _userCount = 0;
-        _tokenCount = 1;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
@@ -80,20 +76,61 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     }
 
     /**
+     * @notice Add the address to the user list. Event AddUser will be emitted
+     * after execution.
+     * @dev Record the user list to map the user address to a specific user ID, in
+     * order to compact the data size when transferring user address information
+     * @param id The user id to be assigned
+     * @param user The user address to be added
+     */
+    function addUser(uint32 id, address user) external onlyOwner {
+        require(user != address(0));
+        require(userRanks[user] == 0);
+        require(userID_Address[id] == address(0));
+        userID_Address[id] = user;
+        userRanks[user] = 1;
+        emit AddUser(id, user);
+    }
+
+    /**
+     * @notice Remove the address from the user list.
+     * @param user The user address to be added
+     */
+    function removeUser(address user) external onlyOwner {
+        require(user != address(0));
+        require(userRanks[user] != 0);
+        userRanks[user] = 0;
+    }
+
+    /**
      * @notice Add the token to the token list. Event AddToken will be emitted
      * after execution.
      * @dev Record the token list to map the token contract address to a specific
      * token ID, in order to compact the data size when transferring token contract
      * address information
+     * @param id The token id to be assigned
      * @param token The token contract address to be added
      */
-    function addToken(address token) external onlyOwner {
-        require(tokenRanks[token] == 0);
+    function addToken(uint16 id, address token) external onlyOwner {
         require(token != address(0));
-        _tokenCount++;
-        tokenID_Address[_tokenCount] = token;
+        require(tokenRanks[token] == 0);
+        require(tokenID_Address[id] == address(0));
+        tokenID_Address[id] = token;
         tokenRanks[token] = 1;
-        emit AddToken(_tokenCount, token);
+        emit AddToken(id, token);
+    }
+
+    /**
+     * @notice Remove the token to the token list.
+     * @dev Record the token list to map the token contract address to a specific
+     * token ID, in order to compact the data size when transferring token contract
+     * address information
+     * @param token The token contract address to be added
+     */
+    function removeToken(address token) external onlyOwner {
+        require(token != address(0));
+        require(tokenRanks[token] != 0);
+        tokenRanks[token] = 0;
     }
 
     /**
@@ -103,6 +140,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function updateUserRank(address user, uint8 rank) external onlyOwner {
         require(user != address(0));
+        require(rank != 0);
         require(userRanks[user] != 0);
         require(userRanks[user] != rank);
         userRanks[user] = rank;
@@ -115,6 +153,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
         require(token != address(0));
+        require(rank != 0);
         require(tokenRanks[token] != 0);
         require(tokenRanks[token] != rank);
         tokenRanks[token] = rank;
@@ -127,9 +166,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function deposit() external payable {
         require(!_isLocking(msg.sender));
+        require(_isValidUser(msg.sender));
         require(msg.value > 0);
         balances[0][msg.sender] = balances[0][msg.sender].add(msg.value);
-        _addUser(msg.sender);
         emit Deposit(0, msg.sender, msg.value, balances[0][msg.sender]);
     }
 
@@ -141,11 +180,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      */
     function depositToken(address token, uint256 amount) external {
         require(!_isLocking(msg.sender));
+        require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
         ERC20(token).safeTransferFrom(msg.sender, this, amount);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
-        _addUser(msg.sender);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
     }
 
@@ -187,6 +226,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
         require(_getWithdrawalAmount(withdrawal) > 0);
         address user = userID_Address[_getWithdrawalUserID(withdrawal)];
+        require(_isValidUser(user));
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         _verifySig(
             user,
@@ -219,11 +259,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(_getOrderCount(orders) >= 2);
         bytes memory takerOrder = _getOrder(orders, 0);
         address taker = userID_Address[_getOrderUserID(takerOrder)];
+        require(_isValidUser(taker));
+        require(!_isLocking(taker));
         require(_getOrderAmountMain(takerOrder) > 0);
         require(_getOrderAmountSub(takerOrder) > 0);
         require(_getOrderFeePrice(takerOrder) > 0);
         _verifySig(taker, _getOrderHash(takerOrder), _getOrderR(takerOrder), _getOrderS(takerOrder), _getOrderV(takerOrder));
-        require(!_isLocking(taker));
         SettleAmount memory s = SettleAmount(0, _getOrderAmountSub(takerOrder));
         for (uint i = 1; i < _getOrderCount(orders); i++) {
             _processMaker(s, _getOrder(orders, i));
@@ -261,21 +302,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         );
     }
 
-    /**
-     * @notice Add the address to the user list. Event AddUser will be emitted
-     * after execution.
-     * @dev Record the user list to map the user address to a specific user ID, in
-     * order to compact the data size when transferring user address information
-     * @param user The user address to be added
-     */
-    function _addUser(address user) internal {
-        require(user != address(0));
-        if (userRanks[user] != 0)
-            return;
-        _userCount++;
-        userID_Address[_userCount] = user;
-        userRanks[user] = 1;
-        emit AddUser(_userCount, user);
+    function _isValidUser(address user) internal view returns (bool) {
+        return userRanks[user] != 0;
+    }
+
+    function _isValidToken(address token) internal view returns (bool) {
+        return tokenRanks[token] != 0;
     }
 
     /**
@@ -331,8 +363,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(_getOrderAmountSub(order) > 0);
         require(_getOrderFeePrice(order) > 0);
         address user = userID_Address[_getOrderUserID(order)];
-        _verifySig(user, _getOrderHash(order), _getOrderR(order), _getOrderS(order), _getOrderV(order));
+        require(_isValidUser(user));
         require(!_isLocking(user));
+        _verifySig(user, _getOrderHash(order), _getOrderR(order), _getOrderS(order), _getOrderV(order));
         // trade
         SettleAmount memory tmp = s;
         uint256 tradeAmountSub = (tmp.restAmountSub < _getOrderAmountSub(order))? tmp.restAmountSub : _getOrderAmountSub(order);
