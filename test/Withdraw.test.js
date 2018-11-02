@@ -23,6 +23,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     const exceed = ether(11);
     describe('ether', function () {
         beforeEach(async function () {
+            await this.Dinngo.setUser(1, user, 1);
             await this.Dinngo.deposit({ value: depositValue, from: user });
         });
 
@@ -68,6 +69,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('token', function () {
         beforeEach(async function () {
             this.Token = await SimpleToken.new({ from: user });
+            await this.Dinngo.setUser(1, user, 1);
             await this.Token.approve(this.Dinngo.address, depositValue, { from: user });
             await this.Dinngo.depositToken(this.Token.address, depositValue, { from: user });
         });

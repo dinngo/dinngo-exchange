@@ -19,7 +19,8 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
     });
 
     describe('ether', function () {
-        it('when normal with new user', async function () {
+        it('when normal', async function () {
+            await this.Dinngo.setUser(1, user, 1);
             const value = ether(10);
             const { logs } = await this.Dinngo.deposit({ value: value, from: user });
             const eventDeposit = await inLogs(logs, 'Deposit');
@@ -28,29 +29,16 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             eventDeposit.args.user.should.eq(user);
             eventDeposit.args.amount.should.be.bignumber.eq(value);
             eventDeposit.args.balance.should.be.bignumber.eq(balance);
-            const eventAddUser = await inLogs(logs, 'AddUser');
-            eventAddUser.args.userID.should.be.bignumber.eq(1);
-            eventAddUser.args.user.should.eq(user);
         });
 
-        it('when normal with old user', async function () {
+        it('when user invalid', async function () {
             const value = ether(10);
-            await this.Dinngo.addUserMock(user);
-            let userAddress1 = await this.Dinngo.userID_Address.call(1);
-            const { logs } = await this.Dinngo.deposit({ value: value, from: user });
-            const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balances.call(0, user);
-            let userAddress2 = await this.Dinngo.userID_Address.call(2);
-            eventDeposit.args.token.should.eq(ZERO_ADDRESS);
-            eventDeposit.args.user.should.eq(user);
-            eventDeposit.args.amount.should.be.bignumber.eq(value);
-            eventDeposit.args.balance.should.be.bignumber.eq(balance);
-            userAddress1.should.eq(user);
-            userAddress2.should.eq(ZERO_ADDRESS);
+            await expectThrow(this.Dinngo.deposit({ value: value, from: user }));
         });
 
         it('when value with amount 0', async function () {
             const value = ether(0);
+            await this.Dinngo.setUser(1, user, 1);
             await expectThrow(this.Dinngo.deposit({ value: value, from: user }));
         });
     });
@@ -61,6 +49,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
         });
 
         it('when normal with new user', async function () {
+            await this.Dinngo.setUser(1, user, 1);
             const value = ether(10);
             await this.Token.approve(this.Dinngo.address, value, { from: user });
             const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
@@ -71,37 +60,25 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             eventDeposit.args.amount.should.be.bignumber.eq(value);
             eventDeposit.args.balance.should.be.bignumber.eq(balance);
             balance.should.be.bignumber.eq(value);
-            const eventAddUser = await inLogs(logs, 'AddUser');
-            eventAddUser.args.userID.should.be.bignumber.eq(1);
-            eventAddUser.args.user.should.eq(user);
         });
 
-        it('when normal with old user', async function () {
+        it('when user invalid', async function () {
             const value = ether(10);
-            await this.Dinngo.addUserMock(user);
-            let userAddress1 = await this.Dinngo.userID_Address.call(1);
             await this.Token.approve(this.Dinngo.address, value, { from: user });
-            const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
-            const event = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balances.call(this.Token.address, user);
-            let userAddress2 = await this.Dinngo.userID_Address.call(2);
-            event.args.token.should.eq(this.Token.address);
-            event.args.user.should.eq(user);
-            event.args.amount.should.be.bignumber.eq(value);
-            event.args.balance.should.be.bignumber.eq(balance);
-            balance.should.be.bignumber.eq(value);
-            userAddress1.should.eq(user);
-            userAddress2.should.eq(ZERO_ADDRESS);
+            await expectThrow(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
         });
 
         it('when token with address 0', async function () {
             const value = ether(10);
-            await expectThrow(this.Dinngo.depositToken(ZERO_ADDRESS, value, {from: user}));
+            await this.Dinngo.setUser(1, user, 1);
+            await expectThrow(this.Dinngo.depositToken(ZERO_ADDRESS, value, { from: user }));
         });
 
         it('when token with amount 0', async function () {
             const value = ether(0);
-            await expectThrow(this.Dinngo.depositToken(this.Token.address, value, { from: user}));
+            await this.Dinngo.setUser(1, user, 1);
+            await this.Token.approve(this.Dinngo.address, value, { from: user });
+            await expectThrow(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
         });
     });
 });
