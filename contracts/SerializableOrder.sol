@@ -17,6 +17,7 @@ contract SerializableOrder is Seriality {
     uint constant public UNSIGNED_ORDER_SIZE = 109;
     uint8 constant internal _MASK_IS_BUY = 0x01;
     uint8 constant internal _MASK_IS_MAIN = 0x02;
+    uint8 constant internal _MASK_GAS_PRICE = 0xFC;
 
     /**
      * @notice Get user ID from the serialized order data
@@ -37,12 +38,30 @@ contract SerializableOrder is Seriality {
     }
 
     /**
+     * @notice Get target token ID from the serialized order data
+     * @param ser_data Serialized order data
+     * @return tokenTarget Target token ID
+     */
+    function _getOrderTokenIDTarget(bytes ser_data) internal pure returns (uint16 tokenTarget) {
+        tokenTarget = bytesToUint16(ORDER_SIZE - 4 , ser_data);
+    }
+
+    /**
      * @notice Get main token amount from the serialized order data
      * @param ser_data Serialized order data
      * @return amountMain Main token amount
      */
     function _getOrderAmountMain(bytes ser_data) internal pure returns (uint256 amountMain) {
         amountMain = bytesToUint256(ORDER_SIZE - 6, ser_data);
+    }
+
+    /**
+     * @notice Get target token amount from the serialized order data
+     * @param ser_data Serialized order data
+     * @return amountTarget Target token amount
+     */
+    function _getOrderAmountTarget(bytes ser_data) internal pure returns (uint256 amountTarget) {
+        amountTarget = bytesToUint256(ORDER_SIZE - 6, ser_data);
     }
 
     /**
@@ -55,12 +74,30 @@ contract SerializableOrder is Seriality {
     }
 
     /**
+     * @notice Get trade token ID from the serialized order data
+     * @param ser_data Serialized order data
+     * @return tokenTrade Trade token ID
+     */
+    function _getOrderTokenIDTrade(bytes ser_data) internal pure returns (uint16 tokenTrade) {
+        tokenTrade = bytesToUint16(ORDER_SIZE - 38, ser_data);
+    }
+
+    /**
      * @notice Get sub token amount from the serialized order data
      * @param ser_data Serialized order data
      * @return amountSub Sub token amount
      */
     function _getOrderAmountSub(bytes ser_data) internal pure returns (uint256 amountSub) {
         amountSub = bytesToUint256(ORDER_SIZE - 40, ser_data);
+    }
+
+    /**
+     * @notice Get trade token amount from the serialized order data
+     * @param ser_data Serialized order data
+     * @return amountTrade Trade token amount
+     */
+    function _getOrderAmountTrade(bytes ser_data) internal pure returns (uint256 amountTrade) {
+        amountTrade = bytesToUint256(ORDER_SIZE - 40, ser_data);
     }
 
     /**
@@ -82,6 +119,16 @@ contract SerializableOrder is Seriality {
     }
 
     /**
+     * @notice Get the gas price for paying gas fee
+     * @dev Should be a number from 0 to 64
+     * @param ser_data Serialized order data
+     * @return gasPrice The gas price for gas fee
+     */
+    function _getOrderGasPrice(bytes ser_data) internal pure returns (uint8 gasPrice) {
+        gasPrice = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_GAS_PRICE) >> 2;
+    }
+
+    /**
      * @notice Get nonce from the serialized order data
      * @param ser_data Serialized order data
      * @return nonce Nonce
@@ -97,6 +144,15 @@ contract SerializableOrder is Seriality {
      */
     function _getOrderFeePrice(bytes ser_data) internal pure returns (uint256 feePrice) {
         feePrice = bytesToUint256(ORDER_SIZE - 77, ser_data);
+    }
+
+    /**
+     * @notice Get fee from the serialized order data
+     * @param ser_data Serialized order data
+     * @return fee Fee amount
+     */
+    function _getOrderFee(bytes ser_data) internal pure returns (uint256 fee) {
+        fee = bytesToUint256(ORDER_SIZE - 77, ser_data);
     }
 
     /**
