@@ -24,38 +24,12 @@ contract DinngoMock is Dinngo {
         tokenRanks[token] = rank;
     }
 
-    function payTradingFeeMock(
-        bool isTaker,
-        address tokenFee,
-        address user,
-        uint256 feePrice,
-        uint256 amount
-    )
+    event TestMaker(uint256 fillAmountTrade, uint256 restAmountTarget);
+    function processMakerMock(bytes order, uint256 amountTarget)
         external
     {
-        _payTradingFee(isTaker, tokenFee, user, feePrice, amount);
-    }
-
-    function tradeMock(
-        bool isBuy,
-        address user,
-        address tokenMain,
-        uint256 amountMain,
-        address tokenSub,
-        uint256 amountSub,
-        uint256 amountTrade
-    )
-        external
-        returns (uint256 amount) {
-        amount = _trade(isBuy, user, tokenMain, amountMain, tokenSub, amountSub, amountTrade);
-    }
-
-    event TestMaker(uint256 fillAmountMain, uint256 restAmountSub);
-    function processMakerMock(bytes order, uint256 tradeAmountSub)
-        external
-    {
-        SettleAmount memory s = SettleAmount(0, tradeAmountSub);
+        SettleAmount memory s = SettleAmount(0, amountTarget);
         _processMaker(s, order);
-        emit TestMaker(s.fillAmountMain, s.restAmountSub);
+        emit TestMaker(s.fillAmountTrade, s.restAmountTarget);
     }
 }
