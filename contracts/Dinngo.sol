@@ -29,6 +29,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
     uint256 constant BASE = 10000;
+    uint256 constant SETTLE_GAS = 85000;
+    uint256 constant WITHDRAWAL_GAS = 100000;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -37,10 +39,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     event Trade(
         address indexed user,
         bool isBuy,
-        address indexed tokenMain,
-        uint256 amountMain,
-        address indexed tokenSub,
-        uint256 amountSub
+        address indexed tokenTarget,
+        uint256 amountTarget,
+        address indexed tokenTrade,
+        uint256 amountTrade
     );
 
     /**
@@ -260,54 +262,104 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
-     * @param orders The serialized orders.
+     * param orders The serialized orders.
      */
     function settle(bytes orders) external onlyOwner {
-        require(_getOrderCount(orders) >= 2);
+        uint256 nOrder = _getOrderCount(orders);
+        require(nOrder >= 2);
         bytes memory order = _getOrder(orders, 0);
-        address user = userID_Address[_getOrderUserID(order)];
-        _verifySig(user, _getOrderHash(order), _getOrderR(order), _getOrderS(order), _getOrderV(order));
-        SettleAmount memory s = SettleAmount(0, _getOrderAmountTarget(order));
-        for (uint i = 1; i < _getOrderCount(orders); i++) {
-            _processMaker(s, _getOrder(orders, i));
+        uint256 amountTarget = _getOrderAmountTarget(order);
+        uint256 amountTrade = _getOrderAmountTrade(order);
+        SettleAmount memory s = SettleAmount(0, amountTarget);
+        for (uint i = 1; i < nOrder; i++) {
+            bytes memory makerOrder = _getOrder(orders, i);
+            uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
+            uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
+            require(amountTarget.div(amountTrade) >= makerAmountTrade.div(makerAmountTarget));
+            _processMaker(s, makerOrder);
         }
-        uint256 fillAmountTarget = _getOrderAmountTarget(order).sub(s.restAmountTarget);
+        uint256 fillAmountTarget = amountTarget.sub(s.restAmountTarget);
         // calculate trade
-        balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user] =
-            balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user].sub(fillAmountTarget);
-        balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user] =
-            balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user].add(s.fillAmountTrade);
+        _trade(fillAmountTarget, s.fillAmountTrade, order);
+    }
+
+    /**
+     * @notice Process the maker order
+     * @param s The current status of settlement
+     * @param order The processing order
+     */
+    function _processMaker(SettleAmount s, bytes order) internal {
+        // fetch current status of taker order
+        SettleAmount memory tmp = s;
+        // try to meet
+        uint256 amountTrade = _getOrderAmountTrade(order).mul(
+            _getOrderAmountTarget(order).sub(orderFills[_getOrderHash(order)])
+        ).div(_getOrderAmountTarget(order));
+        amountTrade = amountTrade < tmp.restAmountTarget? amountTrade: tmp.restAmountTarget;
+        uint256 amountTarget = _getOrderAmountTarget(order).mul(amountTrade).div(_getOrderAmountTrade(order));
+        tmp.restAmountTarget = tmp.restAmountTarget.sub(amountTrade);
+        tmp.fillAmountTrade = tmp.fillAmountTrade.add(amountTarget);
+        // calculate trade
+        _trade(amountTarget, amountTrade, order);
+    }
+
+    /**
+     * @notice Process the trade by the providing information
+     * @param amountTarget The provided amount to be traded
+     * @param amountTrade The amount to be requested
+     * @param order The order that triggerred the trading
+     */
+    function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
+        // Get parameters
+        address user = userID_Address[_getOrderUserID(order)];
+        require(_isValidUser(user));
+        bytes32 hash = _getOrderHash(order);
+        // Get target and trade
+        address tokenTarget = tokenID_Address[_getOrderTokenIDTarget(order)];
+        address tokenTrade = tokenID_Address[_getOrderTokenIDTrade(order)];
+        uint256 balanceTarget = balances[tokenTarget][user].sub(amountTarget);
+        uint256 balanceTrade = balances[tokenTrade][user].add(amountTrade);
+        // GetFee
+        uint256 amountTradeFee = _getOrderFee(order).mul(amountTarget).div(_getOrderAmountTarget(order));
         emit Trade
         (
             user,
             _isOrderBuy(order),
-            tokenID_Address[_getOrderTokenIDTarget(order)],
-            fillAmountTarget,
-            tokenID_Address[_getOrderTokenIDTrade(order)],
-            s.fillAmountTrade
+            tokenTarget,
+            amountTarget,
+            tokenTrade,
+            amountTrade
         );
-        bytes32 hash = _getOrderHash(order);
-        orderFills[hash] = orderFills[hash].add(fillAmountTarget);
-        // calculate fee
-        uint256 amountFee = _getOrderFee(order).mul(fillAmountTarget).div(_getOrderAmountTarget(order));
+        if (orderFills[hash] == 0) {
+            uint256 amountGasFee = SETTLE_GAS.mul(_getOrderGasPrice(order));
+            _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
+            if (tokenTarget == address(0))
+                balanceTarget = balanceTarget.sub(amountGasFee);
+            else if (tokenTrade == address(0))
+                balanceTrade = balanceTrade.sub(amountGasFee);
+            else
+                balances[address(0)][user] = balances[address(0)][user].sub(amountGasFee);
+            balances[address(0)][userID_Address[0]] = balances[address(0)][userID_Address[0]].add(amountGasFee);
+        }
+        orderFills[hash] = orderFills[hash].add(amountTarget);
         if (_isOrderFeeMain(order)) {
             if (_isOrderBuy(order)) {
-                balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user] =
-                    balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user].sub(amountFee);
-                balances[tokenID_Address[_getOrderTokenIDTarget(order)]][userID_Address[0]] =
-                    balances[tokenID_Address[_getOrderTokenIDTarget(order)]][userID_Address[0]].add(amountFee);
+                balanceTarget = balanceTarget.sub(amountTradeFee);
+                balances[tokenTarget][userID_Address[0]] =
+                    balances[tokenTarget][userID_Address[0]].add(amountTradeFee);
             } else {
-                balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user] =
-                    balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user].sub(amountFee);
-                balances[tokenID_Address[_getOrderTokenIDTrade(order)]][userID_Address[0]] =
-                    balances[tokenID_Address[_getOrderTokenIDTrade(order)]][userID_Address[0]].add(amountFee);
+                balanceTrade = balanceTrade.sub(amountTradeFee);
+                balances[tokenTrade][userID_Address[0]] =
+                    balances[tokenTrade][userID_Address[0]].add(amountTradeFee);
             }
         } else {
             balances[tokenID_Address[1]][user] =
-                balances[tokenID_Address[1]][user].sub(amountFee);
+                balances[tokenID_Address[1]][user].sub(amountTradeFee);
             balances[tokenID_Address[1]][userID_Address[0]] =
-                balances[tokenID_Address[1]][userID_Address[0]].add(amountFee);
+                balances[tokenID_Address[1]][userID_Address[0]].add(amountTradeFee);
         }
+        balances[tokenTarget][user] = balanceTarget;
+        balances[tokenTrade][user] = balanceTrade;
     }
 
     function _isValidUser(address user) internal view returns (bool) {
@@ -330,56 +382,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
             amount = amount.div(2);
         balances[token][user] = balances[token][user].sub(amount);
         balances[token][userID_Address[0]] = balances[token][userID_Address[0]].add(amount);
-    }
-
-    function _processMaker(SettleAmount s, bytes order) internal {
-        address user = userID_Address[_getOrderUserID(order)];
-        _verifySig(user, _getOrderHash(order), _getOrderR(order), _getOrderS(order), _getOrderV(order));
-        // fetch current status of taker order
-        SettleAmount memory tmp = s;
-        // try to meet
-        uint256 amountTrade = _getOrderAmountTrade(order).mul(
-            _getOrderAmountTarget(order).sub(orderFills[_getOrderHash(order)])
-        ).div(_getOrderAmountTarget(order));
-        amountTrade = amountTrade < tmp.restAmountTarget? amountTrade: tmp.restAmountTarget;
-        uint256 amountTarget = _getOrderAmountTarget(order).mul(amountTrade).div(_getOrderAmountTrade(order));
-        // calculate trade
-        balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user] =
-            balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user].sub(amountTarget);
-        balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user] =
-            balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user].add(amountTrade);
-        // calculate fee
-        uint256 amountFee = _getOrderFee(order).mul(amountTarget).div(_getOrderAmountTarget(order));
-        if (_isOrderFeeMain(order)) {
-            if (_isOrderBuy(order)) {
-                balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user] =
-                    balances[tokenID_Address[_getOrderTokenIDTarget(order)]][user].sub(amountFee);
-                balances[tokenID_Address[_getOrderTokenIDTarget(order)]][userID_Address[0]] =
-                    balances[tokenID_Address[_getOrderTokenIDTarget(order)]][userID_Address[0]].add(amountFee);
-            } else {
-                balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user] =
-                    balances[tokenID_Address[_getOrderTokenIDTrade(order)]][user].sub(amountFee);
-                balances[tokenID_Address[_getOrderTokenIDTrade(order)]][userID_Address[0]] =
-                    balances[tokenID_Address[_getOrderTokenIDTrade(order)]][userID_Address[0]].add(amountFee);
-            }
-        } else {
-            balances[tokenID_Address[1]][user] =
-                balances[tokenID_Address[1]][user].sub(amountFee);
-            balances[tokenID_Address[1]][userID_Address[0]] =
-                balances[tokenID_Address[1]][userID_Address[0]].add(amountFee);
-        }
-        bytes32 hash = _getOrderHash(order);
-        orderFills[hash] = orderFills[hash].add(amountTarget);
-        emit Trade
-        (
-            user,
-            _isOrderBuy(order),
-            tokenID_Address[_getOrderTokenIDTarget(order)],
-            amountTarget,
-            tokenID_Address[_getOrderTokenIDTrade(order)],
-            amountTrade
-        );
-
     }
 
     /**

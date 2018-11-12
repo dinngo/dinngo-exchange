@@ -9,90 +9,66 @@ require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
+/*
+contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     before(async function() {
         this.SerializableOrder = await SerializableOrderMock.new();
     });
-    const userID = 11;
     const user1ID = 11;
-    const user2ID = 12;
-    const user3ID = 13;
-    const user4ID = 14;
-    const user5ID = 15;
-    const mainToken = 0;
-    const subToken = 11;
-    const mainAmount = ether(3);
-    const subAmount = ether(100);
-    const mainAmount1 = ether(1);
-    const subAmount1 = ether(100);
-    const mainAmount2 = ether(0.1);
-    const subAmount2 = ether(10);
-    const mainAmount3 = ether(0.2);
-    const subAmount3 = ether(20);
-    const mainAmount4 = ether(0.3);
-    const subAmount4 = ether(30);
-    const mainAmount5 = ether(0.1);
-    const subAmount5 = ether(10);
-    const config = 1;
-    const config1 = 0;
-    const config2 = 1;
-    const config3 = 3;
-    const config4 = 3;
-    const config5 = 3;
-    const feePrice = 10;
-    const feePrice1 = 10;
-    const feePrice2 = 10;
-    const feePrice3 = 10000;
-    const feePrice4 = 10000;
-    const feePrice5 = 10000;
-    const nonce = 1;
+    const tokenTarget1 = 0;
+    const amountTarget1 = ether(1);
+    const tokenTrade1 = 11;
+    const amountTrade1 = ether(100);
+    const config1 = 1 + 2 + 16;
+    const fee1 = ether(1);
     const nonce1 = 1;
+
+    const user2ID = 12;
+    const tokenTarget2 = 11;
+    const amountTarget2 = ether(10);
+    const tokenTrade2 = 0;
+    const amountTrade2 = ether(0.1);
+    const config2 = 2 + 16;
+    const fee2 = ether(0.1);
     const nonce2 = 2;
+
+    const user3ID = 13;
+    const tokenTarget3 = 11;
+    const amountTarget3 = ether(20);
+    const tokenTrade3 = 0;
+    const amountTrade3 = ether(0.2);
+    const config3 = 2 + 16;
+    const fee3 = ether(0.2);
     const nonce3 = 3;
+
+    const user4ID = 14;
+    const tokenTarget4 = 11;
+    const amountTarget4 = ether(30);
+    const tokenTrade4 = 0;
+    const amountTrade4 = ether(0.3);
+    const config4 = 2 + 16;
+    const fee4 = ether(0.3);
     const nonce4 = 4;
+
+    const user5ID = 15;
+    const tokenTarget5 = 11;
+    const amountTarget5 = ether(10);
+    const tokenTrade5 = 0;
+    const amountTrade5 = ether(0.1);
+    const config5 = 16;
+    const fee5 = ether(5);
     const nonce5 = 5;
 
     describe('single order', async function() {
-        it('hex', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
-                userID,
-                mainToken,
-                mainAmount,
-                subToken,
-                subAmount,
-                config,
-                feePrice,
-                nonce
-            );
-            let sgn = await web3.eth.sign(user1, hash);
-            let r = sgn.slice(0,66);
-            let s = '0x' + sgn.slice(66,130);
-            let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
-                userID,
-                mainToken,
-                mainAmount,
-                subToken,
-                subAmount,
-                config,
-                feePrice,
-                nonce,
-                r,
-                s,
-                v
-            );
-            console.log(ser_hex);
-        });
-
         it('hex1', async function () {
             let hash = await this.SerializableOrder.hashOrder.call(
                 user1ID,
-                mainToken,
-                mainAmount1,
-                subToken,
-                subAmount1,
+                tokenTarget1,
+                amountTarget1,
+                tokenTrade1,
+                amountTrade1,
                 config1,
-                feePrice1,
+                fee1,
                 nonce1
             );
             let sgn = await web3.eth.sign(user1, hash);
@@ -101,29 +77,33 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = await this.SerializableOrder.serializeOrder.call(
                 user1ID,
-                mainToken,
-                mainAmount1,
-                subToken,
-                subAmount1,
+                tokenTarget1,
+                amountTarget1,
+                tokenTrade1,
+                amountTrade1,
                 config1,
-                feePrice1,
+                fee1,
                 nonce1,
                 r,
                 s,
                 v
             );
-            console.log(ser_hex);
+            console.log(hash);
+            console.log(r);
+            console.log(s);
+            console.log(v);
+            //console.log(ser_hex);
         });
 
         it('hex2', async function () {
             let hash = await this.SerializableOrder.hashOrder.call(
                 user2ID,
-                mainToken,
-                mainAmount2,
-                subToken,
-                subAmount2,
+                tokenTarget2,
+                amountTarget2,
+                tokenTrade2,
+                amountTrade2,
                 config2,
-                feePrice2,
+                fee2,
                 nonce2
             );
             let sgn = await web3.eth.sign(user2, hash);
@@ -132,29 +112,33 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = await this.SerializableOrder.serializeOrder.call(
                 user2ID,
-                mainToken,
-                mainAmount2,
-                subToken,
-                subAmount2,
+                tokenTarget2,
+                amountTarget2,
+                tokenTrade2,
+                amountTrade2,
                 config2,
-                feePrice2,
+                fee2,
                 nonce2,
                 r,
                 s,
                 v
             );
-            console.log(ser_hex);
+            console.log(hash);
+            console.log(r);
+            console.log(s);
+            console.log(v);
+            //console.log(ser_hex);
         });
 
         it('hex3', async function () {
             let hash = await this.SerializableOrder.hashOrder.call(
                 user3ID,
-                mainToken,
-                mainAmount3,
-                subToken,
-                subAmount3,
+                tokenTarget3,
+                amountTarget3,
+                tokenTrade3,
+                amountTrade3,
                 config3,
-                feePrice3,
+                fee3,
                 nonce3
             );
             let sgn = await web3.eth.sign(user3, hash);
@@ -163,29 +147,33 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = await this.SerializableOrder.serializeOrder.call(
                 user3ID,
-                mainToken,
-                mainAmount3,
-                subToken,
-                subAmount3,
+                tokenTarget3,
+                amountTarget3,
+                tokenTrade3,
+                amountTrade3,
                 config3,
-                feePrice3,
+                fee3,
                 nonce3,
                 r,
                 s,
                 v
             );
-            console.log(ser_hex);
+            console.log(hash);
+            console.log(r);
+            console.log(s);
+            console.log(v);
+            //console.log(ser_hex);
         });
 
         it('hex4', async function () {
             let hash = await this.SerializableOrder.hashOrder.call(
                 user4ID,
-                mainToken,
-                mainAmount4,
-                subToken,
-                subAmount4,
+                tokenTarget4,
+                amountTarget4,
+                tokenTrade4,
+                amountTrade4,
                 config4,
-                feePrice4,
+                fee4,
                 nonce4
             );
             let sgn = await web3.eth.sign(user4, hash);
@@ -194,71 +182,110 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = await this.SerializableOrder.serializeOrder.call(
                 user4ID,
-                mainToken,
-                mainAmount4,
-                subToken,
-                subAmount4,
+                tokenTarget4,
+                amountTarget4,
+                tokenTrade4,
+                amountTrade4,
                 config4,
-                feePrice4,
+                fee4,
                 nonce4,
                 r,
                 s,
                 v
             );
-            console.log(ser_hex);
+            console.log(hash);
+            console.log(r);
+            console.log(s);
+            console.log(v);
+            //console.log(ser_hex);
+        });
+
+        it('hex5', async function () {
+            let hash = await this.SerializableOrder.hashOrder.call(
+                user5ID,
+                tokenTarget5,
+                amountTarget5,
+                tokenTrade5,
+                amountTrade5,
+                config5,
+                fee5,
+                nonce5
+            );
+            let sgn = await web3.eth.sign(user5, hash);
+            let r = sgn.slice(0,66);
+            let s = '0x' + sgn.slice(66,130);
+            let v = '0x' + sgn.slice(130,132);
+            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+                user5ID,
+                tokenTarget5,
+                amountTarget5,
+                tokenTrade5,
+                amountTrade5,
+                config5,
+                fee5,
+                nonce5,
+                r,
+                s,
+                v
+            );
+            console.log(hash);
+            console.log(r);
+            console.log(s);
+            console.log(v);
+            //console.log(ser_hex);
         });
     });
 
     describe('multiple orders', async function() {
-        it('hex_1_2_3_4', async function() {
+        it('hex_1_2_3_4_5', async function() {
             let hash1 = await this.SerializableOrder.hashOrder.call(
                 user1ID,
-                mainToken,
-                mainAmount1,
-                subToken,
-                subAmount1,
+                tokenTarget1,
+                amountTarget1,
+                tokenTrade1,
+                amountTrade1,
                 config1,
-                feePrice1,
+                fee1,
                 nonce1
             );
             let hash2 = await this.SerializableOrder.hashOrder.call(
                 user2ID,
-                mainToken,
-                mainAmount2,
-                subToken,
-                subAmount2,
+                tokenTarget2,
+                amountTarget2,
+                tokenTrade2,
+                amountTrade2,
                 config2,
-                feePrice2,
+                fee2,
                 nonce2
             );
             let hash3 = await this.SerializableOrder.hashOrder.call(
                 user3ID,
-                mainToken,
-                mainAmount3,
-                subToken,
-                subAmount3,
+                tokenTarget3,
+                amountTarget3,
+                tokenTrade3,
+                amountTrade3,
                 config3,
-                feePrice3,
+                fee3,
                 nonce3
             );
             let hash4 = await this.SerializableOrder.hashOrder.call(
                 user4ID,
-                mainToken,
-                mainAmount4,
-                subToken,
-                subAmount4,
+                tokenTarget4,
+                amountTarget4,
+                tokenTrade4,
+                amountTrade4,
                 config4,
-                feePrice4,
+                fee4,
                 nonce4
             );
             let hash5 = await this.SerializableOrder.hashOrder.call(
                 user5ID,
-                mainToken,
-                mainAmount5,
-                subToken,
-                subAmount5,
+                tokenTarget5,
+                amountTarget5,
+                tokenTrade5,
+                amountTrade5,
                 config5,
-                feePrice5,
+                fee5,
                 nonce5
             );
             let sgn1 = await web3.eth.sign(user1, hash1);
@@ -283,12 +310,12 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             let v5 = '0x' + sgn5.slice(130,132);
             let ser_hex1 = await this.SerializableOrder.serializeOrder.call(
                 user1ID,
-                mainToken,
-                mainAmount1,
-                subToken,
-                subAmount1,
+                tokenTarget1,
+                amountTarget1,
+                tokenTrade1,
+                amountTrade1,
                 config1,
-                feePrice1,
+                fee1,
                 nonce1,
                 r1,
                 s1,
@@ -296,12 +323,12 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             );
             let ser_hex2 = await this.SerializableOrder.serializeOrder.call(
                 user2ID,
-                mainToken,
-                mainAmount2,
-                subToken,
-                subAmount2,
+                tokenTarget2,
+                amountTarget2,
+                tokenTrade2,
+                amountTrade2,
                 config2,
-                feePrice2,
+                fee2,
                 nonce2,
                 r2,
                 s2,
@@ -309,12 +336,12 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             );
             let ser_hex3 = await this.SerializableOrder.serializeOrder.call(
                 user3ID,
-                mainToken,
-                mainAmount3,
-                subToken,
-                subAmount3,
+                tokenTarget3,
+                amountTarget3,
+                tokenTrade3,
+                amountTrade3,
                 config3,
-                feePrice3,
+                fee3,
                 nonce3,
                 r3,
                 s3,
@@ -322,12 +349,12 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             );
             let ser_hex4 = await this.SerializableOrder.serializeOrder.call(
                 user4ID,
-                mainToken,
-                mainAmount4,
-                subToken,
-                subAmount4,
+                tokenTarget4,
+                amountTarget4,
+                tokenTrade4,
+                amountTrade4,
                 config4,
-                feePrice4,
+                fee4,
                 nonce4,
                 r4,
                 s4,
@@ -335,12 +362,12 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
             );
             let ser_hex5 = await this.SerializableOrder.serializeOrder.call(
                 user5ID,
-                mainToken,
-                mainAmount5,
-                subToken,
-                subAmount5,
+                tokenTarget5,
+                amountTarget5,
+                tokenTrade5,
+                amountTrade5,
                 config5,
-                feePrice5,
+                fee5,
                 nonce5,
                 r5,
                 s5,
@@ -357,3 +384,4 @@ contract('SerializableOrder', function([user1, user2, user3, user4, user5]) {
         });
     });
 });
+*/

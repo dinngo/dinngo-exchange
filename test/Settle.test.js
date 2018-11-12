@@ -11,9 +11,8 @@ const should = require('chai')
     .use(require('chai-as-promised'))
     .should();
 
-contract('Settle', function([user1, user2, user3, user4, user5, owner, user, dinngoWallet, DGO, token]) {
-    // const user1 = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
-    // const user2 = "0xf17f52151ebef6c7334fad080c5704d77216b732";
+contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngoWallet, DGO, token]) {
+    const BALANCE = ether(1000);
     beforeEach(async function() {
         this.Dinngo = await DinngoMock.new(dinngoWallet, DGO, { from: owner });
         await this.Dinngo.setUser(11, user1, 1);
@@ -22,121 +21,136 @@ contract('Settle', function([user1, user2, user3, user4, user5, owner, user, din
         await this.Dinngo.setUser(14, user4, 1);
         await this.Dinngo.setUser(15, user5, 1);
         await this.Dinngo.setToken(11, token, 1);
-        await this.Dinngo.setUserBalance(user1, token, ether(1000));
-        await this.Dinngo.setUserBalance(user1, ZERO_ADDRESS, ether(1000));
-        await this.Dinngo.setUserBalance(user1, DGO, ether(1000));
-        await this.Dinngo.setUserBalance(user2, token, ether(1500));
-        await this.Dinngo.setUserBalance(user2, ZERO_ADDRESS, ether(1500));
-        await this.Dinngo.setUserBalance(user2, DGO, ether(1500));
-        await this.Dinngo.setUserBalance(user3, token, ether(1500));
-        await this.Dinngo.setUserBalance(user3, ZERO_ADDRESS, ether(1500));
-        await this.Dinngo.setUserBalance(user3, DGO, ether(1500));
-        await this.Dinngo.setUserBalance(user4, token, ether(1500));
-        await this.Dinngo.setUserBalance(user4, ZERO_ADDRESS, ether(1500));
-        await this.Dinngo.setUserBalance(user4, DGO, ether(1500));
-        await this.Dinngo.setUserBalance(user5, token, ether(1500));
-        await this.Dinngo.setUserBalance(user5, ZERO_ADDRESS, ether(1500));
-        await this.Dinngo.setUserBalance(user5, DGO, ether(1500));
+        await this.Dinngo.setUserBalance(user1, token, BALANCE);
+        await this.Dinngo.setUserBalance(user1, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(user1, DGO, BALANCE);
+        await this.Dinngo.setUserBalance(user2, token, BALANCE);
+        await this.Dinngo.setUserBalance(user2, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(user2, DGO, BALANCE);
+        await this.Dinngo.setUserBalance(user3, token, BALANCE);
+        await this.Dinngo.setUserBalance(user3, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(user3, DGO, BALANCE);
+        await this.Dinngo.setUserBalance(user4, token, BALANCE);
+        await this.Dinngo.setUserBalance(user4, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(user4, DGO, BALANCE);
+        await this.Dinngo.setUserBalance(user5, token, BALANCE);
+        await this.Dinngo.setUserBalance(user5, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(user5, DGO, BALANCE);
+        await this.Dinngo.setUserBalance(dinngoWallet, token, BALANCE);
+        await this.Dinngo.setUserBalance(dinngoWallet, ZERO_ADDRESS, BALANCE);
+        await this.Dinngo.setUserBalance(dinngoWallet, DGO, BALANCE);
     });
 
     describe('process maker order', function() {
         // user ID: 11
-        // main token: 0
-        // main amount: 3 ether
-        // sub token: 11
-        // sub amount: 100 ether
-        // config: 1
-        // token price: 100
+        // target token: 0
+        // target amount: 1 ether
+        // trade token: 11
+        // trade amount: 100 ether
+        // config: 1+2+16 (isBuy = true; isFeeMain = true; Gas price = 4 Gwei)
+        // fee: 1
         // nonce: 1
-        const order1 = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b";
+        const order1 = "0x3a4f94638a2b34d32342f1b87718bdcf70a74cd0f72664cfeb1d2c5a6d2c2fa5d6beee380d7e02f66ac13f16c42312efda89d16aee687cc709b4b14d26d3092a010000000000000000000000000000000000000000000000000de0b6b3a764000000000001130000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
+        const tokenTarget1 = ZERO_ADDRESS;
+        const tokenTrade1 = token;
+        const amountTarget1 = ether(1);
+        const amountTrade1 = ether(100);
         // user ID: 12
-        // main token: 0
-        // main amount: 1.5 ether
-        // sub token: 11
-        // sub amount: 80 ether
-        // config: 2 (isBuy = false; isMain = true)
-        // token price: 10000
+        // target token: 11
+        // target amount: 10 ether
+        // trade token: 0
+        // trade amount: 0.1 ether
+        // config: 2+16 (isBuy = false; isFeeMain = true; Gas price = 4 Gwei)
+        // fee: 0.1
         // nonce: 2
-        const order2 = "0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
-        it('Taker sub greater than buying maker sub', async function() {
-            const { logs } = await this.Dinngo.processMakerMock(order1, ether(130));
+        const order2 = "0x69e590ee6c71c98ab93af1bdb93abf514df14772d7481d313389577065d7351bbc43764e0a77ba94445ba51c3bc137050444e368898cede5d1d85b07cad7e86401000000000000000000000000000000000000000000000000016345785d8a00000000000212000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
+        const tokenTarget2 = token;
+        const tokenTrade2 = ZERO_ADDRESS;
+        const amountTarget2 = ether(10);
+        const amountTrade2 = ether(0.1);
+        it('Taker target greater than buying maker trade', async function() {
+            const restAmountTarget = ether(130);
+            const { logs } = await this.Dinngo.processMakerMock(order1, restAmountTarget);
             const event = logs.find(e => e.event === "TestMaker");
             should.exist(event);
-            event.args.fillAmountMain.should.be.bignumber.eq(ether(3));
-            event.args.restAmountSub.should.be.bignumber.eq(ether(30));
+            event.args.fillAmountTrade.should.be.bignumber.eq(amountTarget1);
+            event.args.restAmountTarget.should.be.bignumber.eq(restAmountTarget.minus(amountTrade1));
         });
-        it('Taker sub lesser than buying maker sub', async function() {
-            const { logs } = await this.Dinngo.processMakerMock(order1, ether(80));
+        it('Taker target lesser than buying maker trade', async function() {
+            const restAmountTarget = ether(80);
+            const { logs } = await this.Dinngo.processMakerMock(order1, restAmountTarget);
             const event = logs.find(e => e.event === "TestMaker");
             should.exist(event);
-            event.args.fillAmountMain.should.be.bignumber.eq(ether(3).mul(ether(80)).div(ether(100)).toFixed(0));
-            event.args.restAmountSub.should.be.bignumber.eq(ether(0));
-        });
-        it('Taker sub greater than selling maker sub', async function() {
-            const { logs } = await this.Dinngo.processMakerMock(order2, ether(90));
-            const event = logs.find(e => e.event === "TestMaker");
-            should.exist(event);
-            event.args.fillAmountMain.should.be.bignumber.eq(ether(1.5));
-            event.args.restAmountSub.should.be.bignumber.eq(ether(10));
-        });
-        it('Taker sub lesser than selling maker sub', async function() {
-            const { logs } = await this.Dinngo.processMakerMock(order2, ether(40));
-            const event = logs.find(e => e.event === "TestMaker");
-            should.exist(event);
-            event.args.fillAmountMain.should.be.bignumber.eq(ether(1.5).mul(ether(40)).div(ether(80)).toFixed(0));
-            event.args.restAmountSub.should.be.bignumber.eq(ether(0));
+            event.args.fillAmountTrade.should.be.bignumber.eq(amountTarget1.mul(restAmountTarget).div(amountTrade1).toFixed(0));
+            event.args.restAmountTarget.should.be.bignumber.eq(ether(0));
         });
     });
 
     describe('settle', function() {
-        // order1
-        // {11, 0, 3 ether, 11, 100 ether, 1, 10, 1}
-        //  user ID: 11
-        //  main token: 0
-        //  main amount: 3 ether
-        //  sub token: 11
-        //  sub amount: 100 ether
-        //  config: 1 (isBuy = true; isMain = false)
-        //  token price: 10
-        //  nonce: 1
-        // order2
-        // {12, 0, 1.5 ether, 11, 80 ether, 2, 10000, 2}
-        //  user ID: 12
-        //  main token: 0
-        //  main amount: 1.5 ether
-        //  sub token: 11
-        //  sub amount: 80 ether
-        //  config: 2 (isBuy = false; isMain = true)
-        //  token price: 10000
-        //  nonce: 2
-        const orders = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
-        const orders2 = "0x511bf7595ba3861d17d2652a9edc21e90bc6fee1441f881955aea227ca9e9c2be5045101bf4b8a55e96ae65222c66f771bb592b973f832a5c3cb00733dd62dd300000000000000000000000000000000000000000000000000000000000000000a00000001000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b46ea96b724518092d39522996507057d40deee818f02ad73a8c6d5fb3e183ef0f47a3e12bdc708571ff74d64ba93ff316a2bc96e6a86756e1206aff79838307601000000000000000000000000000000000000000000000000000000000000000a00000002010000000000000000000000000000000000000000000000008ac7230489e80000000b000000000000000000000000000000000000000000000000016345785d8a000000000000000c";
-        const orders3 = "0x511bf7595ba3861d17d2652a9edc21e90bc6fee1441f881955aea227ca9e9c2be5045101bf4b8a55e96ae65222c66f771bb592b973f832a5c3cb00733dd62dd300000000000000000000000000000000000000000000000000000000000000000a00000001000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b46ea96b724518092d39522996507057d40deee818f02ad73a8c6d5fb3e183ef0f47a3e12bdc708571ff74d64ba93ff316a2bc96e6a86756e1206aff79838307601000000000000000000000000000000000000000000000000000000000000000a00000002010000000000000000000000000000000000000000000000008ac7230489e80000000b000000000000000000000000000000000000000000000000016345785d8a000000000000000c77d6b405666890fccc7f57db99ac9109801b6b833af3fc8902b0cbe17c3d33c10cd0c88b71759c6d83761ff477d216ac406f537a6abc95cffcc14ad7646f3acd0000000000000000000000000000000000000000000000000000000000000027100000000303000000000000000000000000000000000000000000000001158e460913d00000000b00000000000000000000000000000000000000000000000002c68af0bb14000000000000000d";
-        const orders4 = "0x511bf7595ba3861d17d2652a9edc21e90bc6fee1441f881955aea227ca9e9c2be5045101bf4b8a55e96ae65222c66f771bb592b973f832a5c3cb00733dd62dd300000000000000000000000000000000000000000000000000000000000000000a00000001000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b46ea96b724518092d39522996507057d40deee818f02ad73a8c6d5fb3e183ef0f47a3e12bdc708571ff74d64ba93ff316a2bc96e6a86756e1206aff79838307601000000000000000000000000000000000000000000000000000000000000000a00000002010000000000000000000000000000000000000000000000008ac7230489e80000000b000000000000000000000000000000000000000000000000016345785d8a000000000000000c77d6b405666890fccc7f57db99ac9109801b6b833af3fc8902b0cbe17c3d33c10cd0c88b71759c6d83761ff477d216ac406f537a6abc95cffcc14ad7646f3acd0000000000000000000000000000000000000000000000000000000000000027100000000303000000000000000000000000000000000000000000000001158e460913d00000000b00000000000000000000000000000000000000000000000002c68af0bb14000000000000000d3efbd055f26a5ef24213002dc5a6442a8dc71cf0ca1ad64cb0485fe1b8848604a16f6c17998b0ef87b648c437857819cff9d76d9506f0a5b1d545db6a3f4bccb0000000000000000000000000000000000000000000000000000000000000027100000000403000000000000000000000000000000000000000000000001a055690d9db80000000b0000000000000000000000000000000000000000000000000429d069189e000000000000000e";
-        const orders5 = "0x511bf7595ba3861d17d2652a9edc21e90bc6fee1441f881955aea227ca9e9c2be5045101bf4b8a55e96ae65222c66f771bb592b973f832a5c3cb00733dd62dd300000000000000000000000000000000000000000000000000000000000000000a00000001000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b46ea96b724518092d39522996507057d40deee818f02ad73a8c6d5fb3e183ef0f47a3e12bdc708571ff74d64ba93ff316a2bc96e6a86756e1206aff79838307601000000000000000000000000000000000000000000000000000000000000000a00000002010000000000000000000000000000000000000000000000008ac7230489e80000000b000000000000000000000000000000000000000000000000016345785d8a000000000000000c77d6b405666890fccc7f57db99ac9109801b6b833af3fc8902b0cbe17c3d33c10cd0c88b71759c6d83761ff477d216ac406f537a6abc95cffcc14ad7646f3acd0000000000000000000000000000000000000000000000000000000000000027100000000303000000000000000000000000000000000000000000000001158e460913d00000000b00000000000000000000000000000000000000000000000002c68af0bb14000000000000000d3efbd055f26a5ef24213002dc5a6442a8dc71cf0ca1ad64cb0485fe1b8848604a16f6c17998b0ef87b648c437857819cff9d76d9506f0a5b1d545db6a3f4bccb0000000000000000000000000000000000000000000000000000000000000027100000000403000000000000000000000000000000000000000000000001a055690d9db80000000b0000000000000000000000000000000000000000000000000429d069189e000000000000000e740afe0ef5979a05ad1cd25b51f300e5a1f3f4fe69e64dda3bd1881313cc0d67ae47f2ae16ffcb220390d886de62ed06d6aa2ab4a7df13df448fb25ad8118cc101000000000000000000000000000000000000000000000000000000000000271000000005030000000000000000000000000000000000000000000000008ac7230489e80000000b000000000000000000000000000000000000000000000000016345785d8a000000000000000f";
-        const mainToken = ZERO_ADDRESS;
-        const subToken = token;
-        const mainAmount1 = ether(3);
-        const subAmount1 = ether(100);
-        const mainAmount2 = ether(1.5);
-        const subAmount2 = ether(80);
-        /*
+        const orders1_2 =
+            "0x3a4f94638a2b34d32342f1b87718bdcf70a74cd0f72664cfeb1d2c5a6d2c2fa5d6beee380d7e02f66ac13f16c42312efda89d16aee687cc709b4b14d26d3092a010000000000000000000000000000000000000000000000000de0b6b3a764000000000001130000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b69e590ee6c71c98ab93af1bdb93abf514df14772d7481d313389577065d7351bbc43764e0a77ba94445ba51c3bc137050444e368898cede5d1d85b07cad7e86401000000000000000000000000000000000000000000000000016345785d8a00000000000212000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
+        const orders1_2_3 =
+            "0x3a4f94638a2b34d32342f1b87718bdcf70a74cd0f72664cfeb1d2c5a6d2c2fa5d6beee380d7e02f66ac13f16c42312efda89d16aee687cc709b4b14d26d3092a010000000000000000000000000000000000000000000000000de0b6b3a764000000000001130000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b69e590ee6c71c98ab93af1bdb93abf514df14772d7481d313389577065d7351bbc43764e0a77ba94445ba51c3bc137050444e368898cede5d1d85b07cad7e86401000000000000000000000000000000000000000000000000016345785d8a00000000000212000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c0a252dde3302f2fcffbd6d8fc9e628adb71c185c7ddc1715d4eb007cc09af9e18bc61dd3bee81c580395154592f1d35629264d039b18e68d00e07248766a712f0000000000000000000000000000000000000000000000000002c68af0bb140000000000031200000000000000000000000000000000000000000000000002c68af0bb1400000000000000000000000000000000000000000000000000000001158e460913d00000000b0000000d";
+        const orders1_2_3_4 =
+            "0x3a4f94638a2b34d32342f1b87718bdcf70a74cd0f72664cfeb1d2c5a6d2c2fa5d6beee380d7e02f66ac13f16c42312efda89d16aee687cc709b4b14d26d3092a010000000000000000000000000000000000000000000000000de0b6b3a764000000000001130000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b69e590ee6c71c98ab93af1bdb93abf514df14772d7481d313389577065d7351bbc43764e0a77ba94445ba51c3bc137050444e368898cede5d1d85b07cad7e86401000000000000000000000000000000000000000000000000016345785d8a00000000000212000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c0a252dde3302f2fcffbd6d8fc9e628adb71c185c7ddc1715d4eb007cc09af9e18bc61dd3bee81c580395154592f1d35629264d039b18e68d00e07248766a712f0000000000000000000000000000000000000000000000000002c68af0bb140000000000031200000000000000000000000000000000000000000000000002c68af0bb1400000000000000000000000000000000000000000000000000000001158e460913d00000000b0000000d39d4dc48302916870802e2690d21997fd39dd81935312d0300d35c67bbe88817deed7a8ea7e4c97af401ce2c9752136f0d1233e7979ddd8bfc06c82162444c70010000000000000000000000000000000000000000000000000429d069189e000000000004120000000000000000000000000000000000000000000000000429d069189e00000000000000000000000000000000000000000000000000000001a055690d9db80000000b0000000e";
+        const orders1_2_3_4_5 =
+            "0x3a4f94638a2b34d32342f1b87718bdcf70a74cd0f72664cfeb1d2c5a6d2c2fa5d6beee380d7e02f66ac13f16c42312efda89d16aee687cc709b4b14d26d3092a010000000000000000000000000000000000000000000000000de0b6b3a764000000000001130000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b69e590ee6c71c98ab93af1bdb93abf514df14772d7481d313389577065d7351bbc43764e0a77ba94445ba51c3bc137050444e368898cede5d1d85b07cad7e86401000000000000000000000000000000000000000000000000016345785d8a00000000000212000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c0a252dde3302f2fcffbd6d8fc9e628adb71c185c7ddc1715d4eb007cc09af9e18bc61dd3bee81c580395154592f1d35629264d039b18e68d00e07248766a712f0000000000000000000000000000000000000000000000000002c68af0bb140000000000031200000000000000000000000000000000000000000000000002c68af0bb1400000000000000000000000000000000000000000000000000000001158e460913d00000000b0000000d39d4dc48302916870802e2690d21997fd39dd81935312d0300d35c67bbe88817deed7a8ea7e4c97af401ce2c9752136f0d1233e7979ddd8bfc06c82162444c70010000000000000000000000000000000000000000000000000429d069189e000000000004120000000000000000000000000000000000000000000000000429d069189e00000000000000000000000000000000000000000000000000000001a055690d9db80000000b0000000e0cf13a14dc5e2d7b83096f4876cd42c79dd4f56d4dd76fb0a64554fefb8907559fe8686dadc5d340f5239aa1d27bf1e1aa29121942089485ee02b4e864587e9e010000000000000000000000000000000000000000000000004563918244f400000000000510000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000f";
+
+        const hash1 = "0xd377c15071703bb5019b417616c1ed313dc1fa6dce07b85701de979178e9c23a";
+        const hash2 = "0xa64d16d243788f677a7dd1cbb16488ff3a701f5d686c4f76be4ddc114a65c629";
+        const hash3 = "0x98529902fd62a2dc533f55ca1aa35d389fee2778e992542fdd368452cc958cd6";
+        const hash4 = "0xace5ea317dff2a6780df6a3a04db42160681b0f30e5e50699331f6af101a2e88";
+        const hash5 = "0xef47c061c166ca16b31a6c7902299fcac73e715f19bab1ad5207f9517b1a8a37";
+
+        const tokenTarget1 = ZERO_ADDRESS;
+        const tokenTarget2 = token;
+        const tokenTrade1 = token;
+        const tokenTrade2 = ZERO_ADDRESS;
+
+        const amountTarget1 = ether(1);
+        const amountTrade1 = ether(100);
+        const amountFee1 = ether(1);
+        const isBuy1 = true;
+
+        const amountTarget2 = ether(10);
+        const amountTrade2 = ether(0.1);
+        const amountFee2 = ether(0.1);
+        const isBuy2 = false;
+
+        const amountTarget3 = ether(20);
+        const amountTrade3 = ether(0.2);
+        const amountFee3 = ether(0.2);
+        const isBuy3 = false;
+
+        const amountTarget4 = ether(30);
+        const amountTrade4 = ether(0.3);
+        const amountFee4 = ether(0.3);
+        const isBuy4 = false;
+
+        const amountTarget5 = ether(10);
+        const amountTrade5 = ether(0.1);
+        const amountFee5 = ether(5);
+        const isBuy5 = false;
+
+        const gasPrice = ether(0.000000004);
+        const gasAmount = 85000;
+
         it('Normal', async function() {
-            const { logs } = await this.Dinngo.settle(orders, { from: owner });
+            const { logs } = await this.Dinngo.settle(orders1_2, { from: owner });
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
             event[0].args.user.should.eq(user2);
             event[0].args.isBuy.should.eq(false);
-            event[0].args.tokenMain.should.eq(mainToken);
-            event[0].args.amountMain.should.be.bignumber.eq(mainAmount2);
-            event[0].args.tokenSub.should.eq(subToken);
-            event[0].args.amountSub.should.be.bignumber.eq(subAmount2);
+            event[0].args.tokenTarget.should.eq(tokenTarget2);
+            event[0].args.amountTarget.should.be.bignumber.eq(amountTarget2);
+            event[0].args.tokenTrade.should.eq(tokenTrade2);
+            event[0].args.amountTrade.should.be.bignumber.eq(amountTrade2);
             event[1].args.user.should.eq(user1);
             event[1].args.isBuy.should.eq(true);
-            event[1].args.tokenMain.should.eq(mainToken);
-            event[1].args.amountMain.should.be.bignumber.eq(mainAmount2);
-            event[1].args.tokenSub.should.eq(subToken);
-            event[1].args.amountSub.should.be.bignumber.eq(subAmount2);
+            event[1].args.tokenTarget.should.eq(tokenTarget1);
+            event[1].args.amountTarget.should.be.bignumber.eq(amountTrade2);
+            event[1].args.tokenTrade.should.eq(tokenTrade1);
+            event[1].args.amountTrade.should.be.bignumber.eq(amountTarget2);
             let user1Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
             let user1DGO = await this.Dinngo.balances.call(DGO, user1);
             let user1Token = await this.Dinngo.balances.call(token, user1);
@@ -146,54 +160,202 @@ contract('Settle', function([user1, user2, user3, user4, user5, owner, user, din
             let walletEther = await this.Dinngo.balances.call(ZERO_ADDRESS, dinngoWallet);
             let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
             let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
-            user1Ether.should.be.bignumber.eq(ether(1000).minus(mainAmount2));
-            user1DGO.should.be.bignumber.eq(ether(1000).minus(mainAmount2.mul(0.001 * 0.5 * 0.002)));
-            user1Token.should.be.bignumber.eq(ether(1000).plus(subAmount2));
-            user2Ether.should.be.bignumber.eq(ether(1500).plus(mainAmount2).minus(mainAmount2.mul(1 * 0.001)));
-            user2DGO.should.be.bignumber.eq(ether(1500));
-            user2Token.should.be.bignumber.eq(ether(1500).minus(subAmount2));
-            walletEther.should.be.bignumber.eq(mainAmount2.mul(1 * 0.001));
-            walletDGO.should.be.bignumber.eq(mainAmount2.mul(0.001 * 0.5 * 0.002));
-            walletToken.should.be.bignumber.eq(ether(0));
-            let amount1 = await this.Dinngo.orderFills.call("0xa1179f9c81f330f47cbde5e73ff87a87c1195bc5a056dad4df90b3ff3844ca71");
-            let amount2 = await this.Dinngo.orderFills.call("0x41a07794e4f991056ec1316f7a5c3a63ed88a877e68a186921699ea23d365936");
-            amount1.should.be.bignumber.eq(subAmount2);
-            amount2.should.be.bignumber.eq(subAmount2);
+            let gasFee = gasPrice.mul(gasAmount);
+            user1Ether.should.be.bignumber.eq(
+                BALANCE.minus(
+                    amountTrade2
+                ).minus(
+                    amountFee1.mul(amountTrade2).div(amountTarget1)
+                ).minus(
+                    gasFee
+                )
+            );
+            user1DGO.should.be.bignumber.eq(BALANCE);
+            user1Token.should.be.bignumber.eq(BALANCE.plus(amountTarget2));
+            user2Ether.should.be.bignumber.eq(
+                BALANCE.plus(
+                    amountTrade2
+                ).minus(
+                    amountFee2
+                ).minus(
+                    gasFee
+                )
+            );
+            user2DGO.should.be.bignumber.eq(BALANCE);
+            user2Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            walletEther.should.be.bignumber.eq(
+                BALANCE.plus(
+                amountFee1.mul(amountTrade2).div(amountTarget1)
+                ).plus(
+                    gasFee
+                ).plus(
+                    amountFee2
+                ).plus(
+                    gasFee
+                )
+            );
+            walletDGO.should.be.bignumber.eq(BALANCE);
+            walletToken.should.be.bignumber.eq(BALANCE);
+            let amount1 = await this.Dinngo.orderFills.call(hash1);
+            let amount2 = await this.Dinngo.orderFills.call(hash2);
+            amount1.should.be.bignumber.eq(amountTrade2);
+            amount2.should.be.bignumber.eq(amountTarget2);
         });
-        */
 
-        it('Normal2', async function() {
-            const receipt = await this.Dinngo.settle(orders2, { from: owner });
-            console.log(receipt.receipt.gasUsed);
-        });
-
-        it('Normal3', async function() {
-            const receipt = await this.Dinngo.settle(orders3, { from: owner });
-            console.log(receipt.receipt.gasUsed);
-        });
-
-        it('Normal4', async function() {
-            const receipt = await this.Dinngo.settle(orders4, { from: owner });
-            console.log(receipt.receipt.gasUsed);
-        });
-
-        it('Normal5', async function() {
-            const receipt = await this.Dinngo.settle(orders5, { from: owner });
-            console.log(receipt.receipt.gasUsed);
+        it('Normal 1 taker 4 maker', async function() {
+            const { logs } = await this.Dinngo.settle(orders1_2_3_4_5, { from: owner });
+            const event = logs.filter(e => e.event === "Trade");
+            should.exist(event);
+            event[0].args.user.should.eq(user2);
+            event[0].args.isBuy.should.eq(false);
+            event[0].args.tokenTarget.should.eq(tokenTarget2);
+            event[0].args.amountTarget.should.be.bignumber.eq(amountTarget2);
+            event[0].args.tokenTrade.should.eq(tokenTrade2);
+            event[0].args.amountTrade.should.be.bignumber.eq(amountTrade2);
+            event[1].args.user.should.eq(user3);
+            event[1].args.isBuy.should.eq(false);
+            event[1].args.tokenTarget.should.eq(tokenTarget2);
+            event[1].args.amountTarget.should.be.bignumber.eq(amountTarget3);
+            event[1].args.tokenTrade.should.eq(tokenTrade2);
+            event[1].args.amountTrade.should.be.bignumber.eq(amountTrade3);
+            event[2].args.user.should.eq(user4);
+            event[2].args.isBuy.should.eq(false);
+            event[2].args.tokenTarget.should.eq(tokenTarget2);
+            event[2].args.amountTarget.should.be.bignumber.eq(amountTarget4);
+            event[2].args.tokenTrade.should.eq(tokenTrade2);
+            event[2].args.amountTrade.should.be.bignumber.eq(amountTrade4);
+            event[3].args.user.should.eq(user5);
+            event[3].args.isBuy.should.eq(false);
+            event[3].args.tokenTarget.should.eq(tokenTarget2);
+            event[3].args.amountTarget.should.be.bignumber.eq(amountTarget5);
+            event[3].args.tokenTrade.should.eq(tokenTrade2);
+            event[3].args.amountTrade.should.be.bignumber.eq(amountTrade5);
+            event[4].args.user.should.eq(user1);
+            event[4].args.isBuy.should.eq(true);
+            event[4].args.tokenTarget.should.eq(tokenTarget1);
+            event[4].args.amountTarget.should.be.bignumber.eq(
+                amountTrade2.plus(
+                    amountTrade3
+                ).plus(
+                    amountTrade4
+                ).plus(
+                    amountTrade5
+                )
+            );
+            event[4].args.tokenTrade.should.eq(tokenTrade1);
+            event[4].args.amountTrade.should.be.bignumber.eq(
+                amountTarget2.plus(
+                    amountTarget3
+                ).plus(
+                    amountTarget4
+                ).plus(
+                    amountTarget5
+                )
+            );
+            let user1Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
+            let user1DGO = await this.Dinngo.balances.call(DGO, user1);
+            let user1Token = await this.Dinngo.balances.call(token, user1);
+            let user2Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user2);
+            let user2DGO = await this.Dinngo.balances.call(DGO, user2);
+            let user2Token = await this.Dinngo.balances.call(token, user2);
+            let user3Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user3);
+            let user3DGO = await this.Dinngo.balances.call(DGO, user3);
+            let user3Token = await this.Dinngo.balances.call(token, user3);
+            let user4Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user4);
+            let user4DGO = await this.Dinngo.balances.call(DGO, user4);
+            let user4Token = await this.Dinngo.balances.call(token, user4);
+            let user5Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user5);
+            let user5DGO = await this.Dinngo.balances.call(DGO, user5);
+            let user5Token = await this.Dinngo.balances.call(token, user5);
+            let walletEther = await this.Dinngo.balances.call(ZERO_ADDRESS, dinngoWallet);
+            let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
+            let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
+            let gasFee = gasPrice.mul(gasAmount);
+            let tradeFee = amountFee1.mul(
+                amountTrade2.plus(amountTrade3).plus(amountTrade4).plus(amountTrade5)
+            ).div(amountTarget1);
+            user1Ether.should.be.bignumber.eq(
+                BALANCE.minus(
+                    amountTrade2
+                ).minus(
+                    amountTrade3
+                ).minus(
+                    amountTrade4
+                ).minus(
+                    amountTrade5
+                ).minus(
+                    tradeFee
+                ).minus(
+                    gasFee
+                )
+            );
+            user1DGO.should.be.bignumber.eq(BALANCE);
+            user1Token.should.be.bignumber.eq(
+                BALANCE.plus(
+                    amountTarget2
+                ).plus(
+                    amountTarget3
+                ).plus(
+                    amountTarget4
+                ).plus(
+                    amountTarget5
+                )
+            );
+            user2Ether.should.be.bignumber.eq(
+                BALANCE.plus(amountTrade2).minus(amountFee2).minus(gasFee)
+            );
+            user2DGO.should.be.bignumber.eq(BALANCE);
+            user2Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            user3Ether.should.be.bignumber.eq(
+                BALANCE.plus(amountTrade3).minus(amountFee3).minus(gasFee)
+            );
+            user3DGO.should.be.bignumber.eq(BALANCE);
+            user3Token.should.be.bignumber.eq(BALANCE.minus(amountTarget3));
+            user4Ether.should.be.bignumber.eq(
+                BALANCE.plus(amountTrade4).minus(amountFee4).minus(gasFee)
+            );
+            user4DGO.should.be.bignumber.eq(BALANCE);
+            user4Token.should.be.bignumber.eq(BALANCE.minus(amountTarget4));
+            user5Ether.should.be.bignumber.eq(
+                BALANCE.plus(amountTrade5).minus(gasFee)
+            );
+            user5DGO.should.be.bignumber.eq(BALANCE.minus(amountFee5));
+            user5Token.should.be.bignumber.eq(BALANCE.minus(amountTarget5));
+            walletEther.should.be.bignumber.eq(
+                BALANCE.plus(tradeFee).plus(gasFee
+                ).plus(amountFee2).plus(gasFee
+                ).plus(amountFee3).plus(gasFee
+                ).plus(amountFee4).plus(gasFee
+                ).plus(gasFee)
+            );
+            walletDGO.should.be.bignumber.eq(BALANCE.plus(amountFee5));
+            walletToken.should.be.bignumber.eq(BALANCE);
+            let amount1 = await this.Dinngo.orderFills.call(hash1);
+            let amount2 = await this.Dinngo.orderFills.call(hash2);
+            let amount3 = await this.Dinngo.orderFills.call(hash3);
+            let amount4 = await this.Dinngo.orderFills.call(hash4);
+            let amount5 = await this.Dinngo.orderFills.call(hash5);
+            amount1.should.be.bignumber.eq(
+                amountTrade2.plus(amountTrade3).plus(amountTrade4).plus(amountTrade5)
+            );
+            amount2.should.be.bignumber.eq(amountTarget2);
+            amount3.should.be.bignumber.eq(amountTarget3);
+            amount4.should.be.bignumber.eq(amountTarget4);
+            amount5.should.be.bignumber.eq(amountTarget5);
         });
 
         it('taker invalid', async function() {
             await this.Dinngo.removeUser(user2, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders, { from: owner }));
+            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('maker invalid', async function() {
             await this.Dinngo.removeUser(user1, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders, { from: owner }));
+            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('Not owner', async function() {
-            await expectThrow(this.Dinngo.settle(orders, { from: user }));
+            await expectThrow(this.Dinngo.settle(orders1_2));
         });
     });
 });
