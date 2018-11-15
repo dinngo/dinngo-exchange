@@ -24,13 +24,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (uint8 => uint256) public takerFees;
-    mapping (uint8 => uint256) public makerFees;
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
-    uint256 constant BASE = 10000;
-    uint256 constant SETTLE_GAS = 85000;
-    uint256 constant WITHDRAWAL_GAS = 100000;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -55,19 +50,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         userRanks[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
         tokenID_Address[1] = dinngoToken;
-        takerFees[1] = 20;
-        takerFees[2] = 19;
-        takerFees[3] = 17;
-        takerFees[4] = 15;
-        takerFees[5] = 12;
-        takerFees[6] = 9;
-        takerFees[7] = 6;
-        takerFees[8] = 2;
-        makerFees[1] = 10;
-        makerFees[2] = 9;
-        makerFees[3] = 7;
-        makerFees[4] = 5;
-        makerFees[5] = 2;
     }
 
     /**
