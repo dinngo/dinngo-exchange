@@ -14,21 +14,22 @@ contract('SerializableOrder', function([_, user]) {
         this.SerializableOrder = await SerializableOrderMock.new();
     });
     const userID = 11;
-    const userAddress = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
+    const userAddress = user;
     const tokenIDTarget = 0;
     const tokenIDTrade = 11;
-    const amountTarget = ether(3);
+    const amountTarget = ether(1);
     const amountTrade = ether(100);
-    const config = 1;
-    const fee = 10;
+    const config = 3;
+    const tradeFee = ether(1);
+    const gasFee = ether(0.001);
     const nonce = 1;
-    const r = "0xdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd";
-    const s = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524f";
+    const r = "0xe210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f8";
+    const s = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1";
     const v = "0x00";
-    const hash = "0xa1179f9c81f330f47cbde5e73ff87a87c1195bc5a056dad4df90b3ff3844ca71";
-    const ser_hex_0 = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b";
-    const ser_hex_1 = "0x1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
-    const ser_hex_2 = "0x53a433772f03b5eec7d04a51454cf7bde16e0cd1c39595b96f6a22919e4d524fdbc2b281c271363b56d54f448ceb6ed8dd4df17534cde8d31b5fe9bb4be00ffd00000000000000000000000000000000000000000000000000000000000000000a00000001010000000000000000000000000000000000000000000000056bc75e2d63100000000b00000000000000000000000000000000000000000000000029a2241af62c000000000000000b1eac339001c458855fc4a6b41212bf3f590507f8eb1cf251d3c0445b9a94dff888a8db71e4b326496be169cb18c95df1d5456a2a8718713a4a0a57a5a159ebe20100000000000000000000000000000000000000000000000000000000000027100000000202000000000000000000000000000000000000000000000004563918244f400000000b00000000000000000000000000000000000000000000000014d1120d7b16000000000000000c";
+    const hash = "0xae69a2185ebf1d3685a0a00cb9c7b46cdfe21531593102afbfaf6e50b81b8599";
+    const ser_hex_0 = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
+    const ser_hex_1 = "0x5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
+    const ser_hex_2 = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
 
     describe('serialize', function() {
         it('normal order', async function() {
@@ -39,7 +40,8 @@ contract('SerializableOrder', function([_, user]) {
                 tokenIDTrade,
                 amountTrade,
                 config,
-                fee,
+                tradeFee,
+                gasFee,
                 nonce,
                 r,
                 s,
@@ -58,11 +60,12 @@ contract('SerializableOrder', function([_, user]) {
             order_data[3].should.be.bignumber.eq(tokenIDTrade);
             order_data[4].should.be.bignumber.eq(amountTrade);
             order_data[5].should.be.bignumber.eq(config);
-            order_data[6].should.be.bignumber.eq(fee);
-            order_data[7].should.be.bignumber.eq(nonce);
-            order_data[8].should.eq(r);
-            order_data[9].should.eq(s);
-            order_data[10].should.be.bignumber.eq(v);
+            order_data[6].should.be.bignumber.eq(tradeFee);
+            order_data[7].should.be.bignumber.eq(gasFee);
+            order_data[8].should.be.bignumber.eq(nonce);
+            order_data[9].should.eq(r);
+            order_data[10].should.eq(s);
+            order_data[11].should.be.bignumber.eq(v);
         });
 
         it('get user ID', async function() {
@@ -97,17 +100,17 @@ contract('SerializableOrder', function([_, user]) {
 
         it('is main fee', async function() {
             let order_data = await this.SerializableOrder.isOrderFeeMainMock.call(ser_hex_0);
-            order_data.should.eq(false);
+            order_data.should.eq(true);
         });
 
-        it('get gas price', async function() {
-            let order_data = await this.SerializableOrder.getOrderGasPriceMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(0);
+        it('get trade fee', async function() {
+            let order_data = await this.SerializableOrder.getOrderTradeFeeMock.call(ser_hex_0);
+            order_data.should.be.bignumber.eq(tradeFee);
         });
 
-        it('get fee', async function() {
-            let order_data = await this.SerializableOrder.getOrderFeeMock.call(ser_hex_0);
-            order_data.should.be.bignumber.eq(fee);
+        it('get gas fee', async function() {
+            let order_data = await this.SerializableOrder.getOrderGasFeeMock.call(ser_hex_0);
+            order_data.should.be.bignumber.eq(gasFee);
         });
 
         it('get nonce', async function() {

@@ -13,11 +13,10 @@ contract SerializableOrder is Seriality {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-    uint constant public ORDER_SIZE = 174;
-    uint constant public UNSIGNED_ORDER_SIZE = 109;
+    uint constant public ORDER_SIZE = 206;
+    uint constant public UNSIGNED_ORDER_SIZE = 141;
     uint8 constant internal _MASK_IS_BUY = 0x01;
     uint8 constant internal _MASK_IS_MAIN = 0x02;
-    uint8 constant internal _MASK_GAS_PRICE = 0xFC;
 
     /**
      * @notice Get user ID from the serialized order data
@@ -83,17 +82,6 @@ contract SerializableOrder is Seriality {
     }
 
     /**
-     * @notice Get the gas price for paying gas fee
-     * @dev Should be a number from 0 to 64 gwei
-     * @param ser_data Serialized order data
-     * @return gasPrice The gas price for gas fee
-     */
-    function _getOrderGasPrice(bytes ser_data) internal pure returns (uint256 gasPrice) {
-        gasPrice = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_GAS_PRICE) >> 2;
-        gasPrice = gasPrice.mul(10 ** 9);
-    }
-
-    /**
      * @notice Get nonce from the serialized order data
      * @param ser_data Serialized order data
      * @return nonce Nonce
@@ -103,12 +91,21 @@ contract SerializableOrder is Seriality {
     }
 
     /**
-     * @notice Get fee from the serialized order data
+     * @notice Get trading fee from the serialized order data
      * @param ser_data Serialized order data
      * @return fee Fee amount
      */
-    function _getOrderFee(bytes ser_data) internal pure returns (uint256 fee) {
-        fee = bytesToUint256(ORDER_SIZE - 77, ser_data);
+    function _getOrderTradeFee(bytes ser_data) internal pure returns (uint256 tradeFee) {
+        tradeFee = bytesToUint256(ORDER_SIZE - 77, ser_data);
+    }
+
+    /**
+     * @notice Get gas fee from the serialized order data
+     * @param ser_data Serialized order data
+     * @return fee Fee amount
+     */
+    function _getOrderGasFee(bytes ser_data) internal pure returns (uint256 gasFee) {
+        gasFee = bytesToUint256(ORDER_SIZE - 109, ser_data);
     }
 
     /**
@@ -117,7 +114,7 @@ contract SerializableOrder is Seriality {
      * @return v Signature v
      */
     function _getOrderV(bytes ser_data) internal pure returns (uint8 v) {
-        v = bytesToUint8(ORDER_SIZE - 109, ser_data);
+        v = bytesToUint8(ORDER_SIZE - 141, ser_data);
     }
 
     /**
@@ -126,7 +123,7 @@ contract SerializableOrder is Seriality {
      * @return r Signature r
      */
     function _getOrderR(bytes ser_data) internal pure returns (bytes32 r) {
-        r = bytesToBytes32(ORDER_SIZE - 110, ser_data);
+        r = bytesToBytes32(ORDER_SIZE - 142, ser_data);
     }
 
     /**
@@ -135,7 +132,7 @@ contract SerializableOrder is Seriality {
      * @return s Signature s
      */
     function _getOrderS(bytes ser_data) internal pure returns (bytes32 s) {
-        s = bytesToBytes32(ORDER_SIZE - 142, ser_data);
+        s = bytesToBytes32(ORDER_SIZE - 174, ser_data);
     }
 
     /**

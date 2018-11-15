@@ -19,8 +19,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const amountTarget1 = ether(1);
     const tokenTrade1 = 11;
     const amountTrade1 = ether(100);
-    const config1 = 1 + 2 + 16;
-    const fee1 = ether(1);
+    const config1 = 1 + 2;
+    const tradeFee1 = ether(1);
+    const gasFee1 = ether(0.001);
     const nonce1 = 1;
 
     const user2ID = 12;
@@ -28,8 +29,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const amountTarget2 = ether(10);
     const tokenTrade2 = 0;
     const amountTrade2 = ether(0.1);
-    const config2 = 2 + 16;
-    const fee2 = ether(0.1);
+    const config2 = 2;
+    const tradeFee2 = ether(0.1);
+    const gasFee2 = ether(0.001);
     const nonce2 = 2;
 
     const user3ID = 13;
@@ -37,8 +39,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const amountTarget3 = ether(20);
     const tokenTrade3 = 0;
     const amountTrade3 = ether(0.2);
-    const config3 = 2 + 16;
-    const fee3 = ether(0.2);
+    const config3 = 2;
+    const tradeFee3 = ether(0.2);
+    const gasFee3 = ether(0.001);
     const nonce3 = 3;
 
     const user4ID = 14;
@@ -46,8 +49,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const amountTarget4 = ether(30);
     const tokenTrade4 = 0;
     const amountTrade4 = ether(0.3);
-    const config4 = 2 + 16;
-    const fee4 = ether(0.3);
+    const config4 = 2;
+    const tradeFee4 = ether(0.3);
+    const gasFee4 = ether(0.001);
     const nonce4 = 4;
 
     const user5ID = 15;
@@ -55,8 +59,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const amountTarget5 = ether(10);
     const tokenTrade5 = 0;
     const amountTrade5 = ether(0.1);
-    const config5 = 16;
-    const fee5 = ether(5);
+    const config5 = 0;
+    const tradeFee5 = ether(5);
+    const gasFee5 = ether(1);
     const nonce5 = 5;
 
     describe('single order', async function() {
@@ -68,7 +73,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade1,
                 amountTrade1,
                 config1,
-                fee1,
+                tradeFee1,
+                gasFee1,
                 nonce1
             );
             let sgn = await web3.eth.sign(user1, hash);
@@ -82,7 +88,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade1,
                 amountTrade1,
                 config1,
-                fee1,
+                tradeFee1,
+                gasFee1,
                 nonce1,
                 r,
                 s,
@@ -92,7 +99,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(r);
             console.log(s);
             console.log(v);
-            //console.log(ser_hex);
+            console.log(ser_hex);
         });
 
         it('hex2', async function () {
@@ -103,7 +110,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade2,
                 amountTrade2,
                 config2,
-                fee2,
+                tradeFee2,
+                gasFee2,
                 nonce2
             );
             let sgn = await web3.eth.sign(user2, hash);
@@ -117,7 +125,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade2,
                 amountTrade2,
                 config2,
-                fee2,
+                tradeFee2,
+                gasFee2,
                 nonce2,
                 r,
                 s,
@@ -127,7 +136,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(r);
             console.log(s);
             console.log(v);
-            //console.log(ser_hex);
+            console.log(ser_hex);
         });
 
         it('hex3', async function () {
@@ -138,7 +147,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade3,
                 amountTrade3,
                 config3,
-                fee3,
+                tradeFee3,
+                gasFee3,
                 nonce3
             );
             let sgn = await web3.eth.sign(user3, hash);
@@ -152,7 +162,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade3,
                 amountTrade3,
                 config3,
-                fee3,
+                tradeFee3,
+                gasFee3,
                 nonce3,
                 r,
                 s,
@@ -162,7 +173,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(r);
             console.log(s);
             console.log(v);
-            //console.log(ser_hex);
+            console.log(ser_hex);
         });
 
         it('hex4', async function () {
@@ -173,7 +184,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade4,
                 amountTrade4,
                 config4,
-                fee4,
+                tradeFee4,
+                gasFee4,
                 nonce4
             );
             let sgn = await web3.eth.sign(user4, hash);
@@ -187,7 +199,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade4,
                 amountTrade4,
                 config4,
-                fee4,
+                tradeFee4,
+                gasFee4,
                 nonce4,
                 r,
                 s,
@@ -197,7 +210,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(r);
             console.log(s);
             console.log(v);
-            //console.log(ser_hex);
+            console.log(ser_hex);
         });
 
         it('hex5', async function () {
@@ -208,7 +221,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade5,
                 amountTrade5,
                 config5,
-                fee5,
+                tradeFee5,
+                gasFee5,
                 nonce5
             );
             let sgn = await web3.eth.sign(user5, hash);
@@ -222,7 +236,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade5,
                 amountTrade5,
                 config5,
-                fee5,
+                tradeFee5,
+                gasFee5,
                 nonce5,
                 r,
                 s,
@@ -232,7 +247,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(r);
             console.log(s);
             console.log(v);
-            //console.log(ser_hex);
+            console.log(ser_hex);
         });
     });
 
@@ -245,7 +260,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade1,
                 amountTrade1,
                 config1,
-                fee1,
+                tradeFee1,
+                gasFee1,
                 nonce1
             );
             let hash2 = await this.SerializableOrder.hashOrder.call(
@@ -255,7 +271,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade2,
                 amountTrade2,
                 config2,
-                fee2,
+                tradeFee2,
+                gasFee2,
                 nonce2
             );
             let hash3 = await this.SerializableOrder.hashOrder.call(
@@ -265,7 +282,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade3,
                 amountTrade3,
                 config3,
-                fee3,
+                tradeFee3,
+                gasFee3,
                 nonce3
             );
             let hash4 = await this.SerializableOrder.hashOrder.call(
@@ -275,7 +293,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade4,
                 amountTrade4,
                 config4,
-                fee4,
+                tradeFee4,
+                gasFee4,
                 nonce4
             );
             let hash5 = await this.SerializableOrder.hashOrder.call(
@@ -285,7 +304,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade5,
                 amountTrade5,
                 config5,
-                fee5,
+                tradeFee5,
+                gasFee5,
                 nonce5
             );
             let sgn1 = await web3.eth.sign(user1, hash1);
@@ -315,7 +335,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade1,
                 amountTrade1,
                 config1,
-                fee1,
+                tradeFee1,
+                gasFee1,
                 nonce1,
                 r1,
                 s1,
@@ -328,7 +349,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade2,
                 amountTrade2,
                 config2,
-                fee2,
+                tradeFee2,
+                gasFee2,
                 nonce2,
                 r2,
                 s2,
@@ -341,7 +363,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade3,
                 amountTrade3,
                 config3,
-                fee3,
+                tradeFee3,
+                gasFee3,
                 nonce3,
                 r3,
                 s3,
@@ -354,7 +377,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade4,
                 amountTrade4,
                 config4,
-                fee4,
+                tradeFee4,
+                gasFee4,
                 nonce4,
                 r4,
                 s4,
@@ -367,7 +391,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 tokenTrade5,
                 amountTrade5,
                 config5,
-                fee5,
+                tradeFee5,
+                gasFee5,
                 nonce5,
                 r5,
                 s5,
