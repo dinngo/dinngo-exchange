@@ -233,12 +233,8 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         return _getWithdrawalAmount(ser_data);
     }
 
-    function getWithdrawalConfigMock(bytes ser_data) external pure returns (uint8 config) {
-        return _getWithdrawalConfig(ser_data);
-    }
-
-    function isWithdrawalETHMock(bytes ser_data) external pure returns (bool fETH) {
-        return _isWithdrawalETH(ser_data);
+    function isWithdrawalFeeETHMock(bytes ser_data) external pure returns (bool fFeeETH) {
+        return _isWithdrawalFeeETH(ser_data);
     }
 
     function getWithdrawalNonceMock(bytes ser_data) external pure returns (uint32 nonce) {

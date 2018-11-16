@@ -132,151 +132,145 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     });
 });
 
-contract('WithdrawAdmin', function ([_, owner, someone, tokenWallet, tokenContract]) {
-    const user = "0x627306090abab3a6e1400e9345bc60c78a8bef57";
+contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenContract]) {
     beforeEach(async function() {
         this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
-        await this.Dinngo.setUser(11, user, 1);
+        await this.Dinngo.setUser(11, user1, 1);
+        await this.Dinngo.setUser(12, user2, 1);
     });
+    const BALANCE = ether(3)
+
+    const user1ID = 11;
+    const token1 = 0;
+    const amount1 = ether(1);
+    const fee1 = ether(0.001);
+    const nonce1 = 1;
+    const withdrawal1 = "0x723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b0000000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
+
+    const user2ID = 12;
+    const token2 = 11;
+    const amount2 = ether(2);
+    const fee2 = ether(1);
+    const nonce2 = 2;
+    const withdrawal2 = "0x1a38f8dc02826cf210f7586c003a826432f3f5f9de0d90290a56fba81cbc6ec37d8e7629e2da8f3e4e077c4972e1906035d7fde9d4eef94b25fdc546d29079b3010000000000000000000000000000000000000000000000000de0b6b3a764000000000002000000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c";
+
     describe('ether', function () {
-        /*
-        userID: 11
-        userAddress: 0x627306090abab3a6e1400e9345bc60c78a8bef57
-        token: 0
-        amount: 2 ether
-        config: 1
-        fee: 0.005 ether
-        nonce: 4
-        r: 0xcbab9d2e50d30a98f207c50f3d7e5b8dd80c4d9aa4f9e7a6bff89813b7f31303
-        s: 0x794b55b74debf180f7b0428238032dee64b2622d6a4c1d04faa4a3b4c6d6e584
-        v: 0x01
-        */
-        const withdrawal1 = "0x794b55b74debf180f7b0428238032dee64b2622d6a4c1d04faa4a3b4c6d6e584cbab9d2e50d30a98f207c50f3d7e5b8dd80c4d9aa4f9e7a6bff89813b7f31303010000000000000000000000000000000000000000000000000011c37937e0800000000004010000000000000000000000000000000000000000000000001bc16d674ec8000000000000000b";
         it('when normal', async function () {
-            await this.Dinngo.deposit({ from: user, value: ether(5) });
+            await this.Dinngo.deposit({ from: user1, value: BALANCE });
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(ZERO_ADDRESS);
-            event.args.user.should.eq(user);
-            event.args.amount.should.be.bignumber.eq(ether(2));
-            event.args.balance.should.be.bignumber.eq(ether(5-2-0.005));
+            event.args.user.should.eq(user1);
+            event.args.amount.should.be.bignumber.eq(amount1);
+            event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount1).minus(fee1));
+        });
+
+        it('when normal count gas', async function () {
+            await this.Dinngo.deposit({ from: user1, value: BALANCE });
+            const receipt = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
+            console.log(receipt.receipt.gasUsed);
         });
 
         it('when sent by non-owner', async function () {
-            await this.Dinngo.deposit({ value: ether(5), from: user });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: someone }));
+            await this.Dinngo.deposit({ from: user1, value: BALANCE });
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1));
         });
 
         it('when user balance is not sufficient', async function () {
-            await this.Dinngo.deposit({ value: ether(1), from: user });
+            await this.Dinngo.deposit({ from: user1, value: amount1.minus(ether(0.1)) });
             await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 
         it('when user is removed', async function() {
-            await this.Dinngo.deposit({ from: user, value: ether(5) });
-            await this.Dinngo.removeUser(user, { from: owner });
+            await this.Dinngo.deposit({ from: user1, value: BALANCE });
+            await this.Dinngo.removeUser(user1, { from: owner });
             await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 
         it('when fee is paid in ETH', async function () {
-            await this.Dinngo.deposit({ from: user, value: ether(5) });
+            await this.Dinngo.deposit({ from: user1, value: BALANCE });
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
             const event = await inLogs(logs, 'Withdraw');
-            let balance = await this.Dinngo.balances.call(ZERO_ADDRESS, user);
             event.args.token.should.eq(ZERO_ADDRESS);
-            event.args.user.should.eq(user);
-            event.args.amount.should.be.bignumber.eq(ether(2));
-            event.args.balance.should.be.bignumber.eq(ether(5-2-0.005));
+            event.args.user.should.eq(user1);
+            event.args.amount.should.be.bignumber.eq(amount1);
+            event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount1).minus(fee1));
         });
 
         it('when fee is insufficient', async function () {
-            await this.Dinngo.deposit({ value: ether(2), from: user });
+            await this.Dinngo.deposit({ from: user1, value: ether(1) });
             await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
     });
 
     describe('token', function () {
-        /*
-        userID: 11
-        userAddress: 0x627306090abab3a6e1400e9345bc60c78a8bef57
-        token: 11
-        amount: 3 ether
-        config: 0
-        fee: 0.01 ether
-        nonce: 4
-        r: 0xff082cf088f83143f4c81253d8e1f0a4b67be4c0036fcc96fce640b8a6bfbfad
-        s: 0x11327a5d4c094374f596d51b2edfd3461acb31e0c2e3395eb94d51912116e2b7
-        v: 0x01
-        */
-        const withdrawal1 = "0x11327a5d4c094374f596d51b2edfd3461acb31e0c2e3395eb94d51912116e2b7ff082cf088f83143f4c81253d8e1f0a4b67be4c0036fcc96fce640b8a6bfbfad01000000000000000000000000000000000000000000000000002386f26fc10000000000030000000000000000000000000000000000000000000000000029a2241af62c0000000b0000000b";
         beforeEach(async function () {
-            this.Token = await SimpleToken.new({ from: user });
+            this.Token = await SimpleToken.new({ from: user2 });
             await this.Dinngo.setToken(11, this.Token.address, 1)
         });
 
         it('when normal', async function () {
-            let amount = ether(5);
-            await this.Token.approve(this.Dinngo.address, amount, { from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, amount);
-            const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner });
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(this.Token.address);
-            event.args.user.should.eq(user);
-            event.args.amount.should.be.bignumber.eq(ether(3));
-            event.args.balance.should.be.bignumber.eq(ether(5-3));
+            event.args.user.should.eq(user2);
+            event.args.amount.should.be.bignumber.eq(amount2);
+            event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount2));
+        });
+
+        it('when normal count gas', async function () {
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            const receipt = await this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner });
+            console.log(receipt.receipt.gasUsed);
         });
 
         it('when sent by non-owner', async function () {
-            let amount = ether(5);
-            await this.Token.approve(this.Dinngo.address, amount, { from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, amount);
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: someone }));
-        });
-
-        it('when value with amount 0', async function () {
-            // TODO
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2));
         });
 
         it('when user balance is not sufficient', async function () {
-            let amount = ether(1);
-            await this.Token.approve(this.Dinngo.address, amount, { from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, amount);
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            let amount = amount2.minus(ether(0.1));
+            await this.Token.approve(this.Dinngo.address, amount, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, amount, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
 
         it('when user is removed', async function() {
-            let amount = ether(5);
-            await this.Token.approve(this.Dinngo.address, amount, {from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, amount);
-            await this.Dinngo.removeUser(user, { from: owner });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            await this.Dinngo.removeUser(user2, { from: owner });
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
 
         it('when fee is paid in DGO', async function () {
-            let amount = ether(5);
-            await this.Token.approve(this.Dinngo.address, amount, { from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, amount);
-            const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
+            const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner });
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(this.Token.address);
-            event.args.user.should.eq(user);
-            event.args.amount.should.be.bignumber.eq(ether(3));
-            event.args.balance.should.be.bignumber.eq(ether(5-3));
-            let balance = await this.Dinngo.balances.call(tokenContract, user);
-            balance.should.be.bignumber.eq(ether(5-0.01*0.5));
+            event.args.user.should.eq(user2);
+            event.args.amount.should.be.bignumber.eq(amount2);
+            event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount2));
+            let balance = await this.Dinngo.balances.call(tokenContract, user2);
+            balance.should.be.bignumber.eq(BALANCE.minus(fee2));
         });
 
         it('when fee is insufficient', async function () {
-            let amount = ether(5);
-            await this.Token.approve(this.Dinngo.address, amount, { from: user });
-            await this.Dinngo.depositToken(this.Token.address, amount, { from: user });
-            await this.Dinngo.setUserBalance(user, tokenContract, ether(0.001));
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
+            await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
+            await this.Dinngo.setUserBalance(user2, tokenContract, ether(0.0001));
+            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
     });
 });

@@ -228,10 +228,16 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
             ERC20(token).safeTransfer(user, _getWithdrawalAmount(withdrawal));
         }
         balances[token][user] = balances[token][user].sub(_getWithdrawalAmount(withdrawal));
-        if (_isWithdrawalETH(withdrawal)) {
-            _payFee(tokenID_Address[0], user, _getWithdrawalFee(withdrawal));
+        if (_isWithdrawalFeeETH(withdrawal)) {
+            balances[tokenID_Address[0]][user] =
+                balances[tokenID_Address[0]][user].sub(_getWithdrawalFee(withdrawal));
+            balances[tokenID_Address[0]][userID_Address[0]] =
+                balances[tokenID_Address[0]][userID_Address[0]].add(_getWithdrawalFee(withdrawal));
         } else {
-            _payFee(tokenID_Address[1], user, _getWithdrawalFee(withdrawal));
+            balances[tokenID_Address[1]][user] =
+                balances[tokenID_Address[1]][user].sub(_getWithdrawalFee(withdrawal));
+            balances[tokenID_Address[1]][userID_Address[0]] =
+                balances[tokenID_Address[1]][userID_Address[1]].add(_getWithdrawalFee(withdrawal));
         }
         emit Withdraw(token, user, _getWithdrawalAmount(withdrawal), balances[token][user]);
     }
@@ -343,20 +349,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     function _isValidToken(address token) internal view returns (bool) {
         return tokenRanks[token] != 0;
-    }
-
-    /**
-     * @notice Fee paying process
-     * @param token The fee token
-     * @param user The user paying fee
-     * @param amount The fee amount
-     */
-    function _payFee(address token, address user, uint256 amount) internal {
-        require(user != address(0));
-        if (token == tokenID_Address[1])
-            amount = amount.div(2);
-        balances[token][user] = balances[token][user].sub(amount);
-        balances[token][userID_Address[0]] = balances[token][userID_Address[0]].add(amount);
     }
 
     /**

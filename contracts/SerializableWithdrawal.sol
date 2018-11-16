@@ -45,21 +45,12 @@ contract SerializableWithdrawal is Seriality {
     }
 
     /**
-     * @notice Get config from the serialized withdrawal data
-     * @param ser_data Serialized withdrawal data
-     * @return config Configuration
-     */
-    function _getWithdrawalConfig(bytes ser_data) internal pure returns (uint8 config) {
-        config = bytesToUint8(WITHDRAWAL_SIZE - 38, ser_data);
-    }
-
-    /**
      * @notice Check if the fee is paid by main token
      * @param ser_data Serialized withdrawal data
      * @return fETH Is the fee paid in ETH or DGO
      */
-    function _isWithdrawalETH(bytes ser_data) internal pure returns (bool fETH) {
-        fETH = (bytesToUint8(WITHDRAWAL_SIZE - 38, ser_data) & _MASK_IS_ETH != 0);
+    function _isWithdrawalFeeETH(bytes ser_data) internal pure returns (bool fFeeETH) {
+        fFeeETH = (bytesToUint8(WITHDRAWAL_SIZE - 38, ser_data) & _MASK_IS_ETH != 0);
     }
 
     /**
