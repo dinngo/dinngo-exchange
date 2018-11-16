@@ -210,10 +210,13 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
-        require(_getWithdrawalAmount(withdrawal) > 0);
         address user = userID_Address[_getWithdrawalUserID(withdrawal)];
-        require(_isValidUser(user));
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
+        uint256 amount = _getWithdrawalAmount(withdrawal);
+        uint256 fee = _getWithdrawalFee(withdrawal);
+        address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : tokenID_Address[1];
+        uint256 balance = balances[token][user].sub(amount);
+        require(_isValidUser(user));
         _verifySig(
             user,
             _getWithdrawalHash(withdrawal),
@@ -221,25 +224,20 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
             _getWithdrawalS(withdrawal),
             _getWithdrawalV(withdrawal)
         );
-        require(_getWithdrawalAmount(withdrawal) <= balances[token][user]);
         if (token == address(0)) {
-            user.transfer(_getWithdrawalAmount(withdrawal));
+            user.transfer(amount);
         } else {
-            ERC20(token).safeTransfer(user, _getWithdrawalAmount(withdrawal));
+            ERC20(token).safeTransfer(user, amount);
         }
-        balances[token][user] = balances[token][user].sub(_getWithdrawalAmount(withdrawal));
-        if (_isWithdrawalFeeETH(withdrawal)) {
-            balances[tokenID_Address[0]][user] =
-                balances[tokenID_Address[0]][user].sub(_getWithdrawalFee(withdrawal));
-            balances[tokenID_Address[0]][userID_Address[0]] =
-                balances[tokenID_Address[0]][userID_Address[0]].add(_getWithdrawalFee(withdrawal));
+        if (tokenFee == token) {
+            balance = balance.sub(fee);
         } else {
-            balances[tokenID_Address[1]][user] =
-                balances[tokenID_Address[1]][user].sub(_getWithdrawalFee(withdrawal));
-            balances[tokenID_Address[1]][userID_Address[0]] =
-                balances[tokenID_Address[1]][userID_Address[1]].add(_getWithdrawalFee(withdrawal));
+            balances[tokenFee][user] = balances[tokenFee][user].sub(fee);
         }
-        emit Withdraw(token, user, _getWithdrawalAmount(withdrawal), balances[token][user]);
+        balances[tokenFee][userID_Address[0]] =
+            balances[tokenFee][userID_Address[0]].add(fee);
+        balances[token][user] = balance;
+        emit Withdraw(token, user, amount, balance);
     }
 
     struct SettleAmount {
