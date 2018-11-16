@@ -213,7 +213,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         address user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
-        uint256 fee = _getWithdrawalFee(withdrawal);
+        uint256 amountFee = _getWithdrawalFee(withdrawal);
         address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : tokenID_Address[1];
         uint256 balance = balances[token][user].sub(amount);
         require(_isValidUser(user));
@@ -230,12 +230,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
             ERC20(token).safeTransfer(user, amount);
         }
         if (tokenFee == token) {
-            balance = balance.sub(fee);
+            balance = balance.sub(amountFee);
         } else {
-            balances[tokenFee][user] = balances[tokenFee][user].sub(fee);
+            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
         }
         balances[tokenFee][userID_Address[0]] =
-            balances[tokenFee][userID_Address[0]].add(fee);
+            balances[tokenFee][userID_Address[0]].add(amountFee);
         balances[token][user] = balance;
         emit Withdraw(token, user, amount, balance);
     }
@@ -278,11 +278,13 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         // fetch current status of taker order
         SettleAmount memory tmp = s;
         // try to meet
-        uint256 amountTrade = _getOrderAmountTrade(order).mul(
-            _getOrderAmountTarget(order).sub(orderFills[_getOrderHash(order)])
-        ).div(_getOrderAmountTarget(order));
+        uint256 _amountTarget = _getOrderAmountTarget(order);
+        uint256 _amountTrade = _getOrderAmountTrade(order);
+        uint256 amountTrade = _amountTrade.mul(
+            _amountTarget.sub(orderFills[_getOrderHash(order)])
+        ).div(_amountTarget);
         amountTrade = amountTrade < tmp.restAmountTarget? amountTrade: tmp.restAmountTarget;
-        uint256 amountTarget = _getOrderAmountTarget(order).mul(amountTrade).div(_getOrderAmountTrade(order));
+        uint256 amountTarget = _amountTarget.mul(amountTrade).div(_amountTrade);
         tmp.restAmountTarget = tmp.restAmountTarget.sub(amountTrade);
         tmp.fillAmountTrade = tmp.fillAmountTrade.add(amountTarget);
         // calculate trade
@@ -306,6 +308,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         uint256 balanceTarget = balances[tokenTarget][user].sub(amountTarget);
         uint256 balanceTrade = balances[tokenTrade][user].add(amountTrade);
         // GetFee
+        address tokenFee = _isOrderFeeMain(order)? (_isOrderBuy(order)? tokenTarget: tokenTrade): tokenID_Address[1];
         uint256 amountFee = _getOrderTradeFee(order).mul(amountTarget).div(_getOrderAmountTarget(order));
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
@@ -321,22 +324,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
             amountTrade
         );
         orderFills[hash] = orderFills[hash].add(amountTarget);
-        if (_isOrderFeeMain(order)) {
-            if (_isOrderBuy(order)) {
-                balanceTarget = balanceTarget.sub(amountFee);
-                balances[tokenTarget][userID_Address[0]] =
-                    balances[tokenTarget][userID_Address[0]].add(amountFee);
-            } else {
-                balanceTrade = balanceTrade.sub(amountFee);
-                balances[tokenTrade][userID_Address[0]] =
-                    balances[tokenTrade][userID_Address[0]].add(amountFee);
-            }
-        } else {
-            balances[tokenID_Address[1]][user] =
-                balances[tokenID_Address[1]][user].sub(amountFee);
-            balances[tokenID_Address[1]][userID_Address[0]] =
-                balances[tokenID_Address[1]][userID_Address[0]].add(amountFee);
-        }
+        if (tokenFee == tokenTarget)
+            balanceTarget = balanceTarget.sub(amountFee);
+        else if (tokenFee == tokenTrade)
+            balanceTrade = balanceTrade.sub(amountFee);
+        else
+            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
+        balances[tokenFee][userID_Address[0]] =
+            balances[tokenFee][userID_Address[0]].add(amountFee);
         balances[tokenTarget][user] = balanceTarget;
         balances[tokenTrade][user] = balanceTrade;
     }
