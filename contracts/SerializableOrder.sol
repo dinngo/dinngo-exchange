@@ -2,14 +2,13 @@ pragma solidity ^0.4.24;
 
 import "bytes/BytesLib.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "./Seriality/src/Seriality.sol";
 
 /**
  * @title Serializable Order
  * @author Ben Huang
  * @notice Let order support serialization and deserialization
  */
-contract SerializableOrder is Seriality {
+contract SerializableOrder {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
@@ -24,7 +23,7 @@ contract SerializableOrder is Seriality {
      * @return userID User ID
      */
     function _getOrderUserID(bytes ser_data) internal pure returns (uint32 userID) {
-        userID = bytesToUint32(ORDER_SIZE, ser_data);
+        userID = ser_data.toUint32(ORDER_SIZE - 4);
     }
 
     /**
@@ -33,7 +32,7 @@ contract SerializableOrder is Seriality {
      * @return tokenTarget Target token ID
      */
     function _getOrderTokenIDTarget(bytes ser_data) internal pure returns (uint16 tokenTarget) {
-        tokenTarget = bytesToUint16(ORDER_SIZE - 4 , ser_data);
+        tokenTarget = ser_data.toUint16(ORDER_SIZE - 6);
     }
 
     /**
@@ -42,7 +41,7 @@ contract SerializableOrder is Seriality {
      * @return amountTarget Target token amount
      */
     function _getOrderAmountTarget(bytes ser_data) internal pure returns (uint256 amountTarget) {
-        amountTarget = bytesToUint256(ORDER_SIZE - 6, ser_data);
+        amountTarget = ser_data.toUint(ORDER_SIZE - 38);
     }
 
     /**
@@ -51,7 +50,7 @@ contract SerializableOrder is Seriality {
      * @return tokenTrade Trade token ID
      */
     function _getOrderTokenIDTrade(bytes ser_data) internal pure returns (uint16 tokenTrade) {
-        tokenTrade = bytesToUint16(ORDER_SIZE - 38, ser_data);
+        tokenTrade = ser_data.toUint16(ORDER_SIZE - 40);
     }
 
     /**
@@ -60,7 +59,7 @@ contract SerializableOrder is Seriality {
      * @return amountTrade Trade token amount
      */
     function _getOrderAmountTrade(bytes ser_data) internal pure returns (uint256 amountTrade) {
-        amountTrade = bytesToUint256(ORDER_SIZE - 40, ser_data);
+        amountTrade = ser_data.toUint(ORDER_SIZE - 72);
     }
 
     /**
@@ -69,7 +68,7 @@ contract SerializableOrder is Seriality {
      * @return fBuy Is buy order or not
      */
     function _isOrderBuy(bytes ser_data) internal pure returns (bool fBuy) {
-        fBuy = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_IS_BUY != 0);
+        fBuy = (ser_data.toUint8(ORDER_SIZE - 73) & _MASK_IS_BUY != 0);
     }
 
     /**
@@ -78,7 +77,7 @@ contract SerializableOrder is Seriality {
      * @return fMain Is the fee paid in main token or not
      */
     function _isOrderFeeMain(bytes ser_data) internal pure returns (bool fMain) {
-        fMain = (bytesToUint8(ORDER_SIZE - 72, ser_data) & _MASK_IS_MAIN != 0);
+        fMain = (ser_data.toUint8(ORDER_SIZE - 73) & _MASK_IS_MAIN != 0);
     }
 
     /**
@@ -87,7 +86,7 @@ contract SerializableOrder is Seriality {
      * @return nonce Nonce
      */
     function _getOrderNonce(bytes ser_data) internal pure returns (uint32 nonce) {
-        nonce = bytesToUint32(ORDER_SIZE - 73, ser_data);
+        nonce = ser_data.toUint32(ORDER_SIZE - 77);
     }
 
     /**
@@ -96,7 +95,7 @@ contract SerializableOrder is Seriality {
      * @return fee Fee amount
      */
     function _getOrderTradeFee(bytes ser_data) internal pure returns (uint256 tradeFee) {
-        tradeFee = bytesToUint256(ORDER_SIZE - 77, ser_data);
+        tradeFee = ser_data.toUint(ORDER_SIZE - 109);
     }
 
     /**
@@ -105,7 +104,7 @@ contract SerializableOrder is Seriality {
      * @return fee Fee amount
      */
     function _getOrderGasFee(bytes ser_data) internal pure returns (uint256 gasFee) {
-        gasFee = bytesToUint256(ORDER_SIZE - 109, ser_data);
+        gasFee = ser_data.toUint(ORDER_SIZE - 141);
     }
 
     /**
@@ -114,7 +113,7 @@ contract SerializableOrder is Seriality {
      * @return v Signature v
      */
     function _getOrderV(bytes ser_data) internal pure returns (uint8 v) {
-        v = bytesToUint8(ORDER_SIZE - 141, ser_data);
+        v = ser_data.toUint8(ORDER_SIZE - 142);
     }
 
     /**
@@ -123,7 +122,7 @@ contract SerializableOrder is Seriality {
      * @return r Signature r
      */
     function _getOrderR(bytes ser_data) internal pure returns (bytes32 r) {
-        r = bytesToBytes32(ORDER_SIZE - 142, ser_data);
+        r = ser_data.toBytes32(ORDER_SIZE - 174);
     }
 
     /**
@@ -132,7 +131,7 @@ contract SerializableOrder is Seriality {
      * @return s Signature s
      */
     function _getOrderS(bytes ser_data) internal pure returns (bytes32 s) {
-        s = bytesToBytes32(ORDER_SIZE - 174, ser_data);
+        s = ser_data.toBytes32(ORDER_SIZE - 206);
     }
 
     /**

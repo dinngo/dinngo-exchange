@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "../SerializableOrder.sol";
+import "../Seriality/src/Seriality.sol";
 
-contract SerializableOrderMock is SerializableOrder {
+contract SerializableOrderMock is SerializableOrder, Seriality {
     constructor () public {
     }
 
