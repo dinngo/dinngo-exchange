@@ -1,8 +1,9 @@
 pragma solidity ^0.4.24;
 
 import "../SerializableWithdrawal.sol";
+import "../Seriality/src/Seriality.sol";
 
-contract SerializableWithdrawalMock is SerializableWithdrawal {
+contract SerializableWithdrawalMock is SerializableWithdrawal, Seriality {
     constructor() public {
     }
 
