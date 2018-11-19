@@ -41,7 +41,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     );
 
     /**
-     * @dev Maker and taker fee rate is defined here.
+     * @dev User ID 0 is the management wallet.
+     * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
      * @param dinngoWallet The main address of dinngo
      * @param dinngoToken The contract address of DGO
      */
@@ -78,12 +79,26 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     /**
      * @notice Remove the address from the user list.
+     * @dev The user rank is set to 0 to remove the user.
      * @param user The user address to be added
      */
     function removeUser(address user) external onlyOwner {
         require(user != address(0));
         require(userRanks[user] != 0);
         userRanks[user] = 0;
+    }
+
+    /**
+     * @notice Update the rank of user. Can only be called by owner.
+     * @param user The user address
+     * @param rank The rank to be assigned
+     */
+    function updateUserRank(address user, uint8 rank) external onlyOwner {
+        require(user != address(0));
+        require(rank != 0);
+        require(userRanks[user] != 0);
+        require(userRanks[user] != rank);
+        userRanks[user] = rank;
     }
 
     /**
@@ -106,28 +121,13 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
     /**
      * @notice Remove the token to the token list.
-     * @dev Record the token list to map the token contract address to a specific
-     * token ID, in order to compact the data size when transferring token contract
-     * address information
-     * @param token The token contract address to be added
+     * @dev The token rank is set to 0 to remove the token.
+     * @param token The token contract address to be removed.
      */
     function removeToken(address token) external onlyOwner {
         require(token != address(0));
         require(tokenRanks[token] != 0);
         tokenRanks[token] = 0;
-    }
-
-    /**
-     * @notice Update the rank of user. Can only be called by owner.
-     * @param user The user address
-     * @param rank The rank to be assigned
-     */
-    function updateUserRank(address user, uint8 rank) external onlyOwner {
-        require(user != address(0));
-        require(rank != 0);
-        require(userRanks[user] != 0);
-        require(userRanks[user] != rank);
-        userRanks[user] = rank;
     }
 
     /**
@@ -248,7 +248,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
-     * param orders The serialized orders.
+     * @param orders The serialized orders.
      */
     function settle(bytes orders) external onlyOwner {
         uint256 nOrder = _getOrderCount(orders);
@@ -336,9 +336,18 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         balances[tokenTrade][user] = balanceTrade;
     }
 
+    /**
+     * @dev Check if the user is valid
+     * @param user The user address to be checked.
+     */
     function _isValidUser(address user) internal view returns (bool) {
         return userRanks[user] != 0;
     }
+
+    /**
+     * @dev Check if the token is valid
+     * @param token The token address to be checked.
+     */
 
     function _isValidToken(address token) internal view returns (bool) {
         return tokenRanks[token] != 0;
