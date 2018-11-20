@@ -31,43 +31,7 @@ contract('SerializableOrder', function([_, user]) {
     const ser_hex_1 = "0x5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
     const ser_hex_2 = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
 
-    describe('serialize', function() {
-        it('normal order', async function() {
-            let ser_data = await this.SerializableOrder.serializeOrder.call(
-                userID,
-                tokenIDTarget,
-                amountTarget,
-                tokenIDTrade,
-                amountTrade,
-                config,
-                tradeFee,
-                gasFee,
-                nonce,
-                r,
-                s,
-                v
-            );
-            ser_data.should.eq(ser_hex_0);
-        });
-    });
-
     describe('deserialize', function() {
-        it('normal hex', async function() {
-            let order_data = await this.SerializableOrder.deserializeOrder.call(ser_hex_0);
-            order_data[0].should.be.bignumber.eq(userID);
-            order_data[1].should.be.bignumber.eq(tokenIDTarget);
-            order_data[2].should.be.bignumber.eq(amountTarget);
-            order_data[3].should.be.bignumber.eq(tokenIDTrade);
-            order_data[4].should.be.bignumber.eq(amountTrade);
-            order_data[5].should.be.bignumber.eq(config);
-            order_data[6].should.be.bignumber.eq(tradeFee);
-            order_data[7].should.be.bignumber.eq(gasFee);
-            order_data[8].should.be.bignumber.eq(nonce);
-            order_data[9].should.eq(r);
-            order_data[10].should.eq(s);
-            order_data[11].should.be.bignumber.eq(v);
-        });
-
         it('get user ID', async function() {
             let order_data = await this.SerializableOrder.getOrderUserIDMock.call(ser_hex_0);
             order_data.should.be.bignumber.eq(userID);

@@ -1,67 +1,65 @@
 import ether from 'openzeppelin-solidity/test/helpers/ether';
+const utils = require('web3-utils');
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-const SerializableOrderMock = artifacts.require('SerializableOrderMock');
 
 require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
-const user1ID = 11;
-const tokenTarget1 = 0;
-const amountTarget1 = ether(1);
-const tokenTrade1 = 11;
-const amountTrade1 = ether(100);
-const config1 = 1 + 2;
-const tradeFee1 = ether(1);
-const gasFee1 = ether(0.001);
-const nonce1 = 1;
+function getHash(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, config, tradeFee, gasFee, nonce) {
+    const userID_h = utils.padLeft(utils.toHex(userID), 8);
+    const tokenIDTarget_h = utils.padLeft(utils.toHex(tokenIDTarget), 4);
+    const amountTarget_h = utils.padLeft(utils.toHex(amountTarget), 64);
+    const tokenIDTrade_h = utils.padLeft(utils.toHex(tokenIDTrade), 4);
+    const amountTrade_h = utils.padLeft(utils.toHex(amountTrade), 64);
+    const config_h = utils.padLeft(utils.toHex(config), 2);
+    const tradeFee_h = utils.padLeft(utils.toHex(tradeFee), 64);
+    const gasFee_h = utils.padLeft(utils.toHex(gasFee), 64);
+    const nonce_h = utils.padLeft(utils.toHex(nonce), 8);
 
-const orderSize = 206;
-const order = new ArrayBuffer(orderSize);
-const gasFee = new Uint32Array(order, 0, 8);
-const tradeFee = new Uint32Array(order, 32, 8);
-const nonce = new Uint32Array(order, 64, 1);
-const config = new Uint8Array(order, 68, 1);
-const amountTrade = new Uint32Array(order, 100, 8);
-const tokenTrade = new Uint16Array(order, 132, 1);
-const amountTarget = new Uint32Array(order, 134, 8);
-const tokenTarget = new Uint16Array(order, 166, 1);
-const userID = new Uint32Array(order, 168, 1);
-userID[0] = user1ID;
-tokenTarget[0] = tokenTarget1;
-let temp = amountTarget1;
-amountTarget.forEach((_, i) => {
-    amountTarget[i] = temp & 0xFFFFFFFF;
-    temp = temp >> 32;
-});
-tokenTrade[0] = tokenTrade1;
-temp = amountTrade1;
-amountTrade.forEach((_, i) => {
-    amountTarget[i] = temp & 0xFFFFFFFF;
-    temp = temp >> 32;
-});
-amountTrade[0] = amountTrade1;
-config[0] = config1;
-temp = tradeFee1;
-tradeFee.forEach((_, i) => {
-    tradeFee[i] = temp & 0xFFFFFFFF;
-    temp = temp >> 32;
-});
-temp = gasFee1;
-gasFee.forEach((_, i) => {
-    gasFee[i] = temp & 0xFFFFFFFF;
-    temp = temp >> 32;
-});
-nonce[0] = nonce1;
+    return utils.keccak256(
+        gasFee_h +
+        tradeFee_h.slice(2) +
+        nonce_h.slice(2) +
+        config_h.slice(2) +
+        amountTrade_h.slice(2) +
+        tokenIDTrade_h.slice(2) +
+        amountTarget_h.slice(2) +
+        tokenIDTarget_h.slice(2) +
+        userID_h.slice(2)
+    );
+}
 
-/*
+function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, config, tradeFee, gasFee, nonce, r, s, v) {
+    const userID_h = utils.padLeft(utils.toHex(userID), 8);
+    const tokenIDTarget_h = utils.padLeft(utils.toHex(tokenIDTarget), 4);
+    const amountTarget_h = utils.padLeft(utils.toHex(amountTarget), 64);
+    const tokenIDTrade_h = utils.padLeft(utils.toHex(tokenIDTrade), 4);
+    const amountTrade_h = utils.padLeft(utils.toHex(amountTrade), 64);
+    const config_h = utils.padLeft(utils.toHex(config), 2);
+    const tradeFee_h = utils.padLeft(utils.toHex(tradeFee), 64);
+    const gasFee_h = utils.padLeft(utils.toHex(gasFee), 64);
+    const nonce_h = utils.padLeft(utils.toHex(nonce), 8);
+
+    return (
+        s +
+        r.slice(2) +
+        v.slice(2) +
+        gasFee_h.slice(2) +
+        tradeFee_h.slice(2) +
+        nonce_h.slice(2) +
+        config_h.slice(2) +
+        amountTrade_h.slice(2) +
+        tokenIDTrade_h.slice(2) +
+        amountTarget_h.slice(2) +
+        tokenIDTarget_h.slice(2) +
+        userID_h.slice(2)
+    );
+}
+
 contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
-    before(async function() {
-        this.SerializableOrder = await SerializableOrderMock.new();
-    });
     const user1ID = 11;
     const tokenTarget1 = 0;
     const amountTarget1 = ether(1);
@@ -114,7 +112,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
 
     describe('single order', async function() {
         it('hex1', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
+            const hash = getHash(
                 user1ID,
                 tokenTarget1,
                 amountTarget1,
@@ -129,7 +127,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex = getHex(
                 user1ID,
                 tokenTarget1,
                 amountTarget1,
@@ -149,9 +147,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(v);
             console.log(ser_hex);
         });
-
         it('hex2', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
+            let hash = getHash(
                 user2ID,
                 tokenTarget2,
                 amountTarget2,
@@ -166,7 +163,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex = getHex(
                 user2ID,
                 tokenTarget2,
                 amountTarget2,
@@ -188,7 +185,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
         });
 
         it('hex3', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
+            let hash = getHash(
                 user3ID,
                 tokenTarget3,
                 amountTarget3,
@@ -203,7 +200,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex = getHex(
                 user3ID,
                 tokenTarget3,
                 amountTarget3,
@@ -225,7 +222,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
         });
 
         it('hex4', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
+            let hash = getHash(
                 user4ID,
                 tokenTarget4,
                 amountTarget4,
@@ -240,7 +237,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex = getHex(
                 user4ID,
                 tokenTarget4,
                 amountTarget4,
@@ -262,7 +259,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
         });
 
         it('hex5', async function () {
-            let hash = await this.SerializableOrder.hashOrder.call(
+            let hash = getHash(
                 user5ID,
                 tokenTarget5,
                 amountTarget5,
@@ -277,7 +274,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
-            let ser_hex = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex = getHex(
                 user5ID,
                 tokenTarget5,
                 amountTarget5,
@@ -298,10 +295,9 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(ser_hex);
         });
     });
-
     describe('multiple orders', async function() {
         it('hex_1_2_3_4_5', async function() {
-            let hash1 = await this.SerializableOrder.hashOrder.call(
+            let hash1 = getHash(
                 user1ID,
                 tokenTarget1,
                 amountTarget1,
@@ -312,7 +308,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 gasFee1,
                 nonce1
             );
-            let hash2 = await this.SerializableOrder.hashOrder.call(
+            let hash2 = getHash(
                 user2ID,
                 tokenTarget2,
                 amountTarget2,
@@ -323,7 +319,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 gasFee2,
                 nonce2
             );
-            let hash3 = await this.SerializableOrder.hashOrder.call(
+            let hash3 = getHash(
                 user3ID,
                 tokenTarget3,
                 amountTarget3,
@@ -334,7 +330,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 gasFee3,
                 nonce3
             );
-            let hash4 = await this.SerializableOrder.hashOrder.call(
+            let hash4 = getHash(
                 user4ID,
                 tokenTarget4,
                 amountTarget4,
@@ -345,7 +341,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 gasFee4,
                 nonce4
             );
-            let hash5 = await this.SerializableOrder.hashOrder.call(
+            let hash5 = getHash(
                 user5ID,
                 tokenTarget5,
                 amountTarget5,
@@ -376,7 +372,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             let v3 = '0x' + sgn3.slice(130,132);
             let v4 = '0x' + sgn4.slice(130,132);
             let v5 = '0x' + sgn5.slice(130,132);
-            let ser_hex1 = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex1 = getHex(
                 user1ID,
                 tokenTarget1,
                 amountTarget1,
@@ -390,7 +386,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 s1,
                 v1
             );
-            let ser_hex2 = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex2 = getHex(
                 user2ID,
                 tokenTarget2,
                 amountTarget2,
@@ -404,7 +400,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 s2,
                 v2
             );
-            let ser_hex3 = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex3 = getHex(
                 user3ID,
                 tokenTarget3,
                 amountTarget3,
@@ -418,7 +414,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 s3,
                 v3
             );
-            let ser_hex4 = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex4 = getHex(
                 user4ID,
                 tokenTarget4,
                 amountTarget4,
@@ -432,7 +428,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
                 s4,
                 v4
             );
-            let ser_hex5 = await this.SerializableOrder.serializeOrder.call(
+            let ser_hex5 = getHex(
                 user5ID,
                 tokenTarget5,
                 amountTarget5,
@@ -457,4 +453,3 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
         });
     });
 });
-*/

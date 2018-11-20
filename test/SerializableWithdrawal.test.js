@@ -25,37 +25,7 @@ contract('SerializableWithdrawal', function([_, user1]) {
     const hash = "0xdab6521870251314f0ee238e25d5d159f5ea8e774220860db80eb4f03c0c0abb";
     const ser_hex = "0x723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b0000000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
 
-    describe('serialize', function() {
-        it('normal withdrawal', async function() {
-            let ser_data = await this.SerializableWithdrawal.serializeWithdrawal.call(
-                userID,
-                token,
-                amount,
-                config,
-                fee,
-                nonce,
-                r,
-                s,
-                v
-            );
-            ser_data.should.eq(ser_hex);
-        });
-    });
-
     describe('deserialize', function() {
-        it('normal hex', async function() {
-            let withdrawal_data = await this.SerializableWithdrawal.deserializeWithdrawal.call(ser_hex);
-            withdrawal_data[0].should.be.bignumber.eq(userID);
-            withdrawal_data[1].should.be.bignumber.eq(token);
-            withdrawal_data[2].should.be.bignumber.eq(amount);
-            withdrawal_data[3].should.be.bignumber.eq(config);
-            withdrawal_data[4].should.be.bignumber.eq(fee);
-            withdrawal_data[5].should.be.bignumber.eq(nonce);
-            withdrawal_data[6].should.eq(r);
-            withdrawal_data[7].should.eq(s);
-            withdrawal_data[8].should.be.bignumber.eq(v);
-        });
-
         it('get user ID', async function() {
             let withdrawal_data = await this.SerializableWithdrawal.getWithdrawalUserIDMock.call(ser_hex);
             withdrawal_data.should.be.bignumber.eq(userID);
