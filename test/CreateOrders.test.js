@@ -9,6 +9,54 @@ require('chai')
     .use(require('chai-bignumber')(BigNumber))
     .should();
 
+const user1ID = 11;
+const tokenTarget1 = 0;
+const amountTarget1 = ether(1);
+const tokenTrade1 = 11;
+const amountTrade1 = ether(100);
+const config1 = 1 + 2;
+const tradeFee1 = ether(1);
+const gasFee1 = ether(0.001);
+const nonce1 = 1;
+
+const orderSize = 206;
+const order = new ArrayBuffer(orderSize);
+const gasFee = new Uint32Array(order, 0, 8);
+const tradeFee = new Uint32Array(order, 32, 8);
+const nonce = new Uint32Array(order, 64, 1);
+const config = new Uint8Array(order, 68, 1);
+const amountTrade = new Uint32Array(order, 100, 8);
+const tokenTrade = new Uint16Array(order, 132, 1);
+const amountTarget = new Uint32Array(order, 134, 8);
+const tokenTarget = new Uint16Array(order, 166, 1);
+const userID = new Uint32Array(order, 168, 1);
+userID[0] = user1ID;
+tokenTarget[0] = tokenTarget1;
+let temp = amountTarget1;
+amountTarget.forEach((_, i) => {
+    amountTarget[i] = temp & 0xFFFFFFFF;
+    temp = temp >> 32;
+});
+tokenTrade[0] = tokenTrade1;
+temp = amountTrade1;
+amountTrade.forEach((_, i) => {
+    amountTarget[i] = temp & 0xFFFFFFFF;
+    temp = temp >> 32;
+});
+amountTrade[0] = amountTrade1;
+config[0] = config1;
+temp = tradeFee1;
+tradeFee.forEach((_, i) => {
+    tradeFee[i] = temp & 0xFFFFFFFF;
+    temp = temp >> 32;
+});
+temp = gasFee1;
+gasFee.forEach((_, i) => {
+    gasFee[i] = temp & 0xFFFFFFFF;
+    temp = temp >> 32;
+});
+nonce[0] = nonce1;
+
 /*
 contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     before(async function() {
