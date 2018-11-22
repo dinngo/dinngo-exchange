@@ -7,18 +7,18 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
-import "./UserLock.sol";
-
 
 /**
  * @title Dinngo
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable {
+contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     using ECRecovery for bytes32;
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
+
+    address internal _implementation;
 
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
@@ -26,6 +26,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (uint256 => address) public tokenID_Address;
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
+    mapping (address => uint256) public lockTimes;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -39,6 +40,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         address indexed tokenTrade,
         uint256 amountTrade
     );
+    event Lock(address indexed user, uint256 lockTime);
+    event Unlock(address indexed user);
+
+    uint256 constant internal _PROCESS_TIME = 3 days;
+
+
 
     /**
      * @dev User ID 0 is the management wallet.
@@ -270,6 +277,24 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     }
 
     /**
+     * @notice Announce lock of the sender
+     */
+    function lock() external {
+        require(!_isLocking(msg.sender));
+        lockTimes[msg.sender] = now + _PROCESS_TIME;
+        emit Lock(msg.sender, lockTimes[msg.sender]);
+    }
+
+    /**
+     * @notice Unlock the sender
+     */
+    function unlock() external {
+        require(_isLocking(msg.sender));
+        lockTimes[msg.sender] = 0;
+        emit Unlock(msg.sender);
+    }
+
+    /**
      * @notice Process the maker order
      * @param s The current status of settlement
      * @param order The processing order
@@ -370,5 +395,22 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
         address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
         require(user == sigAddr);
+    }
+
+    /**
+     * @notice Return if the give user has announced lock
+     * @param user The user address to be queried
+     * @return Query result
+     */
+    function _isLocking(address user) internal view returns (bool) {
+        return lockTimes[user] > 0;
+    }
+
+    /**
+     * @notice Return if the user is locked
+     * @param user The user address to be queried
+     */
+    function _isLocked(address user) internal view returns (bool) {
+        return _isLocking(user) && lockTimes[user] < now;
     }
 }
