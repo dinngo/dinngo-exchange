@@ -5,18 +5,39 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract Proxy is Ownable {
-    address internal _implementation;
 
-    event Upgraded(address indexed impl);
+    // keccak256 hash of "dinngo.proxy.implementation"
+    bytes32 private constant IMPLEMENTATION_SLOT =
+        0x3b2ff02c0f36dba7cc1b20a669e540b974575f04ef71846d482983efb03bebb4;
 
-    constructor(address impl) public {
-        _implementation = impl;
+    event Upgraded(address indexed implementation);
+
+    constructor(address implementation) public {
+        assert(IMPLEMENTATION_SLOT == keccak256("dinngo.proxy.implementation"));
+        _setImplementation(implementation);
     }
 
-    function upgrade(address impl) external onlyOwner {
-        require(AddressUtils.isContract(impl), "Implementation address should be a contract address");
-        _implementation = impl;
+    function upgrade(address implementation) external onlyOwner {
+        _setImplementation(implementation);
+        emit Upgraded(implementation);
+    }
 
-        emit Upgraded(impl);
+    function _setImplementation(address implementation) internal {
+        require(AddressUtils.isContract(implementation),
+            "Implementation address should be a contract address"
+        );
+        bytes32 slot = IMPLEMENTATION_SLOT;
+
+        assembly {
+            sstore(slot, implementation)
+        }
+    }
+
+    function _implementation() internal view returns (address implementation) {
+        bytes32 slot = IMPLEMENTATION_SLOT;
+
+        assembly {
+            implementation := sload(slot)
+        }
     }
 }

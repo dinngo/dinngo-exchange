@@ -59,7 +59,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param user The user address to be added
      */
     function addUser(uint32 id, address user) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("addUser(uint32,address)")), id, user));
+        require(_implementation().delegatecall(bytes4(keccak256("addUser(uint32,address)")), id, user));
     }
 
     /**
@@ -68,7 +68,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param user The user address to be added
      */
     function removeUser(address user) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("removeUser(address)")), user));
+        require(_implementation().delegatecall(bytes4(keccak256("removeUser(address)")), user));
     }
 
     /**
@@ -77,7 +77,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint8 rank) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("updateUserRank(address,uint8)")), user, rank));
+        require(_implementation().delegatecall(bytes4(keccak256("updateUserRank(address,uint8)")), user, rank));
     }
 
     /**
@@ -90,7 +90,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param token The token contract address to be added
      */
     function addToken(uint16 id, address token) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("addToken(uint16,address)")), id, token));
+        require(_implementation().delegatecall(bytes4(keccak256("addToken(uint16,address)")), id, token));
     }
 
     /**
@@ -99,7 +99,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param token The token contract address to be removed.
      */
     function removeToken(address token) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("removeToken(address)")), token));
+        require(_implementation().delegatecall(bytes4(keccak256("removeToken(address)")), token));
     }
 
     /**
@@ -108,7 +108,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param rank The rank to be assigned.
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
+        require(_implementation().delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
     }
 
     /**
@@ -117,7 +117,7 @@ contract DinngoProxy is Ownable, Proxy {
      * Event Deposit will be emitted after execution.
      */
     function deposit() external payable {
-        require(_implementation.delegatecall(bytes4(keccak256("deposit()"))));
+        require(_implementation().delegatecall(bytes4(keccak256("deposit()"))));
     }
 
     /**
@@ -127,7 +127,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param amount Amount of the token to be depositied
      */
     function depositToken(address token, uint256 amount) external {
-        require(_implementation.delegatecall(bytes4(keccak256("depositToken(address,uint256)")), token, amount));
+        require(_implementation().delegatecall(bytes4(keccak256("depositToken(address,uint256)")), token, amount));
     }
 
     /**
@@ -136,7 +136,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param amount The amount to be withdrawn.
      */
     function withdraw(uint256 amount) external {
-        require(_implementation.delegatecall(bytes4(keccak256("withdraw(uint256)")), amount));
+        require(_implementation().delegatecall(bytes4(keccak256("withdraw(uint256)")), amount));
     }
 
     /**
@@ -146,7 +146,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
-        require(_implementation.delegatecall(bytes4(keccak256("withdrawToken(address,uint256)")), token, amount));
+        require(_implementation().delegatecall(bytes4(keccak256("withdrawToken(address,uint256)")), token, amount));
     }
 
     /**
@@ -155,7 +155,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), withdrawal));
+        require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), withdrawal));
     }
 
     /**
@@ -164,20 +164,20 @@ contract DinngoProxy is Ownable, Proxy {
      * @param orders The serialized orders.
      */
     function settle(bytes orders) external onlyOwner {
-        require(_implementation.delegatecall(bytes4(keccak256("settle(bytes)")), 0x20, orders.length, orders));
+        require(_implementation().delegatecall(bytes4(keccak256("settle(bytes)")), 0x20, orders.length, orders));
     }
 
     /**
      * @notice Announce lock of the sender
      */
     function lock() external {
-        require(_implementation.delegatecall(bytes4(keccak256("lock()"))));
+        require(_implementation().delegatecall(bytes4(keccak256("lock()"))));
     }
 
     /**
      * @notice Unlock the sender
      */
     function unlock() external {
-        require(_implementation.delegatecall(bytes4(keccak256("unlock()"))));
+        require(_implementation().delegatecall(bytes4(keccak256("unlock()"))));
     }
 }

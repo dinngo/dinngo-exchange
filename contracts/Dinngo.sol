@@ -18,8 +18,6 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     using SafeERC20 for ERC20;
     using SafeMath for uint256;
 
-    address internal _implementation;
-
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address) public userID_Address;

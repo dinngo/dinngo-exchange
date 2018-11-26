@@ -16,13 +16,13 @@ contract UserLockProxy is Proxy {
      * @notice Announce lock of the sender
      */
     function lock() external {
-        require(_implementation.delegatecall(bytes4(keccak256("lock()"))));
+        require(_implementation().delegatecall(bytes4(keccak256("lock()"))));
     }
 
     /**
      * @notice Unlock the sender
      */
     function unlock() external {
-        require(_implementation.delegatecall(bytes4(keccak256("unlock()"))));
+        require(_implementation().delegatecall(bytes4(keccak256("unlock()"))));
     }
 }
