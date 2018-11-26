@@ -155,7 +155,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes withdrawal) external onlyOwner {
-        require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), withdrawal));
+        require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), 0x20, withdrawal.length, withdrawal));
     }
 
     /**
