@@ -3,6 +3,20 @@ pragma solidity ^0.4.24;
 import "../DinngoProxy.sol";
 
 contract DinngoProxyMock is DinngoProxy {
+    event AddUser(uint256 userID, address indexed user);
+    event AddToken(uint256 tokenID, address indexed token);
+    event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
+    event Withdraw(address token, address indexed user, uint256 amount, uint256 balance);
+    event Trade(
+        address indexed user,
+        bool isBuy,
+        address indexed tokenTarget,
+        uint256 amountTarget,
+        address indexed tokenTrade,
+        uint256 amountTrade
+    );
+    event Lock(address indexed user, uint256 lockTime);
+    event Unlock(address indexed user);
 
     constructor(address dinngoWallet, address dinngoToken, address impl)
         DinngoProxy(dinngoWallet, dinngoToken, impl)

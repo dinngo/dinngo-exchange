@@ -102,8 +102,6 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
             const { logs } = await this.Dinngo.settle(orders1_2, { from: owner });
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
-            console.log(logs);
-/*
             event[0].args.user.should.eq(user2);
             event[0].args.isBuy.should.eq(false);
             event[0].args.tokenTarget.should.eq(tokenTarget2);
@@ -116,7 +114,6 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
             event[1].args.amountTarget.should.be.bignumber.eq(amountTrade2);
             event[1].args.tokenTrade.should.eq(tokenTrade1);
             event[1].args.amountTrade.should.be.bignumber.eq(amountTarget2);
-*/
             let user1Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
             let user1DGO = await this.Dinngo.balances.call(DGO, user1);
             let user1Token = await this.Dinngo.balances.call(token, user1);
@@ -187,7 +184,6 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
 
         it('Normal 1 taker 4 maker', async function() {
             const { logs } = await this.Dinngo.settle(orders1_2_3_4_5, { from: owner });
-        /*
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
             event[0].args.user.should.eq(user2);
@@ -236,7 +232,6 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
                     amountTarget5
                 )
             );
-        */
             let user1Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
             let user1DGO = await this.Dinngo.balances.call(DGO, user1);
             let user1Token = await this.Dinngo.balances.call(token, user1);

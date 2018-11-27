@@ -144,6 +144,7 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
 
         it('Normal', async function() {
             const { logs } = await this.Dinngo.settle(orders1_2, { from: owner });
+            console.log(logs);
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
             event[0].args.user.should.eq(user2);

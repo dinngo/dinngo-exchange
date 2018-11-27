@@ -33,7 +33,6 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
             await increaseTimeTo(latestTime() + duration.days(3.1));
-        /*
             const { logs } = await this.Dinngo.withdraw(value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balances.call(0, user);
@@ -41,7 +40,6 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             event.args.user.should.eq(user);
             event.args.amount.should.be.bignumber.eq(value);
             event.args.balance.should.be.bignumber.eq(balance);
-        */
         });
 
         it('when user not locked', async function() {
@@ -90,17 +88,13 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
             await increaseTimeTo(latestTime() + duration.days(3.1));
-        /*
             const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
-        */
             let balance = await this.Dinngo.balances.call(this.Token.address, user);
-        /*
             event.args.token.should.eq(this.Token.address);
             event.args.user.should.eq(user);
             event.args.amount.should.be.bignumber.eq(value);
             event.args.balance.should.be.bignumber.eq(balance);
-        */
         });
 
         it('when user not locked', async function() {
@@ -167,13 +161,11 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
         it('when normal', async function () {
             await this.Dinngo.deposit({ from: user1, value: BALANCE });
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
-        /*
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(ZERO_ADDRESS);
             event.args.user.should.eq(user1);
             event.args.amount.should.be.bignumber.eq(amount1);
             event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount1).minus(fee1));
-        */
         });
 
         it('when normal count gas', async function () {
@@ -201,13 +193,11 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
         it('when fee is paid in ETH', async function () {
             await this.Dinngo.deposit({ from: user1, value: BALANCE });
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner });
-        /*
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(ZERO_ADDRESS);
             event.args.user.should.eq(user1);
             event.args.amount.should.be.bignumber.eq(amount1);
             event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount1).minus(fee1));
-        */
         });
 
         it('when fee is insufficient', async function () {
@@ -226,14 +216,12 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
             await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
-        /*
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner });
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(this.Token.address);
             event.args.user.should.eq(user2);
             event.args.amount.should.be.bignumber.eq(amount2);
             event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount2));
-        */
         });
 
         it('when normal count gas', async function () {
@@ -272,13 +260,11 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
             const { logs } = await this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner });
-        /*
             const event = await inLogs(logs, 'Withdraw');
             event.args.token.should.eq(this.Token.address);
             event.args.user.should.eq(user2);
             event.args.amount.should.be.bignumber.eq(amount2);
             event.args.balance.should.be.bignumber.eq(BALANCE.minus(amount2));
-        */
             let balance = await this.Dinngo.balances.call(tokenContract, user2);
             balance.should.be.bignumber.eq(BALANCE.minus(fee2));
         });
