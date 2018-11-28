@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ECRecovery.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
@@ -14,8 +14,8 @@ import "./SerializableWithdrawal.sol";
  * @notice Main exchange contract for Dinngo
  */
 contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
-    using ECRecovery for bytes32;
-    using SafeERC20 for ERC20;
+    using ECDSA for bytes32;
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     mapping (address => mapping (address => uint256)) public balances;
@@ -172,7 +172,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
         require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
-        ERC20(token).safeTransferFrom(msg.sender, this, amount);
+        IERC20(token).safeTransferFrom(msg.sender, this, amount);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
     }
@@ -204,7 +204,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
         require(token != address(0));
         require(amount > 0);
         require(amount <= balances[token][msg.sender]);
-        ERC20(token).safeTransfer(msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
     }
@@ -232,7 +232,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
         if (token == address(0)) {
             user.transfer(amount);
         } else {
-            ERC20(token).safeTransfer(user, amount);
+            IERC20(token).safeTransfer(user, amount);
         }
         if (tokenFee == token) {
             balance = balance.sub(amountFee);

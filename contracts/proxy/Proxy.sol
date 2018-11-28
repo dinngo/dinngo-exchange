@@ -1,10 +1,11 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/AddressUtils.sol';
+import 'openzeppelin-solidity/contracts/utils/Address.sol';
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract Proxy is Ownable {
+    using Address for address;
 
     // keccak256 hash of "dinngo.proxy.implementation"
     bytes32 private constant IMPLEMENTATION_SLOT =
@@ -23,7 +24,7 @@ contract Proxy is Ownable {
     }
 
     function _setImplementation(address implementation) internal {
-        require(AddressUtils.isContract(implementation),
+        require(implementation.isContract(),
             "Implementation address should be a contract address"
         );
         bytes32 slot = IMPLEMENTATION_SLOT;

@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ECRecovery.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
@@ -16,8 +15,7 @@ import "./proxy/Proxy.sol";
  * @notice Main exchange contract for Dinngo
  */
 contract DinngoProxy is Ownable, Proxy {
-    using ECRecovery for bytes32;
-    using SafeERC20 for ERC20;
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     mapping (address => mapping (address => uint256)) public balances;
