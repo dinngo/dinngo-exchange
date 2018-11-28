@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Added
+- Implement proxy structure
 
 ## [0.1.1] - 2018-11-29
 ### Fixed
