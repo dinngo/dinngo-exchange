@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 - Added the solc version in truffle.js
 - Upgrade openzeppelin-solidity to 2.0.0
 
+### Fixed
+- Fix test to support openzeppelin-solidity 2.0.0
+
 ## [0.2.0] - 2018-11-28
 ### Added
 - Implement proxy structure

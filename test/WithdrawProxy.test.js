@@ -1,7 +1,6 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
-import { increaseTimeTo, duration } from 'openzeppelin-solidity/test/helpers/increaseTime';
-import latestTime from 'openzeppelin-solidity/test/helpers/latestTime';
-import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
+import { increase, duration } from 'openzeppelin-solidity/test/helpers/time';
+import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
 import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
 
 const BigNumber = web3.BigNumber;
@@ -32,7 +31,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await increase(duration.days(3.1));
             const { logs } = await this.Dinngo.withdraw(value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balances.call(0, user);
@@ -44,36 +43,36 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when user not locked', async function() {
             const value = ether(1);
-            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+            await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user not yet locked', async function() {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(1));
-            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+            await increase(duration.days(1));
+            await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when value with amount 0', async function () {
             const value = ether(0);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
-            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+            await increase(duration.days(3.1));
+            await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user balance is not sufficient', async function () {
             const value = ether(11);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
-            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+            await increase(duration.days(3.1));
+            await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user is removed', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await increase(duration.days(3.1));
             await this.Dinngo.removeUser(user, { from: owner });
-            await expectThrow(this.Dinngo.withdraw(value, { from: user }));
+            await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
     });
     describe('token', function () {
@@ -87,7 +86,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await increase(duration.days(3.1));
             const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balances.call(this.Token.address, user);
@@ -99,37 +98,37 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when user not locked', async function() {
             const value = ether(1);
-            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
         it('when user not yet locked', async function() {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(1));
-            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+            await increase(duration.days(1));
+            await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
         it('when token with address 0', async function () {
             const value = ether(1);
-            await expectThrow(this.Dinngo.withdrawToken(ZERO_ADDRESS, value, { from: user }));
+            await reverting(this.Dinngo.withdrawToken(ZERO_ADDRESS, value, { from: user }));
         });
 
         it('when token with amount 0', async function () {
             const value = ether(0);
-            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
         it('when user balance is not sufficient', async function () {
             const value = ether(11);
-            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
         it('when user is removed', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increaseTimeTo(latestTime() + duration.days(3.1));
+            await increase(duration.days(3.1));
             await this.Dinngo.removeUser(user, { from: owner });
-            await expectThrow(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
     });
 });
@@ -176,18 +175,18 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
 
         it('when sent by non-owner', async function () {
             await this.Dinngo.deposit({ from: user1, value: BALANCE });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal1));
         });
 
         it('when user balance is not sufficient', async function () {
             await this.Dinngo.deposit({ from: user1, value: amount1.minus(ether(0.1)) });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 
         it('when user is removed', async function() {
             await this.Dinngo.deposit({ from: user1, value: BALANCE });
             await this.Dinngo.removeUser(user1, { from: owner });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
 
         it('when fee is paid in ETH', async function () {
@@ -202,7 +201,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
 
         it('when fee is insufficient', async function () {
             await this.Dinngo.deposit({ from: user1, value: ether(1) });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal1, { from: owner }));
         });
     });
 
@@ -236,7 +235,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
             await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal2));
         });
 
         it('when user balance is not sufficient', async function () {
@@ -244,7 +243,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Token.approve(this.Dinngo.address, amount, { from: user2 });
             await this.Dinngo.depositToken(this.Token.address, amount, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
 
         it('when user is removed', async function() {
@@ -252,7 +251,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, BALANCE);
             await this.Dinngo.removeUser(user2, { from: owner });
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
 
         it('when fee is paid in DGO', async function () {
@@ -273,7 +272,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
             await this.Token.approve(this.Dinngo.address, BALANCE, { from: user2 });
             await this.Dinngo.depositToken(this.Token.address, BALANCE, { from: user2 });
             await this.Dinngo.setUserBalance(user2, tokenContract, ether(0.0001));
-            await expectThrow(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
+            await reverting(this.Dinngo.withdrawByAdmin(withdrawal2, { from: owner }));
         });
     });
 });

@@ -1,5 +1,5 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
-import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
+import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
 import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
 
 const BigNumber = web3.BigNumber;
@@ -35,13 +35,13 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when user invalid', async function () {
             const value = ether(10);
-            await expectThrow(this.Dinngo.deposit({ value: value, from: user }));
+            await reverting(this.Dinngo.deposit({ value: value, from: user }));
         });
 
         it('when value with amount 0', async function () {
             const value = ether(0);
             await this.Dinngo.setUser(1, user, 1);
-            await expectThrow(this.Dinngo.deposit({ value: value, from: user }));
+            await reverting(this.Dinngo.deposit({ value: value, from: user }));
         });
     });
 
@@ -67,20 +67,20 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when user invalid', async function () {
             const value = ether(10);
             await this.Token.approve(this.Dinngo.address, value, { from: user });
-            await expectThrow(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
         });
 
         it('when token with address 0', async function () {
             const value = ether(10);
             await this.Dinngo.setUser(1, user, 1);
-            await expectThrow(this.Dinngo.depositToken(ZERO_ADDRESS, value, { from: user }));
+            await reverting(this.Dinngo.depositToken(ZERO_ADDRESS, value, { from: user }));
         });
 
         it('when token with amount 0', async function () {
             const value = ether(0);
             await this.Dinngo.setUser(1, user, 1);
             await this.Token.approve(this.Dinngo.address, value, { from: user });
-            await expectThrow(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
+            await reverting(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
         });
     });
 });

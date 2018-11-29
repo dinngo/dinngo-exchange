@@ -1,5 +1,5 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
-import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
+import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
 
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -322,26 +322,26 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
 
         it('taker invalid', async function() {
             await this.Dinngo.removeUser(user2, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
+            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('maker invalid', async function() {
             await this.Dinngo.removeUser(user1, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
+            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('taker invalid', async function() {
             await this.Dinngo.removeUser(user2, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
+            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('maker invalid', async function() {
             await this.Dinngo.removeUser(user1, { from: owner });
-            await expectThrow(this.Dinngo.settle(orders1_2, { from: owner }));
+            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
         it('Not owner', async function() {
-            await expectThrow(this.Dinngo.settle(orders1_2));
+            await reverting(this.Dinngo.settle(orders1_2));
         });
     });
 });
