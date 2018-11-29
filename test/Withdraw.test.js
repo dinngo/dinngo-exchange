@@ -1,4 +1,4 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
 import { increaseTimeTo, duration } from 'openzeppelin-solidity/test/helpers/increaseTime';
 import latestTime from 'openzeppelin-solidity/test/helpers/latestTime';
 import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';

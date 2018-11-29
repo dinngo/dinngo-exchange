@@ -1,4 +1,4 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
 
 const BigNumber = web3.BigNumber;
 const utils = require('web3-utils');

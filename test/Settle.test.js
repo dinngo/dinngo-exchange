@@ -1,4 +1,4 @@
-import ether from 'openzeppelin-solidity/test/helpers/ether';
+import { ether } from 'openzeppelin-solidity/test/helpers/ether';
 import expectThrow from 'openzeppelin-solidity/test/helpers/expectThrow';
 
 const BigNumber = web3.BigNumber;
