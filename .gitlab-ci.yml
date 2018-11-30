@@ -1,18 +1,35 @@
-image: node:8.1.1
+variables:
+  TEST_MNEMONIC_PHRASE: candy maple cake sugar pudding cream honey rich smooth crumble sweet treat
+  DEPLOY_OWNER_PRIVKEY: 0xBF3862CD1EE53F542C483E4F55BEE2D0B13014A7D6AD1B0CA457240C2888C1FB
 
-cache:
-  paths:
-  - node_modules/
+image: 376433862203.dkr.ecr.us-east-1.amazonaws.com/dinngo-blockchain-base:latest
+
+before_script:
+ - apk add --no-cache nodejs nodejs-npm git python g++ make
+ - npm install -g truffle ethereumjs-testrpc
+ - npm install
 
 stages:
-  - truffle-tests
+ - build
+ - test
+ - deploy
 
-smart_contracts:
-  stage: truffle-tests
-  services:
-   - trufflesuite/ganache-cli
-  script:
-   - npm install truffle
-   - ./node_modules/truffle/build/cli.bundled.js compile
-   - ./node_modules/truffle/build/cli.bundled.js migrate --network gitlab
-   - ./node_modules/truffle/build/cli.bundled.js test --network gitlab
+build:
+ stage: build
+ tags: [docker]
+ script:
+   - truffle compile
+
+test:
+ stage: test
+ tags: [docker]
+ script:
+   - testrpc -p 8242 -m "$TEST_MNEMONIC_PHRASE" &
+   - truffle test
+
+deploy:
+ stage: deploy
+ tags: [docker]
+ script:
+   - testrpc -p 8242 -a $DEPLOY_OWNER_PRIVKEY &
+     #   - truffle migrate --network integration
