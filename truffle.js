@@ -16,6 +16,11 @@ require('babel-register')({
 });
 require('babel-polyfill');
 module.exports = {
+    gitlab: {
+        host: "trufflesuite-ganache-cli",
+        port: 8545,
+        network_id: "*" // Match any network id
+    },
     compilers: {
         solc: {
             version: "0.4.25"
