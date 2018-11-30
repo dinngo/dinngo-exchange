@@ -76,8 +76,10 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     function addUser(uint32 id, address user) external onlyOwner {
         require(user != address(0));
         require(userRanks[user] == 0);
-        require(userID_Address[id] == address(0));
-        userID_Address[id] = user;
+        if (userID_Address[id] == address(0))
+            userID_Address[id] = user;
+        else
+            require(userID_Address[id] == user);
         userRanks[user] = 1;
         emit AddUser(id, user);
     }
@@ -118,8 +120,10 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     function addToken(uint16 id, address token) external onlyOwner {
         require(token != address(0));
         require(tokenRanks[token] == 0);
-        require(tokenID_Address[id] == address(0));
-        tokenID_Address[id] = token;
+        if (tokenID_Address[id] == address(0))
+            tokenID_Address[id] = token;
+        else
+            require(tokenID_Address[id] == token);
         tokenRanks[token] = 1;
         emit AddToken(id, token);
     }

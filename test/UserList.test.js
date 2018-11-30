@@ -22,25 +22,48 @@ contract('User', function ([_, user, owner, tokenWallet, tokenContract, user2, s
     const id2 = 12;
 
     describe('add user', function () {
-        it('when normal', async function () {
-            const { logs } = await this.Dinngo.addUser(id, user, { from: owner });
-            const event = await inLogs(logs, 'AddUser');
-            event.args.userID.should.be.bignumber.eq(id);
-            event.args.user.should.eq(user);
-            let rank = await this.Dinngo.userRanks.call(user);
-            rank.should.be.bignumber.eq(1);
+        describe('when new', function () {
+            it('normal', async function () {
+                const { logs } = await this.Dinngo.addUser(id, user, { from: owner });
+                const event = await inLogs(logs, 'AddUser');
+                event.args.userID.should.be.bignumber.eq(id);
+                event.args.user.should.eq(user);
+                let rank = await this.Dinngo.userRanks.call(user);
+                rank.should.be.bignumber.eq(1);
+            });
         });
 
-        it('when existed', async function () {
-            await this.Dinngo.addUser(id, user, { from: owner });
-            let userAddress1 = await this.Dinngo.userID_Address.call(id);
-            await reverting(this.Dinngo.addUser(id2, user, { from: owner }));
-            let userAddress2 = await this.Dinngo.userID_Address.call(id2);
-            userAddress1.should.eq(user);
-            userAddress2.should.eq(ZERO_ADDRESS);
-            await this.Dinngo.addUser(id2, user2, { from: owner });
-            userAddress2 = await this.Dinngo.userID_Address.call(id2);
-            userAddress2.should.eq(user2);
+        describe('when existed', function() {
+            it('normal', async function () {
+                await this.Dinngo.addUser(id, user, { from: owner });
+                let userAddress1 = await this.Dinngo.userID_Address.call(id);
+                await reverting(this.Dinngo.addUser(id2, user, { from: owner }));
+                let userAddress2 = await this.Dinngo.userID_Address.call(id2);
+                userAddress1.should.eq(user);
+                userAddress2.should.eq(ZERO_ADDRESS);
+                await this.Dinngo.addUser(id2, user2, { from: owner });
+                userAddress2 = await this.Dinngo.userID_Address.call(id2);
+                userAddress2.should.eq(user2);
+            });
+
+            it('removed with same address', async function() {
+                await this.Dinngo.setUser(id, user, 1);
+                await this.Dinngo.removeUser(user, { from: owner });
+                const { logs } = await this.Dinngo.addUser(id, user, { from: owner });
+                const event = await inLogs(logs, 'AddUser');
+                event.args.userID.should.be.bignumber.eq(id);
+                event.args.user.should.eq(user);
+                let rank = await this.Dinngo.userRanks.call(user);
+                rank.should.be.bignumber.eq(1);
+            });
+
+            it('removed with different address', async function() {
+                await this.Dinngo.setUser(id, user, 1);
+                await this.Dinngo.removeUser(user, { from: owner });
+                await reverting(this.Dinngo.addUser(id, someone, { from: owner }));
+                let rank = await this.Dinngo.userRanks.call(user);
+                rank.should.be.bignumber.eq(0);
+            });
         });
     });
 

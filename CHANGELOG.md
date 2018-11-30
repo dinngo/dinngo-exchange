@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Fix test to support openzeppelin-solidity 2.0.0
+- Adding removed user/token under same id should succeed
 
 ## [0.2.0] - 2018-11-28
 ### Added
