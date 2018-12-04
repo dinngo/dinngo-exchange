@@ -16,6 +16,18 @@ require('babel-register')({
 });
 require('babel-polyfill');
 module.exports = {
+    networks: {
+        development: {
+            host: "localhost",
+            port: 8242,
+            network_id: "*" // Match any network id
+        },
+        integration: {
+            host: "integration.my-dapp.com",
+            port: 80,
+            network_id: "*"
+        }
+    },
     compilers: {
         solc: {
             version: "0.4.25"
