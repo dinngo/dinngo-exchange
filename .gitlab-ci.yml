@@ -6,7 +6,7 @@ image: 376433862203.dkr.ecr.us-east-1.amazonaws.com/dinngo-blockchain-base:lates
 
 before_script:
  - apk add --no-cache nodejs nodejs-npm git python g++ make
- - npm install -g truffle ethereumjs-testrpc
+ - npm install -g ethereumjs-testrpc
  - npm install
 
 stages:
@@ -18,14 +18,14 @@ build:
  stage: build
  tags: [docker]
  script:
-   - truffle compile
+   - ./node_modules/.bin/truffle compile
 
 test:
  stage: test
  tags: [docker]
  script:
    - testrpc -p 8242 -m "$TEST_MNEMONIC_PHRASE" &
-   - truffle test
+   - ./node_modules/.bin/truffle test
 
 deploy:
  stage: deploy
