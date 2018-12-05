@@ -13,7 +13,7 @@ require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(BigNumber))
     .should();
-
+/*
 contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
         this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
@@ -273,3 +273,4 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
         });
     });
 });
+*/

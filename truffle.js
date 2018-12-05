@@ -20,7 +20,8 @@ module.exports = {
         development: {
             host: "localhost",
             port: 8242,
-            network_id: "*" // Match any network id
+            network_id: "*", // Match any network id
+            gasPrice: 0x01      // <-- Use this low gas price
         },
         integration: {
             host: "integration.my-dapp.com",
