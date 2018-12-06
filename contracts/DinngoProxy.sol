@@ -18,6 +18,8 @@ contract DinngoProxy is Ownable, Proxy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    uint256 public processTime;
+
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address) public userID_Address;
@@ -26,8 +28,6 @@ contract DinngoProxy is Ownable, Proxy {
     mapping (address => uint8) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
-    uint256 constant internal _PROCESS_TIME = 3 days;
-
     /**
      * @dev User ID 0 is the management wallet.
      * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
@@ -35,6 +35,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param dinngoToken The contract address of DGO
      */
     constructor(address dinngoWallet, address dinngoToken, address impl) Proxy(impl) public {
+        processTime = 90 days;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
