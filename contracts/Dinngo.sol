@@ -18,6 +18,8 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
+    uint256 public processTime;
+
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address) public userID_Address;
@@ -41,10 +43,6 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
 
-    uint256 constant internal _PROCESS_TIME = 3 days;
-
-
-
     /**
      * @dev User ID 0 is the management wallet.
      * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
@@ -52,6 +50,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
      * @param dinngoToken The contract address of DGO
      */
     constructor(address dinngoWallet, address dinngoToken) public {
+        processTime = 90 days;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
@@ -283,7 +282,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
      */
     function lock() external {
         require(!_isLocking(msg.sender));
-        lockTimes[msg.sender] = now + _PROCESS_TIME;
+        lockTimes[msg.sender] = now + processTime;
         emit Lock(msg.sender, lockTimes[msg.sender]);
     }
 
@@ -294,6 +293,14 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
         require(_isLocking(msg.sender));
         lockTimes[msg.sender] = 0;
         emit Unlock(msg.sender);
+    }
+
+    /**
+     * @notice Change the processing time of locking the user address
+     */
+    function changeProcessTime(uint256 time) external onlyOwner {
+        require(processTime != time);
+        processTime = time;
     }
 
     /**

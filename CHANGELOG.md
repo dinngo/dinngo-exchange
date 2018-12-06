@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Added the solc version in truffle.js
 - Upgrade openzeppelin-solidity to 2.0.0
 - Continous Integration
+- Make locking process time modifiable
 
 ### Fixed
 - Fix test to support openzeppelin-solidity 2.0.0
