@@ -179,4 +179,11 @@ contract DinngoProxy is Ownable, Proxy {
     function unlock() external {
         require(_implementation().delegatecall(bytes4(keccak256("unlock()"))));
     }
+
+    /**
+     * @notice Change the processing time of locking the user address
+     */
+    function changeProcessTime(uint256 time) external onlyOwner {
+        require(_implementation().delegatecall(bytes4(keccak256("changeProcessTime(uint256)")), time));
+    }
 }

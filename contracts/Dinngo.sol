@@ -296,6 +296,14 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     }
 
     /**
+     * @notice Change the processing time of locking the user address
+     */
+    function changeProcessTime(uint256 time) external onlyOwner {
+        require(processTime != time);
+        processTime = time;
+    }
+
+    /**
      * @notice Process the maker order
      * @param s The current status of settlement
      * @param order The processing order
