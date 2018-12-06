@@ -13,7 +13,7 @@ import "./SerializableWithdrawal.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
+contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdrawal {
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -244,7 +244,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external onlyOwner {
+    function settle(bytes orders) external onlyAdmin {
         uint256 nOrder = _getOrderCount(orders);
         require(nOrder >= 2);
         bytes memory takerOrder = _getOrder(orders, 0);
