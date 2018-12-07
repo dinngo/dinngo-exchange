@@ -37,4 +37,8 @@ contract DinngoProxyMock is DinngoProxy {
         tokenID_Address[tokenID] = token;
         tokenRanks[token] = rank;
     }
+
+    function fillOrder(bytes32 hash, uint256 amount) external {
+        orderFills[hash] = orderFills[hash].add(amount);
+    }
 }

@@ -358,6 +358,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
             amountTrade
         );
         orderFills[hash] = orderFills[hash].add(amountTarget);
+        require(orderFills[hash] <= _getOrderAmountTarget(order));
         if (tokenFee == tokenTarget)
             balanceTarget = balanceTarget.sub(amountFee);
         else if (tokenFee == tokenTrade)

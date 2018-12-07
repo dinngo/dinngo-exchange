@@ -340,6 +340,11 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
             await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
+        it('taker order filled', async function() {
+            await this.Dinngo.fillOrder(hash1, amountTarget1);
+            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+        });
+
         it('Not owner', async function() {
             await reverting(this.Dinngo.settle(orders1_2));
         });
