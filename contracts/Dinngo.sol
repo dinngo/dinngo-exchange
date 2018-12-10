@@ -261,20 +261,25 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     function settle(bytes orders) external onlyOwner {
         uint256 nOrder = _getOrderCount(orders);
         require(nOrder >= 2);
-        bytes memory order = _getOrder(orders, 0);
-        uint256 amountTarget = _getOrderAmountTarget(order);
-        uint256 amountTrade = _getOrderAmountTrade(order);
-        SettleAmount memory s = SettleAmount(0, amountTarget);
+        bytes memory takerOrder = _getOrder(orders, 0);
+        uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder);
+        SettleAmount memory s = SettleAmount(0, takerAmountTarget.sub(orderFills[_getOrderHash(takerOrder)]));
         for (uint i = 1; i < nOrder; i++) {
             bytes memory makerOrder = _getOrder(orders, i);
             uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
             uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
-            require(amountTarget.div(amountTrade) >= makerAmountTrade.div(makerAmountTarget));
-            _processMaker(s, makerOrder);
+            require(takerAmountTarget.div(_getOrderAmountTrade(takerOrder)) >= makerAmountTrade.div(makerAmountTarget));
+            uint256 amountTrade = makerAmountTrade.mul(
+                makerAmountTarget.sub(orderFills[_getOrderHash(makerOrder)])).div(makerAmountTarget);
+            amountTrade = amountTrade < s.restAmountTarget? amountTrade: s.restAmountTarget;
+            uint256 amountTarget = makerAmountTarget.mul(amountTrade).div(makerAmountTrade);
+            s.restAmountTarget = s.restAmountTarget.sub(amountTrade);
+            s.fillAmountTrade = s.fillAmountTrade.add(amountTarget);
+            // calculate trade
+            _trade(amountTarget, amountTrade, makerOrder);
         }
-        uint256 fillAmountTarget = amountTarget.sub(s.restAmountTarget);
         // calculate trade
-        _trade(fillAmountTarget, s.fillAmountTrade, order);
+        _trade(takerAmountTarget.sub(s.restAmountTarget), s.fillAmountTrade, takerOrder);
     }
 
     /**
@@ -332,6 +337,7 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
      * @param order The order that triggerred the trading
      */
     function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
+        require(amountTarget != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
         require(_isValidUser(user));
@@ -358,7 +364,6 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
             amountTrade
         );
         orderFills[hash] = orderFills[hash].add(amountTarget);
-        require(orderFills[hash] <= _getOrderAmountTarget(order));
         if (tokenFee == tokenTarget)
             balanceTarget = balanceTarget.sub(amountFee);
         else if (tokenFee == tokenTrade)
