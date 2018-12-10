@@ -309,28 +309,6 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     }
 
     /**
-     * @notice Process the maker order
-     * @param s The current status of settlement
-     * @param order The processing order
-     */
-    function _processMaker(SettleAmount s, bytes order) internal {
-        // fetch current status of taker order
-        SettleAmount memory tmp = s;
-        // try to meet
-        uint256 _amountTarget = _getOrderAmountTarget(order);
-        uint256 _amountTrade = _getOrderAmountTrade(order);
-        uint256 amountTrade = _amountTrade.mul(
-            _amountTarget.sub(orderFills[_getOrderHash(order)])
-        ).div(_amountTarget);
-        amountTrade = amountTrade < tmp.restAmountTarget? amountTrade: tmp.restAmountTarget;
-        uint256 amountTarget = _amountTarget.mul(amountTrade).div(_amountTrade);
-        tmp.restAmountTarget = tmp.restAmountTarget.sub(amountTrade);
-        tmp.fillAmountTrade = tmp.fillAmountTrade.add(amountTarget);
-        // calculate trade
-        _trade(amountTarget, amountTrade, order);
-    }
-
-    /**
      * @notice Process the trade by the providing information
      * @param amountTarget The provided amount to be traded
      * @param amountTrade The amount to be requested

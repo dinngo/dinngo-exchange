@@ -41,51 +41,6 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
         await this.Dinngo.setUserBalance(dinngoWallet, DGO, BALANCE);
     });
 
-    describe('process maker order', function() {
-        // user ID: 11
-        // target token: 0
-        // target amount: 1 ether
-        // trade token: 11
-        // trade amount: 100 ether
-        // config: 1+2+16 (isBuy = true; isFeeMain = true; Gas price = 4 Gwei)
-        // fee: 1
-        // nonce: 1
-        const order1 = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
-        const tokenTarget1 = ZERO_ADDRESS;
-        const tokenTrade1 = token;
-        const amountTarget1 = ether(1);
-        const amountTrade1 = ether(100);
-        // user ID: 12
-        // target token: 11
-        // target amount: 10 ether
-        // trade token: 0
-        // trade amount: 0.1 ether
-        // config: 2+16 (isBuy = false; isFeeMain = true; Gas price = 4 Gwei)
-        // fee: 0.1
-        // nonce: 2
-        const order2 = "0x5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
-        const tokenTarget2 = token;
-        const tokenTrade2 = ZERO_ADDRESS;
-        const amountTarget2 = ether(10);
-        const amountTrade2 = ether(0.1);
-        it('Taker target greater than buying maker trade', async function() {
-            const restAmountTarget = ether(130);
-            const { logs } = await this.Dinngo.processMakerMock(order1, restAmountTarget);
-            const event = logs.find(e => e.event === "TestMaker");
-            should.exist(event);
-            event.args.fillAmountTrade.should.be.bignumber.eq(amountTarget1);
-            event.args.restAmountTarget.should.be.bignumber.eq(restAmountTarget.minus(amountTrade1));
-        });
-        it('Taker target lesser than buying maker trade', async function() {
-            const restAmountTarget = ether(80);
-            const { logs } = await this.Dinngo.processMakerMock(order1, restAmountTarget);
-            const event = logs.find(e => e.event === "TestMaker");
-            should.exist(event);
-            event.args.fillAmountTrade.should.be.bignumber.eq(amountTarget1.mul(restAmountTarget).div(amountTrade1).toFixed(0));
-            event.args.restAmountTarget.should.be.bignumber.eq(ether(0));
-        });
-    });
-
     describe('settle', function() {
         const orders1_2 =
             "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
