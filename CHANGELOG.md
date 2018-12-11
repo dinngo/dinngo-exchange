@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [0.2.1] - 2018-12-11
 ### Added
 - Added the solc version in truffle.js
 - Upgrade openzeppelin-solidity to 2.0.0
