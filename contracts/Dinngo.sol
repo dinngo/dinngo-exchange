@@ -44,20 +44,6 @@ contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
     event Unlock(address indexed user);
 
     /**
-     * @dev User ID 0 is the management wallet.
-     * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
-     * @param dinngoWallet The main address of dinngo
-     * @param dinngoToken The contract address of DGO
-     */
-    constructor(address dinngoWallet, address dinngoToken) public {
-        processTime = 90 days;
-        userID_Address[0] = dinngoWallet;
-        userRanks[dinngoWallet] = 255;
-        tokenID_Address[0] = address(0);
-        tokenID_Address[1] = dinngoToken;
-    }
-
-    /**
      * @dev All ether directly sent to contract will be refunded
      */
     function() public payable {

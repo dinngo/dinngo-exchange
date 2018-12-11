@@ -14,7 +14,7 @@ const should = require('chai')
 contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngoWallet, DGO, token]) {
     const BALANCE = ether(1000);
     beforeEach(async function() {
-        this.DinngoImpl = await Dinngo.new(dinngoWallet, DGO, { from: owner });
+        this.DinngoImpl = await Dinngo.new();
         this.Dinngo = await DinngoProxyMock.new(dinngoWallet, DGO, this.DinngoImpl.address, { from: owner });
         await this.Dinngo.setUser(11, user1, 1);
         await this.Dinngo.setUser(12, user2, 1);

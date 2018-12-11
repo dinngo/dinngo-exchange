@@ -58,7 +58,7 @@ function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, 
         userID_h.slice(2)
     );
 }
-
+/*
 contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const user1ID = 11;
     const tokenTarget1 = 0;
@@ -453,3 +453,4 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
         });
     });
 });
+*/

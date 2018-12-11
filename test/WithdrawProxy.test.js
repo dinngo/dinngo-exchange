@@ -17,7 +17,7 @@ require('chai')
 
 contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
-        this.DinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
+        this.DinngoImpl = await Dinngo.new();
         this.Dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.DinngoImpl.address, { from: owner });
     });
     const depositValue = ether(10);
