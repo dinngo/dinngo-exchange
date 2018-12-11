@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
+import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 
@@ -58,7 +59,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param id The user id to be assigned
      * @param user The user address to be added
      */
-    function addUser(uint32 id, address user) external onlyOwner {
+    function addUser(uint32 id, address user) external onlyAdmin {
         require(user != address(0));
         require(userRanks[user] == 0);
         if (userID_Address[id] == address(0))
@@ -74,7 +75,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @dev The user rank is set to 0 to remove the user.
      * @param user The user address to be added
      */
-    function removeUser(address user) external onlyOwner {
+    function removeUser(address user) external onlyAdmin {
         require(user != address(0));
         require(userRanks[user] != 0);
         userRanks[user] = 0;
@@ -85,7 +86,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param user The user address
      * @param rank The rank to be assigned
      */
-    function updateUserRank(address user, uint8 rank) external onlyOwner {
+    function updateUserRank(address user, uint8 rank) external onlyAdmin {
         require(user != address(0));
         require(rank != 0);
         require(userRanks[user] != 0);
@@ -203,7 +204,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes withdrawal) external onlyOwner {
+    function withdrawByAdmin(bytes withdrawal) external onlyAdmin {
         address user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);

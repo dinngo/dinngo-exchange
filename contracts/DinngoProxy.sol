@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
+import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 import "./proxy/Proxy.sol";
@@ -37,9 +38,8 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     constructor(
         address dinngoWallet,
         address dinngoToken,
-        address admin,
         address impl
-    ) Administrable(admin), Proxy(impl) public {
+    ) Proxy(impl) public {
         processTime = 90 days;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
@@ -113,6 +113,10 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
         require(_implementation().delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
+    }
+
+    function transferAdmin(address newAdmin) external onlyOwner {
+        _transferAdmin(newAdmin);
     }
 
     /**

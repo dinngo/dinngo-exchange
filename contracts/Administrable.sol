@@ -1,10 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 /**
  * @title Administrable
  * @dev The
  */
-contract Administrable is Ownable {
+contract Administrable {
     address private _admin;
 
     event AdminTransferred(
@@ -12,8 +14,8 @@ contract Administrable is Ownable {
         address indexed newAdmin
     );
 
-    constructor(address admin) internal {
-        _admin = admin;
+    constructor() internal {
+        _admin = msg.sender;
         emit AdminTransferred(address(0), _admin);
     }
 
@@ -28,10 +30,6 @@ contract Administrable is Ownable {
 
     function isAdmin() public view returns(bool) {
         return (msg.sender == _admin);
-    }
-
-    function transferAdmin(address newAdmin) public onlyOwner {
-        _transferAdmin(newAdmin);
     }
 
     function _transferAdmin(address newAdmin) internal {
