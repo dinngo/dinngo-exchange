@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Changed
+- Remove the unnecessary assignments in implementation functions
 
 ## [0.2.1] - 2018-12-11
 ### Added
