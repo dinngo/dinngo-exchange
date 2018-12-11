@@ -12,10 +12,12 @@ const should = require('chai')
     .should();
 
 contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngoWallet, DGO, token]) {
+    const admin = token;
     const BALANCE = ether(1000);
     beforeEach(async function() {
         this.DinngoImpl = await Dinngo.new();
         this.Dinngo = await DinngoProxyMock.new(dinngoWallet, DGO, this.DinngoImpl.address, { from: owner });
+        await this.Dinngo.transferAdmin(admin, { from: owner });
         await this.Dinngo.setUser(11, user1, 1);
         await this.Dinngo.setUser(12, user2, 1);
         await this.Dinngo.setUser(13, user3, 1);
@@ -99,7 +101,7 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
         const isFeeMain5 = false;
 
         it('Normal', async function() {
-            const { logs } = await this.Dinngo.settle(orders1_2, { from: owner });
+            const { logs } = await this.Dinngo.settle(orders1_2, { from: admin });
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
             event[0].args.user.should.eq(user2);
@@ -164,26 +166,26 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
             amount2.should.be.bignumber.eq(amountTarget2);
         });
         it('Normal count gas 1-1', async function() {
-            const receipt = await this.Dinngo.settle(orders1_2, { from: owner });
+            const receipt = await this.Dinngo.settle(orders1_2, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
         it('Normal count gas 1-2', async function() {
-            const receipt = await this.Dinngo.settle(orders1_2_3, { from: owner });
+            const receipt = await this.Dinngo.settle(orders1_2_3, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
 
         it('Normal count gas 1-3', async function() {
-            const receipt = await this.Dinngo.settle(orders1_2_3_4, { from: owner });
+            const receipt = await this.Dinngo.settle(orders1_2_3_4, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
 
         it('Normal count gas 1-4', async function() {
-            const receipt = await this.Dinngo.settle(orders1_2_3_4_5, { from: owner });
+            const receipt = await this.Dinngo.settle(orders1_2_3_4_5, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
 
         it('Normal 1 taker 4 maker', async function() {
-            const { logs } = await this.Dinngo.settle(orders1_2_3_4_5, { from: owner });
+            const { logs } = await this.Dinngo.settle(orders1_2_3_4_5, { from: admin });
             const event = logs.filter(e => e.event === "Trade");
             should.exist(event);
             event[0].args.user.should.eq(user2);
@@ -321,36 +323,40 @@ contract('Settle', function([_, user1, user2, user3, user4, user5, owner, dinngo
         });
 
         it('taker invalid', async function() {
-            await this.Dinngo.removeUser(user2, { from: owner });
-            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+            await this.Dinngo.removeUser(user2, { from: admin });
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
         });
 
         it('maker invalid', async function() {
-            await this.Dinngo.removeUser(user1, { from: owner });
-            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+            await this.Dinngo.removeUser(user1, { from: admin });
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
         });
 
         it('taker invalid', async function() {
-            await this.Dinngo.removeUser(user2, { from: owner });
-            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+            await this.Dinngo.removeUser(user2, { from: admin });
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
         });
 
         it('maker invalid', async function() {
-            await this.Dinngo.removeUser(user1, { from: owner });
-            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+            await this.Dinngo.removeUser(user1, { from: admin });
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
         });
 
         it('taker order filled', async function() {
             await this.Dinngo.fillOrder(hash1, amountTarget1);
-            await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
         });
 
         it('maker order filled', async function() {
             await this.Dinngo.fillOrder(hash2, amountTarget2);
+            await reverting(this.Dinngo.settle(orders1_2, { from: admin }));
+        });
+
+        it('from owner', async function() {
             await reverting(this.Dinngo.settle(orders1_2, { from: owner }));
         });
 
-        it('Not owner', async function() {
+        it('Not admin', async function() {
             await reverting(this.Dinngo.settle(orders1_2));
         });
     });
