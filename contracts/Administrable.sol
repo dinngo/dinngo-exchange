@@ -4,11 +4,17 @@ pragma solidity ^0.4.24;
  * @title Administrable
  * @dev The
  */
-contract Administrable {
+contract Administrable is Ownable {
     address private _admin;
+
+    event AdminTransferred(
+        address indexed previousAdmin,
+        address indexed newAdmin
+    );
 
     constructor(address admin) internal {
         _admin = admin;
+        emit AdminTransferred(address(0), _admin);
     }
 
     function admin() public view returns(address) {
@@ -24,9 +30,13 @@ contract Administrable {
         return (msg.sender == _admin);
     }
 
+    function transferAdmin(address newAdmin) public onlyOwner {
+        _transferAdmin(newAdmin);
+    }
+
     function _transferAdmin(address newAdmin) internal {
-        require(newAdmin != _admin);
         require(newAdmin != address(0));
+        emit AdminTransferred(_admin, newAdmin);
         _admin = newAdmin;
     }
 }
