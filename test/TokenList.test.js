@@ -5,7 +5,8 @@ import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-const DinngoMock = artifacts.require('DinngoMock');
+const Dinngo = artifacts.require('Dinngo');
+const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 
 require('chai')
@@ -15,7 +16,8 @@ require('chai')
 
 contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]) {
     beforeEach(async function () {
-        this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
+        this.DinngoImpl = await Dinngo.new();
+        this.Dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.DinngoImpl.address, { from: owner });
         this.Token = await SimpleToken.new({ from: user });
     });
 

@@ -4,9 +4,7 @@ import "../Dinngo.sol";
 
 contract DinngoMock is Dinngo {
 
-    constructor(address dinngoWallet, address dinngoToken)
-        Dinngo(dinngoWallet, dinngoToken)
-        public
+    constructor() public
     {
     }
 
