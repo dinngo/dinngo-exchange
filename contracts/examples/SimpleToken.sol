@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 
@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
  * Note they can later distribute these tokens as they wish using `transfer` and other
  * `StandardToken` functions.
  */
-contract SimpleToken is StandardToken {
+contract SimpleToken is ERC20 {
   using SafeERC20 for ERC20;
 
   string public constant name = "SimpleToken"; // solium-disable-line uppercase
@@ -23,9 +23,7 @@ contract SimpleToken is StandardToken {
    * @dev Constructor that gives msg.sender all of existing tokens.
    */
   constructor() public {
-    totalSupply_ = INITIAL_SUPPLY;
-    balances[msg.sender] = INITIAL_SUPPLY;
-    emit Transfer(address(0), msg.sender, INITIAL_SUPPLY);
+    _mint(msg.sender, INITIAL_SUPPLY);
   }
 
 }

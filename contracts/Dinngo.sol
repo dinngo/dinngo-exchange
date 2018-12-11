@@ -1,24 +1,24 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ECRecovery.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
-import "./UserLock.sol";
-
 
 /**
  * @title Dinngo
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable {
-    using ECRecovery for bytes32;
-    using SafeERC20 for ERC20;
+contract Dinngo is Ownable, SerializableOrder, SerializableWithdrawal {
+    using ECDSA for bytes32;
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
+
+    uint256 public processTime;
 
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
@@ -26,6 +26,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     mapping (uint256 => address) public tokenID_Address;
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
+    mapping (address => uint256) public lockTimes;
 
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
@@ -39,6 +40,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         address indexed tokenTrade,
         uint256 amountTrade
     );
+    event Lock(address indexed user, uint256 lockTime);
+    event Unlock(address indexed user);
 
     /**
      * @dev User ID 0 is the management wallet.
@@ -47,6 +50,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param dinngoToken The contract address of DGO
      */
     constructor(address dinngoWallet, address dinngoToken) public {
+        processTime = 90 days;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
         tokenID_Address[0] = address(0);
@@ -71,8 +75,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function addUser(uint32 id, address user) external onlyOwner {
         require(user != address(0));
         require(userRanks[user] == 0);
-        require(userID_Address[id] == address(0));
-        userID_Address[id] = user;
+        if (userID_Address[id] == address(0))
+            userID_Address[id] = user;
+        else
+            require(userID_Address[id] == user);
         userRanks[user] = 1;
         emit AddUser(id, user);
     }
@@ -113,8 +119,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function addToken(uint16 id, address token) external onlyOwner {
         require(token != address(0));
         require(tokenRanks[token] == 0);
-        require(tokenID_Address[id] == address(0));
-        tokenID_Address[id] = token;
+        if (tokenID_Address[id] == address(0))
+            tokenID_Address[id] = token;
+        else
+            require(tokenID_Address[id] == token);
         tokenRanks[token] = 1;
         emit AddToken(id, token);
     }
@@ -167,7 +175,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
-        ERC20(token).safeTransferFrom(msg.sender, this, amount);
+        IERC20(token).safeTransferFrom(msg.sender, this, amount);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
     }
@@ -199,7 +207,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         require(token != address(0));
         require(amount > 0);
         require(amount <= balances[token][msg.sender]);
-        ERC20(token).safeTransfer(msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
     }
@@ -227,7 +235,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
         if (token == address(0)) {
             user.transfer(amount);
         } else {
-            ERC20(token).safeTransfer(user, amount);
+            IERC20(token).safeTransfer(user, amount);
         }
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
@@ -253,42 +261,51 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
     function settle(bytes orders) external onlyOwner {
         uint256 nOrder = _getOrderCount(orders);
         require(nOrder >= 2);
-        bytes memory order = _getOrder(orders, 0);
-        uint256 amountTarget = _getOrderAmountTarget(order);
-        uint256 amountTrade = _getOrderAmountTrade(order);
-        SettleAmount memory s = SettleAmount(0, amountTarget);
+        bytes memory takerOrder = _getOrder(orders, 0);
+        uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder);
+        SettleAmount memory s = SettleAmount(0, takerAmountTarget.sub(orderFills[_getOrderHash(takerOrder)]));
         for (uint i = 1; i < nOrder; i++) {
             bytes memory makerOrder = _getOrder(orders, i);
             uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
             uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
-            require(amountTarget.div(amountTrade) >= makerAmountTrade.div(makerAmountTarget));
-            _processMaker(s, makerOrder);
+            require(takerAmountTarget.div(_getOrderAmountTrade(takerOrder)) >= makerAmountTrade.div(makerAmountTarget));
+            uint256 amountTrade = makerAmountTrade.mul(
+                makerAmountTarget.sub(orderFills[_getOrderHash(makerOrder)])).div(makerAmountTarget);
+            amountTrade = amountTrade < s.restAmountTarget? amountTrade: s.restAmountTarget;
+            uint256 amountTarget = makerAmountTarget.mul(amountTrade).div(makerAmountTrade);
+            s.restAmountTarget = s.restAmountTarget.sub(amountTrade);
+            s.fillAmountTrade = s.fillAmountTrade.add(amountTarget);
+            // calculate trade
+            _trade(amountTarget, amountTrade, makerOrder);
         }
-        uint256 fillAmountTarget = amountTarget.sub(s.restAmountTarget);
         // calculate trade
-        _trade(fillAmountTarget, s.fillAmountTrade, order);
+        _trade(takerAmountTarget.sub(s.restAmountTarget), s.fillAmountTrade, takerOrder);
     }
 
     /**
-     * @notice Process the maker order
-     * @param s The current status of settlement
-     * @param order The processing order
+     * @notice Announce lock of the sender
      */
-    function _processMaker(SettleAmount s, bytes order) internal {
-        // fetch current status of taker order
-        SettleAmount memory tmp = s;
-        // try to meet
-        uint256 _amountTarget = _getOrderAmountTarget(order);
-        uint256 _amountTrade = _getOrderAmountTrade(order);
-        uint256 amountTrade = _amountTrade.mul(
-            _amountTarget.sub(orderFills[_getOrderHash(order)])
-        ).div(_amountTarget);
-        amountTrade = amountTrade < tmp.restAmountTarget? amountTrade: tmp.restAmountTarget;
-        uint256 amountTarget = _amountTarget.mul(amountTrade).div(_amountTrade);
-        tmp.restAmountTarget = tmp.restAmountTarget.sub(amountTrade);
-        tmp.fillAmountTrade = tmp.fillAmountTrade.add(amountTarget);
-        // calculate trade
-        _trade(amountTarget, amountTrade, order);
+    function lock() external {
+        require(!_isLocking(msg.sender));
+        lockTimes[msg.sender] = now + processTime;
+        emit Lock(msg.sender, lockTimes[msg.sender]);
+    }
+
+    /**
+     * @notice Unlock the sender
+     */
+    function unlock() external {
+        require(_isLocking(msg.sender));
+        lockTimes[msg.sender] = 0;
+        emit Unlock(msg.sender);
+    }
+
+    /**
+     * @notice Change the processing time of locking the user address
+     */
+    function changeProcessTime(uint256 time) external onlyOwner {
+        require(processTime != time);
+        processTime = time;
     }
 
     /**
@@ -298,6 +315,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
      * @param order The order that triggerred the trading
      */
     function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
+        require(amountTarget != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
         require(_isValidUser(user));
@@ -370,5 +388,22 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, UserLock, Ownable 
 
         address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
         require(user == sigAddr);
+    }
+
+    /**
+     * @notice Return if the give user has announced lock
+     * @param user The user address to be queried
+     * @return Query result
+     */
+    function _isLocking(address user) internal view returns (bool) {
+        return lockTimes[user] > 0;
+    }
+
+    /**
+     * @notice Return if the user is locked
+     * @param user The user address to be queried
+     */
+    function _isLocked(address user) internal view returns (bool) {
+        return _isLocking(user) && lockTimes[user] < now;
     }
 }

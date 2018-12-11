@@ -24,12 +24,4 @@ contract DinngoMock is Dinngo {
         tokenRanks[token] = rank;
     }
 
-    event TestMaker(uint256 fillAmountTrade, uint256 restAmountTarget);
-    function processMakerMock(bytes order, uint256 amountTarget)
-        external
-    {
-        SettleAmount memory s = SettleAmount(0, amountTarget);
-        _processMaker(s, order);
-        emit TestMaker(s.fillAmountTrade, s.restAmountTarget);
-    }
 }

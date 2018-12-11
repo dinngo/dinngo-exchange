@@ -6,17 +6,19 @@ import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
 const BigNumber = web3.BigNumber;
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-const DinngoMock = artifacts.require('DinngoMock');
+const Dinngo = artifacts.require('Dinngo');
+const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 
 require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(BigNumber))
     .should();
-/*
+
 contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
-        this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
+        this.DinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
+        this.Dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.DinngoImpl.address, { from: owner });
     });
     const depositValue = ether(10);
     const exceed = ether(11);
@@ -29,7 +31,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             const { logs } = await this.Dinngo.withdraw(value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balances.call(0, user);
@@ -47,30 +49,44 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when user not yet locked', async function() {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(1));
+            await increase(duration.days(89));
             await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when value with amount 0', async function () {
             const value = ether(0);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user balance is not sufficient', async function () {
             const value = ether(11);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             await reverting(this.Dinngo.withdraw(value, { from: user }));
         });
 
         it('when user is removed', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             await this.Dinngo.removeUser(user, { from: owner });
             await reverting(this.Dinngo.withdraw(value, { from: user }));
+        });
+
+        it('when locking process time changed', async function() {
+            const value = ether(1);
+            await this.Dinngo.changeProcessTime(duration.days(80), { from: owner });
+            await this.Dinngo.lock({ from: user });
+            await increase(duration.days(80.1));
+            const { logs } = await this.Dinngo.withdraw(value, { from: user });
+            const event = await inLogs(logs, 'Withdraw');
+            let balance = await this.Dinngo.balances.call(0, user);
+            event.args.token.should.eq(ZERO_ADDRESS);
+            event.args.user.should.eq(user);
+            event.args.amount.should.be.bignumber.eq(value);
+            event.args.balance.should.be.bignumber.eq(balance);
         });
     });
     describe('token', function () {
@@ -84,7 +100,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
             const event = await inLogs(logs, 'Withdraw');
             let balance = await this.Dinngo.balances.call(this.Token.address, user);
@@ -102,7 +118,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when user not yet locked', async function() {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(1));
+            await increase(duration.days(89));
             await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
         });
 
@@ -124,16 +140,31 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when user is removed', async function () {
             const value = ether(1);
             await this.Dinngo.lock({ from: user });
-            await increase(duration.days(3.1));
+            await increase(duration.days(90.1));
             await this.Dinngo.removeUser(user, { from: owner });
             await reverting(this.Dinngo.withdrawToken(this.Token.address, value, { from: user }));
+        });
+
+        it('when locking process time changed', async function () {
+            const value = ether(1);
+            await this.Dinngo.changeProcessTime(duration.days(80), { from: owner });
+            await this.Dinngo.lock({ from: user });
+            await increase(duration.days(80.1));
+            const { logs } = await this.Dinngo.withdrawToken(this.Token.address, value, { from: user });
+            const event = await inLogs(logs, 'Withdraw');
+            let balance = await this.Dinngo.balances.call(this.Token.address, user);
+            event.args.token.should.eq(this.Token.address);
+            event.args.user.should.eq(user);
+            event.args.amount.should.be.bignumber.eq(value);
+            event.args.balance.should.be.bignumber.eq(balance);
         });
     });
 });
 
 contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenContract]) {
     beforeEach(async function() {
-        this.Dinngo = await DinngoMock.new(tokenWallet, tokenContract, { from: owner });
+        this.DinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
+        this.Dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.DinngoImpl.address, { from: owner });
         await this.Dinngo.setUser(11, user1, 1);
         await this.Dinngo.setUser(12, user2, 1);
     });
@@ -273,4 +304,3 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, tokenWallet, tokenC
         });
     });
 });
-*/
