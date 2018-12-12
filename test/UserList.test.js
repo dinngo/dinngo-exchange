@@ -35,12 +35,12 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
                 rank.should.be.bignumber.eq(1);
             });
 
-            it('called by owner', async function() {
+            it('called by owner', async function () {
                 await reverting(this.Dinngo.addUser(id, user, { from: owner }));
             });
         });
 
-        describe('when existed', function() {
+        describe('when existed', function () {
             it('normal', async function () {
                 await this.Dinngo.addUser(id, user, { from: admin });
                 let userAddress1 = await this.Dinngo.userID_Address.call(id);
@@ -53,7 +53,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
                 userAddress2.should.eq(user2);
             });
 
-            it('removed with same address', async function() {
+            it('removed with same address', async function () {
                 await this.Dinngo.setUser(id, user, 1);
                 await this.Dinngo.removeUser(user, { from: admin });
                 const { logs } = await this.Dinngo.addUser(id, user, { from: admin });
@@ -64,7 +64,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
                 rank.should.be.bignumber.eq(1);
             });
 
-            it('removed with different address', async function() {
+            it('removed with different address', async function () {
                 await this.Dinngo.setUser(id, user, 1);
                 await this.Dinngo.removeUser(user, { from: admin });
                 await reverting(this.Dinngo.addUser(id, someone, { from: admin }));
@@ -95,7 +95,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
             await reverting(this.Dinngo.updateUserRank(user, 1, { from: admin }));
         });
 
-        it('called by owner', async function() {
+        it('called by owner', async function () {
             await this.Dinngo.addUser(id, user, { from: admin });
             let rank1 = await this.Dinngo.userRanks.call(user);
             rank1.should.be.bignumber.eq(1);
@@ -104,7 +104,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
     });
 
     describe('remove user', function () {
-        it('when normal', async function() {
+        it('when normal', async function () {
             await this.Dinngo.setUser(id, user, 1);
             await this.Dinngo.removeUser(user, { from: admin });
             let rank = await this.Dinngo.userRanks.call(user);
@@ -113,16 +113,16 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
             userCall.should.eq(user);
         });
 
-        it('when call by non admin', async function() {
+        it('when call by non admin', async function () {
             await this.Dinngo.setUser(id, user, 1);
             await reverting(this.Dinngo.removeUser(user, { from: someone }));
         });
 
-        it('when removing non-existed user', async function() {
+        it('when removing non-existed user', async function () {
             await reverting(this.Dinngo.removeUser(user, { from: admin }));
         });
 
-        it('when call by owner', async function() {
+        it('when call by owner', async function () {
             await this.Dinngo.setUser(id, user, 1);
             await reverting(this.Dinngo.removeUser(user, { from: owner }));
         });

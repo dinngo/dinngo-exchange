@@ -59,7 +59,7 @@ function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, 
     );
 }
 /*
-contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
+contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) {
     const user1ID = 11;
     const tokenTarget1 = 0;
     const amountTarget1 = ether(1);
@@ -110,7 +110,7 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
     const gasFee5 = ether(1);
     const nonce5 = 5;
 
-    describe('single order', async function() {
+    describe('single order', async function () {
         it('hex1', async function () {
             const hash = getHash(
                 user1ID,
@@ -295,8 +295,8 @@ contract('SerializableOrder', function([_, user1, user2, user3, user4, user5]) {
             console.log(ser_hex);
         });
     });
-    describe('multiple orders', async function() {
-        it('hex_1_2_3_4_5', async function() {
+    describe('multiple orders', async function () {
+        it('hex_1_2_3_4_5', async function () {
             let hash1 = getHash(
                 user1ID,
                 tokenTarget1,

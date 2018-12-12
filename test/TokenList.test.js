@@ -35,7 +35,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
                 rank.should.be.bignumber.eq(1);
             });
 
-            it('removed with same address', async function() {
+            it('removed with same address', async function () {
                 await this.Dinngo.setToken(id, this.Token.address, 1);
                 await this.Dinngo.removeToken(this.Token.address, { from: owner });
                 const { logs } = await this.Dinngo.addToken(id, this.Token.address, { from: owner });
@@ -46,7 +46,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
                 rank.should.be.bignumber.eq(1);
             });
 
-            it('removed with different address', async function() {
+            it('removed with different address', async function () {
                 await this.Dinngo.setToken(id, this.Token.address, 1);
                 await this.Dinngo.removeToken(this.Token.address, { from: owner });
                 await reverting(this.Dinngo.addToken(id, token2, { from: owner }));
@@ -55,7 +55,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
             });
         });
 
-        describe('when existed', function() {
+        describe('when existed', function () {
             it('normal', async function () {
                 await this.Dinngo.addToken(id, this.Token.address, { from: owner });
                 let tokenAddress1 = await this.Dinngo.tokenID_Address.call(2);
