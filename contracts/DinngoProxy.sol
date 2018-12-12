@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
+import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 import "./proxy/Proxy.sol";
@@ -14,7 +15,7 @@ import "./proxy/Proxy.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract DinngoProxy is Ownable, Proxy {
+contract DinngoProxy is Ownable, Administrable, Proxy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -34,7 +35,11 @@ contract DinngoProxy is Ownable, Proxy {
      * @param dinngoWallet The main address of dinngo
      * @param dinngoToken The contract address of DGO
      */
-    constructor(address dinngoWallet, address dinngoToken, address impl) Proxy(impl) public {
+    constructor(
+        address dinngoWallet,
+        address dinngoToken,
+        address impl
+    ) Proxy(impl) public {
         processTime = 90 days;
         userID_Address[0] = dinngoWallet;
         userRanks[dinngoWallet] = 255;
@@ -57,7 +62,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param id The user id to be assigned
      * @param user The user address to be added
      */
-    function addUser(uint32 id, address user) external onlyOwner {
+    function addUser(uint32 id, address user) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("addUser(uint32,address)")), id, user));
     }
 
@@ -66,7 +71,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @dev The user rank is set to 0 to remove the user.
      * @param user The user address to be added
      */
-    function removeUser(address user) external onlyOwner {
+    function removeUser(address user) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("removeUser(address)")), user));
     }
 
@@ -75,7 +80,7 @@ contract DinngoProxy is Ownable, Proxy {
      * @param user The user address
      * @param rank The rank to be assigned
      */
-    function updateUserRank(address user, uint8 rank) external onlyOwner {
+    function updateUserRank(address user, uint8 rank) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("updateUserRank(address,uint8)")), user, rank));
     }
 
@@ -108,6 +113,10 @@ contract DinngoProxy is Ownable, Proxy {
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
         require(_implementation().delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
+    }
+
+    function transferAdmin(address newAdmin) external onlyOwner {
+        _transferAdmin(newAdmin);
     }
 
     /**
@@ -153,7 +162,7 @@ contract DinngoProxy is Ownable, Proxy {
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes withdrawal) external onlyOwner {
+    function withdrawByAdmin(bytes withdrawal) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), 0x20, withdrawal.length, withdrawal));
     }
 
@@ -162,7 +171,7 @@ contract DinngoProxy is Ownable, Proxy {
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external onlyOwner {
+    function settle(bytes orders) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("settle(bytes)")), 0x20, orders.length, orders));
     }
 
