@@ -115,6 +115,12 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         require(_implementation().delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
     }
 
+    /**
+     * @notice Transfer the admin to a new user address.
+     * @dev Overload the function in contract Administrable to limit the execution permission
+     * to owner.
+     * @param newAdmin The new admin address to be assigned.
+     */
     function transferAdmin(address newAdmin) external onlyOwner {
         _transferAdmin(newAdmin);
     }

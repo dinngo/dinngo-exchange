@@ -8,7 +8,7 @@ const should = require('chai')
     .use(require('chai-as-promised'))
     .should();
 
-contract('Administrable', function([_, admin, newAdmin]) {
+contract('Administrable', function ([_, admin, newAdmin]) {
     beforeEach(async function () {
         this.administrable = await AdministrableMock.new({ from: admin });
     });
@@ -37,7 +37,7 @@ contract('Administrable', function([_, admin, newAdmin]) {
     });
 });
 
-contract('Ownable Adminstrable', function([_, owner, admin, newAdmin]) {
+contract('Ownable Adminstrable', function ([_, owner, admin, newAdmin]) {
     beforeEach(async function () {
         this.administrable = await OwnableAdministrableMock.new({ from: owner });
     });
@@ -47,7 +47,7 @@ contract('Ownable Adminstrable', function([_, owner, admin, newAdmin]) {
     });
 
     describe('as an ownable administrable', function () {
-        beforeEach(async function() {
+        beforeEach(async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
         });
 
@@ -60,7 +60,7 @@ contract('Ownable Adminstrable', function([_, owner, admin, newAdmin]) {
             (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(true);
         });
 
-        it('should prevent admin from transfering', async function() {
+        it('should prevent admin from transfering', async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
             await reverting(this.administrable.transferAdmin(admin), { from: admin });
         })
