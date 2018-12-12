@@ -1,7 +1,5 @@
 pragma solidity ^0.4.24;
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-
 /**
  * @title Administrable
  * @dev The
@@ -36,5 +34,9 @@ contract Administrable {
         require(newAdmin != address(0));
         emit AdminTransferred(_admin, newAdmin);
         _admin = newAdmin;
+    }
+
+    function transferAdmin(address newAdmin) external onlyAdmin {
+        _transferAdmin(newAdmin);
     }
 }
