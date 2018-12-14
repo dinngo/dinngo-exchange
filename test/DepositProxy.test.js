@@ -35,7 +35,13 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
 
         it('when user invalid', async function () {
             const value = ether(10);
-            await reverting(this.Dinngo.deposit({ value: value, from: user }));
+            const { logs } = await this.Dinngo.deposit({ value: value, from: user });
+            const eventDeposit = await inLogs(logs, 'Deposit');
+            let balance = await this.Dinngo.balances.call(0, user);
+            eventDeposit.args.token.should.eq(ZERO_ADDRESS);
+            eventDeposit.args.user.should.eq(user);
+            eventDeposit.args.amount.should.be.bignumber.eq(value);
+            eventDeposit.args.balance.should.be.bignumber.eq(balance);
         });
 
         it('when value with amount 0', async function () {
@@ -67,7 +73,14 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when user invalid', async function () {
             const value = ether(10);
             await this.Token.approve(this.Dinngo.address, value, { from: user });
-            await reverting(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
+            const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
+            const eventDeposit = await inLogs(logs, 'Deposit');
+            let balance = await this.Dinngo.balances.call(this.Token.address, user);
+            eventDeposit.args.token.should.eq(this.Token.address);
+            eventDeposit.args.user.should.eq(user);
+            eventDeposit.args.amount.should.be.bignumber.eq(value);
+            eventDeposit.args.balance.should.be.bignumber.eq(balance);
+            balance.should.be.bignumber.eq(value);
         });
 
         it('when token with address 0', async function () {
