@@ -145,7 +145,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      */
     function deposit() external payable {
         require(!_isLocking(msg.sender));
-        require(_isValidUser(msg.sender));
         require(msg.value > 0);
         balances[0][msg.sender] = balances[0][msg.sender].add(msg.value);
         emit Deposit(0, msg.sender, msg.value, balances[0][msg.sender]);
@@ -159,7 +158,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      */
     function depositToken(address token, uint256 amount) external {
         require(!_isLocking(msg.sender));
-        require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
         IERC20(token).safeTransferFrom(msg.sender, this, amount);
