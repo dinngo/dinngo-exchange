@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Change the permission of user related functions from owner to admin.
 - Change the permission of settle from owner to admin.
 - Change the permission of withdrawByAdmin from owner to admin.
+- Deposit does not require user to be added.
 
 ## [0.2.1] - 2018-12-11
 ### Added
