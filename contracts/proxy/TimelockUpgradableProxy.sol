@@ -13,7 +13,12 @@ contract TimelockUpgradableProxy is Proxy {
 
     event UpgradeAnnounced(address indexed implementation, uint256 time);
 
-    function register(address implementation) external onlyowner {
+    constructor() internal {
+        assert(REGISTRATION_SLOT == keccak256("dinngo.proxy.registration"));
+        assert(TIME_SLOT == keccak256("dinngo.proxy.time"));
+    }
+
+    function register(address implementation) external onlyOwner {
         _registerImplementation(implementation);
         emit UpgradeAnnounced(implementation, _time());
     }
