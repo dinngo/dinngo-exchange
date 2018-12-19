@@ -13,7 +13,7 @@ contract Proxy is Ownable {
 
     event Upgraded(address indexed implementation);
 
-    constructor(address implementation) public {
+    constructor(address implementation) internal {
         assert(IMPLEMENTATION_SLOT == keccak256("dinngo.proxy.implementation"));
         _setImplementation(implementation);
     }
