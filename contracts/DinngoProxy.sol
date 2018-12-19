@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
-import "./proxy/Proxy.sol";
+import "./proxy/TimelockUpgradableProxy.sol";
 
 
 /**
@@ -15,7 +15,7 @@ import "./proxy/Proxy.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract DinngoProxy is Ownable, Administrable, Proxy {
+contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 

@@ -13,9 +13,20 @@ contract TimelockUpgradableProxy is Proxy {
 
     event UpgradeAnnounced(address indexed implementation, uint256 time);
 
-    function register(address implementation) external {
+    function register(address implementation) external onlyowner {
         _registerImplementation(implementation);
         emit UpgradeAnnounced(implementation, _time());
+    }
+
+    function upgrade(address implementation) external {
+        require(implementation == _registration());
+        upgradeAnnounced();
+    }
+
+    function upgradeAnnounced() public onlyOwner {
+        require(now >= _time());
+        _setImplementation(_registration());
+        emit Upgraded(_registration());
     }
 
     function _registerImplementation(address implementation) internal {
@@ -47,16 +58,5 @@ contract TimelockUpgradableProxy is Proxy {
         assembly {
             implementation := sload(slot)
         }
-    }
-
-    function upgrade(address implementation) external {
-        require(implementation == _registration());
-        upgradeAnnounced();
-    }
-
-    function upgradeAnnounced() public onlyOwner {
-        require(now >= _time());
-        _setImplementation(_registration());
-        emit Upgraded(_registration());
     }
 }
