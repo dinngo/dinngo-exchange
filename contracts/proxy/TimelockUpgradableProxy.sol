@@ -2,6 +2,11 @@ pragma solidity ^0.4.24;
 
 import "./Proxy.sol";
 
+/**
+ * @title TimelockUpgradableProxy
+ * @author Ben Huang
+ * @dev The registration-required version of upgradable contract.
+ */
 contract TimelockUpgradableProxy is Proxy {
     // keccak256 hash of "dinngo.proxy.registration"
     bytes32 private constant REGISTRATION_SLOT =
@@ -18,22 +23,41 @@ contract TimelockUpgradableProxy is Proxy {
         assert(TIME_SLOT == keccak256("dinngo.proxy.time"));
     }
 
+    /**
+     * @notice Register the implementation address as the candidate contract
+     * to be upgraded. Emits the UpgradeAnnounced event.
+     * @param implementation The implementation contract address to be registered.
+     */
     function register(address implementation) external onlyOwner {
         _registerImplementation(implementation);
         emit UpgradeAnnounced(implementation, _time());
     }
 
+    /**
+     * @dev Overload the function in contract Proxy.
+     * @notice Upgrade the implementation contract.
+     * @param implementation The new implementation contract.
+     */
     function upgrade(address implementation) external {
         require(implementation == _registration());
         upgradeAnnounced();
     }
 
+    /**
+     * @notice Upgrade the implementation contract to the announced address.
+     * Emits the Upgraded event.
+     */
     function upgradeAnnounced() public onlyOwner {
         require(now >= _time());
         _setImplementation(_registration());
         emit Upgraded(_registration());
     }
 
+    /**
+     * @dev Register the imeplemtation address to the registation slot. Record the
+     * valid time by adding the UPGRADE_TIME to the registration time to the time slot.
+     * @param implementation The implemetation address to be registered.
+     */
     function _registerImplementation(address implementation) internal {
         require(implementation.isContract(),
             "Implementation address should be a contract address"
@@ -49,6 +73,9 @@ contract TimelockUpgradableProxy is Proxy {
         }
     }
 
+    /**
+     * @dev Return the valid time of registered implementation address.
+     */
     function _time() internal view returns (uint256 time) {
         bytes32 slot = TIME_SLOT;
 
@@ -57,6 +84,9 @@ contract TimelockUpgradableProxy is Proxy {
         }
     }
 
+    /**
+     * @dev Return the registered implementation address.
+     */
     function _registration() internal view returns (address implementation) {
         bytes32 slot = REGISTRATION_SLOT;
 

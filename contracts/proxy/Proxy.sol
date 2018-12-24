@@ -3,7 +3,12 @@ pragma solidity ^0.4.24;
 import 'openzeppelin-solidity/contracts/utils/Address.sol';
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-
+/**
+ * @title Proxy interface for Dinngo exchange contract.
+ * @author Ben Huang
+ * @dev Referenced the proxy contract from zeppelin-os project.
+ * https://github.com/zeppelinos/zos/tree/master/packages/lib
+ */
 contract Proxy is Ownable {
     using Address for address;
 
@@ -18,11 +23,20 @@ contract Proxy is Ownable {
         _setImplementation(implementation);
     }
 
+    /**
+     * @notice Upgrade the implementation contract. Can only be triggered
+     * by the owner. Emits the Upgraded event.
+     * @param implementation The new implementation address.
+     */
     function upgrade(address implementation) external onlyOwner {
         _setImplementation(implementation);
         emit Upgraded(implementation);
     }
 
+    /**
+     * @dev Set the implementation address in the storage slot.
+     * @param implementation The new implementation address.
+     */
     function _setImplementation(address implementation) internal {
         require(implementation.isContract(),
             "Implementation address should be a contract address"
@@ -34,6 +48,9 @@ contract Proxy is Ownable {
         }
     }
 
+    /**
+     * @dev Returns the current implementation address.
+     */
     function _implementation() internal view returns (address implementation) {
         bytes32 slot = IMPLEMENTATION_SLOT;
 
