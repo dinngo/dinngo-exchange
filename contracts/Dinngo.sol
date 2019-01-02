@@ -243,27 +243,32 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external onlyAdmin {
+    function settle(bytes orders) external {
+        // Deal with the order list
         uint256 nOrder = _getOrderCount(orders);
-        require(nOrder >= 2);
+        // Get the first order as the taker order
         bytes memory takerOrder = _getOrder(orders, 0);
-        uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder);
-        SettleAmount memory s = SettleAmount(0, takerAmountTarget.sub(orderFills[_getOrderHash(takerOrder)]));
+        bytes32 takerHash = _getOrderHash(takerOrder);
+        uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder).sub(orderFills[takerHash]);
+        // SettleAmount(uint256 fillAmountTrade, uint256 restAmountTarget)
+        SettleAmount memory s = SettleAmount(0, takerAmountTarget);
+        // Parse maker orders
         for (uint i = 1; i < nOrder; i++) {
+            // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
-            uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
             uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
-            require(takerAmountTarget.div(_getOrderAmountTrade(takerOrder)) >= makerAmountTrade.div(makerAmountTarget));
-            uint256 amountTrade = makerAmountTrade.mul(
-                makerAmountTarget.sub(orderFills[_getOrderHash(makerOrder)])).div(makerAmountTarget);
-            amountTrade = amountTrade < s.restAmountTarget? amountTrade: s.restAmountTarget;
-            uint256 amountTarget = makerAmountTarget.mul(amountTrade).div(makerAmountTrade);
-            s.restAmountTarget = s.restAmountTarget.sub(amountTrade);
-            s.fillAmountTrade = s.fillAmountTrade.add(amountTarget);
-            // calculate trade
+            uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
+            bytes32 makerHash = _getOrderHash(makerOrder);
+            // Calculate the amount to be executed
+            uint256 amountTarget = makerAmountTarget.sub(orderFills[makerHash]);
+            amountTarget = amountTarget <= s.restAmountTarget? amountTarget : s.restAmountTarget;
+            uint256 amountTrade = makerAmountTrade.mul(amountTarget).div(makerAmountTarget);
+            s.restAmountTarget = s.restAmountTarget.sub(amountTarget);
+            s.fillAmountTrade = s.fillAmountTrade.add(amountTrade);
+            // Trade amountTarget and amountTrade for maker order
             _trade(amountTarget, amountTrade, makerOrder);
         }
-        // calculate trade
+        // Trade amountTarget and amountTrade for taker order
         _trade(takerAmountTarget.sub(s.restAmountTarget), s.fillAmountTrade, takerOrder);
     }
 
@@ -295,28 +300,49 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
 
     /**
      * @notice Process the trade by the providing information
+     * @dev Price equal amountTrade/amountTarget
      * @param amountTarget The provided amount to be traded
      * @param amountTrade The amount to be requested
-     * @param order The order that triggerred the trading
+     * @param order The order that triggered the trading
      */
     function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
-        require(amountTarget != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
-        require(_isValidUser(user));
         bytes32 hash = _getOrderHash(order);
-        // Get target and trade
-        address tokenTarget = tokenID_Address[_getOrderTokenIDTarget(order)];
         address tokenTrade = tokenID_Address[_getOrderTokenIDTrade(order)];
-        uint256 balanceTarget = balances[tokenTarget][user].sub(amountTarget);
-        uint256 balanceTrade = balances[tokenTrade][user].add(amountTrade);
-        // GetFee
-        address tokenFee = _isOrderFeeMain(order)? (_isOrderBuy(order)? tokenTarget: tokenTrade): tokenID_Address[1];
+        address tokenTarget = tokenID_Address[_getOrderTokenIDTarget(order)];
+        uint256 balanceTrade;
+        uint256 balanceTarget;
+        require(amountTarget != 0);
+        require(_isValidUser(user));
+        // Trade
+        if (_isOrderBuy(order)) {
+            balanceTrade = balances[tokenTrade][user].sub(amountTrade);
+            balanceTarget = balances[tokenTarget][user].add(amountTarget);
+        } else {
+            balanceTrade = balances[tokenTrade][user].add(amountTrade);
+            balanceTarget = balances[tokenTarget][user].sub(amountTarget);
+        }
+        // Get fee
+        address tokenFee = _isOrderFeeMain(order)? tokenTrade : tokenID_Address[1];
         uint256 amountFee = _getOrderTradeFee(order).mul(amountTarget).div(_getOrderAmountTarget(order));
+        // Order fill
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
+        orderFills[hash] = orderFills[hash].add(amountTarget);
+        require(orderFills[hash] <= _getOrderAmountTarget(order));
+        if (tokenFee == tokenTarget) {
+            balanceTarget = balanceTarget.sub(amountFee);
+        } else if (tokenFee == tokenTrade) {
+            balanceTrade = balanceTrade.sub(amountFee);
+        } else {
+            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
+        }
+        balances[tokenFee][userID_Address[0]] = balances[tokenFee][userID_Address[0]].add(amountFee);
+        balances[tokenTarget][user] = balanceTarget;
+        balances[tokenTrade][user] = balanceTrade;
         emit Trade
         (
             user,
@@ -326,17 +352,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
             tokenTrade,
             amountTrade
         );
-        orderFills[hash] = orderFills[hash].add(amountTarget);
-        if (tokenFee == tokenTarget)
-            balanceTarget = balanceTarget.sub(amountFee);
-        else if (tokenFee == tokenTrade)
-            balanceTrade = balanceTrade.sub(amountFee);
-        else
-            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
-        balances[tokenFee][userID_Address[0]] =
-            balances[tokenFee][userID_Address[0]].add(amountFee);
-        balances[tokenTarget][user] = balanceTarget;
-        balances[tokenTrade][user] = balanceTrade;
     }
 
     /**
