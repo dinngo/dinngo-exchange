@@ -61,10 +61,10 @@ function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, 
 /*
 contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) {
     const user1ID = 11;
-    const tokenTarget1 = 0;
-    const amountTarget1 = ether(1);
-    const tokenTrade1 = 11;
-    const amountTrade1 = ether(100);
+    const tokenTarget1 = 11;
+    const amountTarget1 = ether(100);
+    const tokenTrade1 = 0;
+    const amountTrade1 = ether(1);
     const config1 = 1 + 2;
     const tradeFee1 = ether(1);
     const gasFee1 = ether(0.001);
