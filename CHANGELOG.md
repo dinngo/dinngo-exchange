@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file.
 - Change the permission of withdrawByAdmin from owner to admin.
 - Deposit does not require user to be added.
 - Upgrading implementation requires contract registration.
+- Trade-token is always the main token.
+- Target-token is always the sub token.
 
 ## [0.2.1] - 2018-12-11
 ### Added
