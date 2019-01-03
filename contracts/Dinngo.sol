@@ -310,6 +310,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param order The order that triggered the trading
      */
     function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
+        require(amountTarget != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
         bytes32 hash = _getOrderHash(order);
@@ -317,7 +318,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         address tokenTarget = tokenID_Address[_getOrderTokenIDTarget(order)];
         uint256 balanceTrade;
         uint256 balanceTarget;
-        require(amountTarget != 0);
         require(_isValidUser(user));
         // Trade
         if (_isOrderBuy(order)) {
@@ -336,7 +336,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
         orderFills[hash] = orderFills[hash].add(amountTarget);
-        require(orderFills[hash] <= _getOrderAmountTarget(order));
         if (tokenFee == tokenTarget) {
             balanceTarget = balanceTarget.sub(amountFee);
         } else if (tokenFee == tokenTrade) {
