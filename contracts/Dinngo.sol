@@ -245,14 +245,13 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         bytes memory takerOrder = _getOrder(orders, 0);
         bytes32 takerHash = _getOrderHash(takerOrder);
         uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder).sub(orderFills[takerHash]);
-        // SettleAmount(uint256 fillAmountTrade, uint256 restAmountTarget)
         uint256 fillAmountTrade = 0;
         uint256 restAmountTarget = takerAmountTarget;
         // Parse maker orders
         for (uint i = 1; i < nOrder; i++) {
             // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
-            //require(_isOrderBuy(takerOrder) != _isOrderBuy(makerOrder));
+            require(_isOrderBuy(takerOrder) != _isOrderBuy(makerOrder));
             uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
             uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
             bytes32 makerHash = _getOrderHash(makerOrder);
@@ -268,9 +267,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         // Sum the trade amount and check
         restAmountTarget = takerAmountTarget.sub(restAmountTarget);
         if (_isOrderBuy(takerOrder)) {
-            require(fillAmountTrade.div(restAmountTarget) <= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
+            require(fillAmountTrade.mul(takerAmountTarget) <= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
         } else {
-            require(fillAmountTrade.div(restAmountTarget) >= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
+            require(fillAmountTrade.mul(takerAmountTarget) >= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
         }
         // Trade amountTarget and amountTrade for taker order
         _trade(restAmountTarget, fillAmountTrade, takerOrder);
