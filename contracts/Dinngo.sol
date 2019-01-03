@@ -233,11 +233,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         emit Withdraw(token, user, amount, balance);
     }
 
-    struct SettleAmount {
-        uint256 fillAmountTrade;
-        uint256 restAmountTarget;
-    }
-
     /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
@@ -251,34 +246,34 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         bytes32 takerHash = _getOrderHash(takerOrder);
         uint256 takerAmountTarget = _getOrderAmountTarget(takerOrder).sub(orderFills[takerHash]);
         // SettleAmount(uint256 fillAmountTrade, uint256 restAmountTarget)
-        SettleAmount memory s = SettleAmount(0, takerAmountTarget);
-        bool isBuy = _isOrderBuy(takerOrder);
+        uint256 fillAmountTrade = 0;
+        uint256 restAmountTarget = takerAmountTarget;
         // Parse maker orders
         for (uint i = 1; i < nOrder; i++) {
             // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
-            require(isBuy != _isOrderBuy(makerOrder));
+            //require(_isOrderBuy(takerOrder) != _isOrderBuy(makerOrder));
             uint256 makerAmountTrade = _getOrderAmountTrade(makerOrder);
             uint256 makerAmountTarget = _getOrderAmountTarget(makerOrder);
             bytes32 makerHash = _getOrderHash(makerOrder);
             // Calculate the amount to be executed
             uint256 amountTarget = makerAmountTarget.sub(orderFills[makerHash]);
-            amountTarget = amountTarget <= s.restAmountTarget? amountTarget : s.restAmountTarget;
+            amountTarget = amountTarget <= restAmountTarget? amountTarget : restAmountTarget;
             uint256 amountTrade = makerAmountTrade.mul(amountTarget).div(makerAmountTarget);
-            s.restAmountTarget = s.restAmountTarget.sub(amountTarget);
-            s.fillAmountTrade = s.fillAmountTrade.add(amountTrade);
+            restAmountTarget = restAmountTarget.sub(amountTarget);
+            fillAmountTrade = fillAmountTrade.add(amountTrade);
             // Trade amountTarget and amountTrade for maker order
             _trade(amountTarget, amountTrade, makerOrder);
         }
         // Sum the trade amount and check
-        s.restAmountTarget = takerAmountTarget.sub(s.restAmountTarget);
-        if (isBuy) {
-            require(s.fillAmountTrade.div(s.restAmountTarget) <= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
+        restAmountTarget = takerAmountTarget.sub(restAmountTarget);
+        if (_isOrderBuy(takerOrder)) {
+            require(fillAmountTrade.div(restAmountTarget) <= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
         } else {
-            require(s.fillAmountTrade.div(s.restAmountTarget) >= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
+            require(fillAmountTrade.div(restAmountTarget) >= _getOrderAmountTrade(takerOrder).div(takerAmountTarget));
         }
         // Trade amountTarget and amountTrade for taker order
-        _trade(s.restAmountTarget, s.fillAmountTrade, takerOrder);
+        _trade(restAmountTarget, fillAmountTrade, takerOrder);
     }
 
     /**
