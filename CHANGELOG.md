@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file.
 - Trade-token is always the main token.
 - Target-token is always the sub token.
 
+### Security
+- Fix withdraw related functions to avoid reentrancy bugs.
+
 ## [0.2.1] - 2018-12-11
 ### Added
 - Added the solc version in truffle.js.
