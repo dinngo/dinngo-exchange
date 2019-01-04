@@ -175,9 +175,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(_isValidUser(msg.sender));
         require(amount > 0);
         require(amount <= balances[0][msg.sender]);
-        msg.sender.transfer(amount);
         balances[0][msg.sender] = balances[0][msg.sender].sub(amount);
         emit Withdraw(0, msg.sender, amount, balances[0][msg.sender]);
+        msg.sender.transfer(amount);
     }
 
     /**
@@ -192,9 +192,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(token != address(0));
         require(amount > 0);
         require(amount <= balances[token][msg.sender]);
-        IERC20(token).safeTransfer(msg.sender, amount);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
+        IERC20(token).safeTransfer(msg.sender, amount);
     }
 
     /**
@@ -217,11 +217,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
             _getWithdrawalS(withdrawal),
             _getWithdrawalV(withdrawal)
         );
-        if (token == address(0)) {
-            user.transfer(amount);
-        } else {
-            IERC20(token).safeTransfer(user, amount);
-        }
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
         } else {
@@ -231,6 +226,11 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
             balances[tokenFee][userID_Address[0]].add(amountFee);
         balances[token][user] = balance;
         emit Withdraw(token, user, amount, balance);
+        if (token == address(0)) {
+            user.transfer(amount);
+        } else {
+            IERC20(token).safeTransfer(user, amount);
+        }
     }
 
     /**
