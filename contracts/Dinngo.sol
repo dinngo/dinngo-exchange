@@ -267,9 +267,11 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         // Sum the trade amount and check
         restAmountTarget = takerAmountTarget.sub(restAmountTarget);
         if (_isOrderBuy(takerOrder)) {
-            require(fillAmountTrade.mul(takerAmountTarget) <= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
+            require(fillAmountTrade.mul(_getOrderAmountTarget(takerOrder))
+                <= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
         } else {
-            require(fillAmountTrade.mul(takerAmountTarget) >= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
+            require(fillAmountTrade.mul(_getOrderAmountTarget(takerOrder))
+                >= _getOrderAmountTrade(takerOrder).mul(restAmountTarget));
         }
         // Trade amountTarget and amountTrade for taker order
         _trade(restAmountTarget, fillAmountTrade, takerOrder);
