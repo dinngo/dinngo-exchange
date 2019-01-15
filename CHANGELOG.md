@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Add a new role admin. Admin is initially owner. Can only be assigned by owner.
 
+### Fixed
+- Fix the error price calculation when verifying the settlement.
+
 ### Changed
 - Remove the unnecessary assignments in implementation functions.
 - Change the permission of user related functions from owner to admin.
