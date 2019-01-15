@@ -44,7 +44,7 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
         await this.Dinngo.setUserBalance(dinngoWallet, DGO, BALANCE);
     });
 
-    describe('settle', function () {
+    describe('settle for buying taker', function () {
         const orders1_2 =
             "0x206bc639aadd5c6c4487b4cc8f7675bd8e806989ffb018207bf1afe223f3f9e87ccac8cd5a8ba0ba07cdd360c2bf5ad09e09d785557d8f7214572ca099fd04450100000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
         const orders1_2_3 =
@@ -349,6 +349,122 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
 
         it('Not admin', async function () {
             await reverting(this.Dinngo.settle(orders1_2));
+        });
+    });
+    describe('settle for selling taker', function () {
+        const orders1_2 =
+            "0x00098a93b03c4bf2cf93dc2b61198e6e00a129b0278d014ebbdd9291b5274692fc89844ed1f83b0902aff9b0125e3220b8a946261f70411a46fe5459b4a026790100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000001020000000000000000000000000000000000000000000000001bc16d674ec8000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000b235f78e053c94c8a153d1e7026c64bcbd576db99dd28d7e508a0fc0ac4f637cca439351ebc9e1c57b5cf66b31555f52b6b3e2b58dbfc92db8acc01ddd389ce2c0000000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000002030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000004563918244f40000000b0000000c";
+        const orders1_3 =
+            "0x00098a93b03c4bf2cf93dc2b61198e6e00a129b0278d014ebbdd9291b5274692fc89844ed1f83b0902aff9b0125e3220b8a946261f70411a46fe5459b4a026790100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000001020000000000000000000000000000000000000000000000001bc16d674ec8000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000b5a7ebe92f87c58f1591048bf930420c68e6407c1c26fac2136d1e09e2ff7e39059c41ee03b815fb3ea196a8371da7e4dd2f6269ff9bd9546bc8cc3a893a90cd90100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000003030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000004563918244f40000000b0000000d";
+        const orders1_4 =
+            "0x00098a93b03c4bf2cf93dc2b61198e6e00a129b0278d014ebbdd9291b5274692fc89844ed1f83b0902aff9b0125e3220b8a946261f70411a46fe5459b4a026790100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000001020000000000000000000000000000000000000000000000001bc16d674ec8000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000b2f94c4bb8a178665e3ada930e40d72d1bd7a77f7d40bff400a70fce8d6cd679a6eb7d9a21940d1c05680fc0e056030770ce108079e7dd018e6af71f4eaaeef380000000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a000000000004030000000000000000000000000000000000000000000000001bc16d674ec8000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000e";
+
+        const hash1 = "0x67597dacdada87d5452b5ec39ef636552985de0aa68ee61997f039fa404a5d1e";
+        const hash2 = "0x47361905672590148c0e352b638cc3a9c95a81eca15cfc2dfe01dcc8dff1c936";
+        const hash3 = "0x4f8bf6afba11fb10305d7c152cfd050bfed9adaec92f2ca3577a49e4eaa6f3a9";
+        const hash4 = "0xa8ecf03101d10efd4a1454a853f47456d6d1f9cbb7b8cd6906f69b1ea088558b";
+
+        const tokenTarget = token;
+        const tokenTrade = ZERO_ADDRESS;
+
+        const amountTarget1 = ether(10);
+        const amountTrade1 = ether(2);
+        const tradeFee1 = ether(0.1);
+        const gasFee1 = ether(0.001);
+        const isBuy1 = false;
+        const isFeeMain1 = true;
+
+        const amountTarget2 = ether(5);
+        const amountTrade2 = ether(1);
+        const tradeFee2 = ether(0.1);
+        const gasFee2 = ether(0.001);
+        const isBuy2 = true;
+        const isFeeMain2 = true;
+
+        const amountTarget3 = ether(5);
+        const amountTrade3 = ether(1);
+        const tradeFee3 = ether(0.1);
+        const gasFee3 = ether(0.001);
+        const isBuy3 = true;
+        const isFeeMain3 = true;
+
+        const amountTarget4 = ether(10);
+        const amountTrade4 = ether(2);
+        const tradeFee4 = ether(0.1);
+        const gasFee4 = ether(0.001);
+        const isBuy4 = true;
+        const isFeeMain4 = true;
+
+        it('Normal', async function () {
+            const { logs } = await this.Dinngo.settle(orders1_2, { from: admin });
+            const event = logs.filter(e => e.event === "Trade");
+            should.exist(event);
+            event[0].args.user.should.eq(user2);
+            event[0].args.isBuy.should.eq(true);
+            event[0].args.tokenTarget.should.eq(tokenTarget);
+            event[0].args.amountTarget.should.be.bignumber.eq(amountTarget2);
+            event[0].args.tokenTrade.should.eq(tokenTrade);
+            event[0].args.amountTrade.should.be.bignumber.eq(amountTrade2);
+            event[1].args.user.should.eq(user1);
+            event[1].args.isBuy.should.eq(false);
+            event[1].args.tokenTarget.should.eq(tokenTarget);
+            event[1].args.amountTarget.should.be.bignumber.eq(amountTarget2);
+            event[1].args.tokenTrade.should.eq(tokenTrade);
+            event[1].args.amountTrade.should.be.bignumber.eq(amountTrade2);
+
+            let user1Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user1);
+            let user1DGO = await this.Dinngo.balances.call(DGO, user1);
+            let user1Token = await this.Dinngo.balances.call(token, user1);
+            let user2Ether = await this.Dinngo.balances.call(ZERO_ADDRESS, user2);
+            let user2DGO = await this.Dinngo.balances.call(DGO, user2);
+            let user2Token = await this.Dinngo.balances.call(token, user2);
+            let walletEther = await this.Dinngo.balances.call(ZERO_ADDRESS, dinngoWallet);
+            let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
+            let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
+            user1Ether.should.be.bignumber.eq(
+                BALANCE.plus(
+                    amountTrade2
+                ).minus(
+                    tradeFee1.mul(amountTarget2).div(amountTarget1)
+                ).minus(
+                    gasFee1
+                )
+            );
+            user1DGO.should.be.bignumber.eq(BALANCE);
+            user1Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            user2Ether.should.be.bignumber.eq(
+                BALANCE.minus(
+                    amountTrade2
+                ).minus(
+                    tradeFee2
+                ).minus(
+                    gasFee2
+                )
+            );
+            user2DGO.should.be.bignumber.eq(BALANCE);
+            user2Token.should.be.bignumber.eq(BALANCE.plus(amountTarget2));
+            walletEther.should.be.bignumber.eq(
+                BALANCE.plus(
+                tradeFee1.mul(amountTrade2).div(amountTrade1)
+                ).plus(
+                    gasFee1
+                ).plus(
+                    tradeFee2
+                ).plus(
+                    gasFee2
+                )
+            );
+            walletDGO.should.be.bignumber.eq(BALANCE);
+            walletToken.should.be.bignumber.eq(BALANCE);
+            let amount1 = await this.Dinngo.orderFills.call(hash1);
+            let amount2 = await this.Dinngo.orderFills.call(hash2);
+            amount1.should.be.bignumber.eq(amountTarget2);
+            amount2.should.be.bignumber.eq(amountTarget2);
+            await this.Dinngo.settle(orders1_3, { from: admin });
+        });
+
+        it('Normal 1-4', async function () {
+            await this.Dinngo.settle(orders1_4, { from: admin });
         });
     });
 });
