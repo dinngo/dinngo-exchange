@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -47,7 +47,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
     /**
      * @dev All ether directly sent to contract will be refunded
      */
-    function() public payable {
+    function() external payable {
         revert();
     }
 
@@ -202,7 +202,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes withdrawal) external onlyAdmin {
+    function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
         address user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -238,7 +238,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external {
+    function settle(bytes calldata orders) external {
         // Deal with the order list
         uint256 nOrder = _getOrderCount(orders);
         // Get the first order as the taker order
@@ -310,7 +310,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param amountTrade The amount to be requested
      * @param order The order that triggered the trading
      */
-    function _trade(uint256 amountTarget, uint256 amountTrade, bytes order) internal {
+    function _trade(uint256 amountTarget, uint256 amountTrade, bytes memory order) internal {
         require(amountTarget != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];

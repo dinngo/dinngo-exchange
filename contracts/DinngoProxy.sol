@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -50,7 +50,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     /**
      * @dev All ether directly sent to contract will be refunded
      */
-    function() public payable {
+    function() external payable {
         revert();
     }
 
@@ -168,7 +168,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes withdrawal) external onlyAdmin {
+    function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), 0x20, withdrawal.length, withdrawal));
     }
 
@@ -177,7 +177,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external onlyAdmin {
+    function settle(bytes calldata orders) external onlyAdmin {
         require(_implementation().delegatecall(bytes4(keccak256("settle(bytes)")), 0x20, orders.length, orders));
     }
 
