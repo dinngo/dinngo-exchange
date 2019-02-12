@@ -1,5 +1,5 @@
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
-import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
+const { constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const AdministrableMock = artifacts.require('AdministrableMock');
 const OwnableAdministrableMock = artifacts.require('OwnableAdministrableMock');
@@ -21,18 +21,18 @@ contract('Administrable', function ([_, admin, newAdmin]) {
         it('changes admin after transfer', async function () {
             (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(false);
             const { logs } = await this.administrable.transferAdmin(newAdmin, { from: admin });
-            inLogs(logs, 'AdminTransferred');
+            expectEvent.inLogs(logs, 'AdminTransferred');
 
             (await this.administrable.admin()).should.equal(newAdmin);
             (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(true);
         });
 
         it('should prevent non-admins from transfering', async function () {
-            await reverting(this.administrable.transferAdmin(newAdmin));
+            await shouldFail.reverting(this.administrable.transferAdmin(newAdmin));
         });
 
         it('should guard admin against stuck state', async function () {
-            await reverting(this.administrable.transferAdmin(null, { from: admin }));
+            await shouldFail.reverting(this.administrable.transferAdmin(ZERO_ADDRESS, { from: admin }));
         });
     });
 });
@@ -54,7 +54,7 @@ contract('Ownable Adminstrable', function ([_, owner, admin, newAdmin]) {
         it('changes admin after transfer', async function () {
             (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(false);
             const { logs } = await this.administrable.transferAdmin(newAdmin, { from: owner });
-            inLogs(logs, 'AdminTransferred');
+            expectEvent.inLogs(logs, 'AdminTransferred');
 
             (await this.administrable.admin()).should.equal(newAdmin);
             (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(true);
@@ -62,12 +62,12 @@ contract('Ownable Adminstrable', function ([_, owner, admin, newAdmin]) {
 
         it('should prevent admin from transfering', async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
-            await reverting(this.administrable.transferAdmin(admin), { from: admin });
+            await shouldFail.reverting(this.administrable.transferAdmin(admin), { from: admin });
         })
 
         it('should prevent non-admins from transfering', async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
-            await reverting(this.administrable.transferAdmin(newAdmin));
+            await shouldFail.reverting(this.administrable.transferAdmin(newAdmin));
         });
     });
 });
