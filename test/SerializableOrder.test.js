@@ -1,31 +1,25 @@
-import { ether } from 'openzeppelin-solidity/test/helpers/ether';
-
-const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const { constants, ether } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 
 const SerializableOrderMock = artifacts.require('SerializableOrderMock');
-
-require('chai')
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
 
 contract('SerializableOrder', function ([_, user]) {
     beforeEach(async function () {
         this.SerializableOrder = await SerializableOrderMock.new();
     });
-    const userID = 11;
+    const userID = '11';
     const userAddress = user;
-    const tokenIDTarget = 0;
-    const tokenIDTrade = 11;
-    const amountTarget = ether(1);
-    const amountTrade = ether(100);
-    const config = 3;
-    const tradeFee = ether(1);
-    const gasFee = ether(0.001);
-    const nonce = 1;
+    const tokenIDTarget = '0';
+    const tokenIDTrade = '11';
+    const amountTarget = ether('1');
+    const amountTrade = ether('100');
+    const config = '3';
+    const tradeFee = ether('1');
+    const gasFee = ether('0.001');
+    const nonce = '1';
     const r = "0xe210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f8";
     const s = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1";
-    const v = "0x00";
+    const v = '0';
     const hash = "0xae69a2185ebf1d3685a0a00cb9c7b46cdfe21531593102afbfaf6e50b81b8599";
     const ser_hex_0 = "0x24f3a54a1b754191b87333031b45fabfd20139056c391386597a7b3598856dd1e210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f80000000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b";
     const ser_hex_1 = "0x5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c";
@@ -108,6 +102,5 @@ contract('SerializableOrder', function ([_, user]) {
             order_data = await this.SerializableOrder.getOrderMock.call(ser_hex_2, 1);
             order_data.should.eq(ser_hex_1);
         });
-
     });
 });
