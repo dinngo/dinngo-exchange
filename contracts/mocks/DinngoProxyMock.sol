@@ -18,7 +18,7 @@ contract DinngoProxyMock is DinngoProxy {
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
 
-    constructor(address dinngoWallet, address dinngoToken, address impl)
+    constructor(address payable dinngoWallet, address dinngoToken, address impl)
         DinngoProxy(dinngoWallet, dinngoToken, impl)
         public
     {
@@ -28,7 +28,7 @@ contract DinngoProxyMock is DinngoProxy {
         balances[token][user] = amount;
     }
 
-    function setUser(uint256 userID, address user, uint8 rank) external {
+    function setUser(uint256 userID, address payable user, uint8 rank) external {
         userID_Address[userID] = user;
         userRanks[user] = rank;
     }
