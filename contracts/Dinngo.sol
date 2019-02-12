@@ -23,7 +23,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
 
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
-    mapping (uint256 => address) public userID_Address;
+    mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
@@ -59,7 +59,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param id The user id to be assigned
      * @param user The user address to be added
      */
-    function addUser(uint32 id, address user) external onlyAdmin {
+    function addUser(uint32 id, address payable user) external onlyAdmin {
         require(user != address(0));
         require(userRanks[user] == 0);
         if (userID_Address[id] == address(0))
@@ -146,8 +146,8 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
     function deposit() external payable {
         require(!_isLocking(msg.sender));
         require(msg.value > 0);
-        balances[0][msg.sender] = balances[0][msg.sender].add(msg.value);
-        emit Deposit(0, msg.sender, msg.value, balances[0][msg.sender]);
+        balances[address(0)][msg.sender] = balances[address(0)][msg.sender].add(msg.value);
+        emit Deposit(address(0), msg.sender, msg.value, balances[address(0)][msg.sender]);
     }
 
     /**
@@ -160,7 +160,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(!_isLocking(msg.sender));
         require(token != address(0));
         require(amount > 0);
-        IERC20(token).safeTransferFrom(msg.sender, this, amount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
     }
@@ -174,9 +174,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(_isLocked(msg.sender));
         require(_isValidUser(msg.sender));
         require(amount > 0);
-        require(amount <= balances[0][msg.sender]);
-        balances[0][msg.sender] = balances[0][msg.sender].sub(amount);
-        emit Withdraw(0, msg.sender, amount, balances[0][msg.sender]);
+        require(amount <= balances[address(0)][msg.sender]);
+        balances[address(0)][msg.sender] = balances[address(0)][msg.sender].sub(amount);
+        emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender]);
         msg.sender.transfer(amount);
     }
 
@@ -203,7 +203,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
-        address user = userID_Address[_getWithdrawalUserID(withdrawal)];
+        address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
         uint256 amountFee = _getWithdrawalFee(withdrawal);
