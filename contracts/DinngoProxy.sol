@@ -179,7 +179,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", 0x20, withdrawal.length, withdrawal));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal));
         require(ok);
     }
 
@@ -189,7 +189,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param orders The serialized orders.
      */
     function settle(bytes calldata orders) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", 0x20, orders.length, orders));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", orders));
         require(ok);
     }
 
