@@ -169,7 +169,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawToken(addressm,uint256)", token, amount));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawToken(address,uint256)", token, amount));
         require(ok);
     }
 
