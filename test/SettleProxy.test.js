@@ -1,19 +1,14 @@
-import { ether } from 'openzeppelin-solidity/test/helpers/ether';
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
-
-const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const { constants, ether, expectEvent, should, shouldFail } = require('openzeppelin-test-helpers');
+const { reverting } = shouldFail;
+const { inLogs } = expectEvent;
+const { ZERO_ADDRESS } = constants;
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
-const should = require('chai')
-    .use(require('chai-bignumber')(BigNumber))
-    .use(require('chai-as-promised'))
-    .should();
 
 contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinngoWallet, DGO, token]) {
     const admin = token;
-    const BALANCE = ether(1000);
+    const BALANCE = ether('1000');
     beforeEach(async function () {
         this.DinngoImpl = await Dinngo.new();
         this.Dinngo = await DinngoProxyMock.new(dinngoWallet, DGO, this.DinngoImpl.address, { from: owner });
@@ -63,38 +58,38 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
         const tokenTarget = token;
         const tokenTrade = ZERO_ADDRESS;
 
-        const amountTarget1 = ether(100);
-        const amountTrade1 = ether(1);
-        const tradeFee1 = ether(1);
-        const gasFee1 = ether(0.001);
+        const amountTarget1 = ether('100');
+        const amountTrade1 = ether('1');
+        const tradeFee1 = ether('1');
+        const gasFee1 = ether('0.001');
         const isBuy1 = true;
         const isFeeMain1 = true;
 
-        const amountTarget2 = ether(10);
-        const amountTrade2 = ether(0.1);
-        const tradeFee2 = ether(0.1);
-        const gasFee2 = ether(0.001);
+        const amountTarget2 = ether('10');
+        const amountTrade2 = ether('0.1');
+        const tradeFee2 = ether('0.1');
+        const gasFee2 = ether('0.001');
         const isBuy2 = false;
         const isFeeMain2 = true;
 
-        const amountTarget3 = ether(20);
-        const amountTrade3 = ether(0.2);
-        const tradeFee3 = ether(0.2);
-        const gasFee3 = ether(0.001);
+        const amountTarget3 = ether('20');
+        const amountTrade3 = ether('0.2');
+        const tradeFee3 = ether('0.2');
+        const gasFee3 = ether('0.001');
         const isBuy3 = false;
         const isFeeMain3 = true;
 
-        const amountTarget4 = ether(30);
-        const amountTrade4 = ether(0.3);
-        const tradeFee4 = ether(0.3);
-        const gasFee4 = ether(0.001);
+        const amountTarget4 = ether('30');
+        const amountTrade4 = ether('0.3');
+        const tradeFee4 = ether('0.3');
+        const gasFee4 = ether('0.001');
         const isBuy4 = false;
         const isFeeMain4 = true;
 
-        const amountTarget5 = ether(10);
-        const amountTrade5 = ether(0.1);
-        const tradeFee5 = ether(5);
-        const gasFee5 = ether(1);
+        const amountTarget5 = ether('10');
+        const amountTrade5 = ether('0.1');
+        const tradeFee5 = ether('5');
+        const gasFee5 = ether('1');
         const isBuy5 = false;
         const isFeeMain5 = false;
 
@@ -125,35 +120,35 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
             let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
             user1Ether.should.be.bignumber.eq(
-                BALANCE.minus(
+                BALANCE.sub(
                     amountTrade2
-                ).minus(
+                ).sub(
                     tradeFee1.mul(amountTarget2).div(amountTarget1)
-                ).minus(
+                ).sub(
                     gasFee1
                 )
             );
             user1DGO.should.be.bignumber.eq(BALANCE);
-            user1Token.should.be.bignumber.eq(BALANCE.plus(amountTarget2));
+            user1Token.should.be.bignumber.eq(BALANCE.add(amountTarget2));
             user2Ether.should.be.bignumber.eq(
-                BALANCE.plus(
+                BALANCE.add(
                     amountTrade2
-                ).minus(
+                ).sub(
                     tradeFee2
-                ).minus(
+                ).sub(
                     gasFee2
                 )
             );
             user2DGO.should.be.bignumber.eq(BALANCE);
-            user2Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            user2Token.should.be.bignumber.eq(BALANCE.sub(amountTarget2));
             walletEther.should.be.bignumber.eq(
-                BALANCE.plus(
+                BALANCE.add(
                 tradeFee1.mul(amountTrade2).div(amountTrade1)
-                ).plus(
+                ).add(
                     gasFee1
-                ).plus(
+                ).add(
                     tradeFee2
-                ).plus(
+                ).add(
                     gasFee2
                 )
             );
@@ -217,21 +212,21 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             event[4].args.isBuy.should.eq(true);
             event[4].args.tokenTarget.should.eq(tokenTarget);
             event[4].args.amountTarget.should.be.bignumber.eq(
-                amountTarget2.plus(
+                amountTarget2.add(
                     amountTarget3
-                ).plus(
+                ).add(
                     amountTarget4
-                ).plus(
+                ).add(
                     amountTarget5
                 )
             );
             event[4].args.tokenTrade.should.eq(tokenTrade);
             event[4].args.amountTrade.should.be.bignumber.eq(
-                amountTrade2.plus(
+                amountTrade2.add(
                     amountTrade3
-                ).plus(
+                ).add(
                     amountTrade4
-                ).plus(
+                ).add(
                     amountTrade5
                 )
             );
@@ -254,60 +249,60 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
             let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
             let tradeFee = tradeFee1.mul(
-                amountTarget2.plus(amountTarget3).plus(amountTarget4).plus(amountTarget5)
+                amountTarget2.add(amountTarget3).add(amountTarget4).add(amountTarget5)
             ).div(amountTarget1);
             user1Ether.should.be.bignumber.eq(
-                BALANCE.minus(
+                BALANCE.sub(
                     amountTrade2
-                ).minus(
+                ).sub(
                     amountTrade3
-                ).minus(
+                ).sub(
                     amountTrade4
-                ).minus(
+                ).sub(
                     amountTrade5
-                ).minus(
+                ).sub(
                     tradeFee
-                ).minus(
+                ).sub(
                     gasFee1
                 )
             );
             user1DGO.should.be.bignumber.eq(BALANCE);
             user1Token.should.be.bignumber.eq(
-                BALANCE.plus(
+                BALANCE.add(
                     amountTarget2
-                ).plus(
+                ).add(
                     amountTarget3
-                ).plus(
+                ).add(
                     amountTarget4
-                ).plus(
+                ).add(
                     amountTarget5
                 )
             );
             user2Ether.should.be.bignumber.eq(
-                BALANCE.plus(amountTrade2).minus(tradeFee2).minus(gasFee2)
+                BALANCE.add(amountTrade2).sub(tradeFee2).sub(gasFee2)
             );
             user2DGO.should.be.bignumber.eq(BALANCE);
-            user2Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            user2Token.should.be.bignumber.eq(BALANCE.sub(amountTarget2));
             user3Ether.should.be.bignumber.eq(
-                BALANCE.plus(amountTrade3).minus(tradeFee3).minus(gasFee3)
+                BALANCE.add(amountTrade3).sub(tradeFee3).sub(gasFee3)
             );
             user3DGO.should.be.bignumber.eq(BALANCE);
-            user3Token.should.be.bignumber.eq(BALANCE.minus(amountTarget3));
+            user3Token.should.be.bignumber.eq(BALANCE.sub(amountTarget3));
             user4Ether.should.be.bignumber.eq(
-                BALANCE.plus(amountTrade4).minus(tradeFee4).minus(gasFee4)
+                BALANCE.add(amountTrade4).sub(tradeFee4).sub(gasFee4)
             );
             user4DGO.should.be.bignumber.eq(BALANCE);
-            user4Token.should.be.bignumber.eq(BALANCE.minus(amountTarget4));
-            user5Ether.should.be.bignumber.eq(BALANCE.plus(amountTrade5));
-            user5DGO.should.be.bignumber.eq(BALANCE.minus(tradeFee5).minus(gasFee5));
-            user5Token.should.be.bignumber.eq(BALANCE.minus(amountTarget5));
+            user4Token.should.be.bignumber.eq(BALANCE.sub(amountTarget4));
+            user5Ether.should.be.bignumber.eq(BALANCE.add(amountTrade5));
+            user5DGO.should.be.bignumber.eq(BALANCE.sub(tradeFee5).sub(gasFee5));
+            user5Token.should.be.bignumber.eq(BALANCE.sub(amountTarget5));
             walletEther.should.be.bignumber.eq(
-                BALANCE.plus(tradeFee).plus(gasFee1
-                ).plus(tradeFee2).plus(gasFee2
-                ).plus(tradeFee3).plus(gasFee3
-                ).plus(tradeFee4).plus(gasFee4)
+                BALANCE.add(tradeFee).add(gasFee1
+                ).add(tradeFee2).add(gasFee2
+                ).add(tradeFee3).add(gasFee3
+                ).add(tradeFee4).add(gasFee4)
             );
-            walletDGO.should.be.bignumber.eq(BALANCE.plus(tradeFee5).plus(gasFee5));
+            walletDGO.should.be.bignumber.eq(BALANCE.add(tradeFee5).add(gasFee5));
             walletToken.should.be.bignumber.eq(BALANCE);
             let amount1 = await this.Dinngo.orderFills.call(hash1);
             let amount2 = await this.Dinngo.orderFills.call(hash2);
@@ -315,7 +310,7 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             let amount4 = await this.Dinngo.orderFills.call(hash4);
             let amount5 = await this.Dinngo.orderFills.call(hash5);
             amount1.should.be.bignumber.eq(
-                amountTarget2.plus(amountTarget3).plus(amountTarget4).plus(amountTarget5)
+                amountTarget2.add(amountTarget3).add(amountTarget4).add(amountTarget5)
             );
             amount2.should.be.bignumber.eq(amountTarget2);
             amount3.should.be.bignumber.eq(amountTarget3);
@@ -367,31 +362,31 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
         const tokenTarget = token;
         const tokenTrade = ZERO_ADDRESS;
 
-        const amountTarget1 = ether(10);
-        const amountTrade1 = ether(2);
-        const tradeFee1 = ether(0.1);
-        const gasFee1 = ether(0.001);
+        const amountTarget1 = ether('10');
+        const amountTrade1 = ether('2');
+        const tradeFee1 = ether('0.1');
+        const gasFee1 = ether('0.001');
         const isBuy1 = false;
         const isFeeMain1 = true;
 
-        const amountTarget2 = ether(5);
-        const amountTrade2 = ether(1);
-        const tradeFee2 = ether(0.1);
-        const gasFee2 = ether(0.001);
+        const amountTarget2 = ether('5');
+        const amountTrade2 = ether('1');
+        const tradeFee2 = ether('0.1');
+        const gasFee2 = ether('0.001');
         const isBuy2 = true;
         const isFeeMain2 = true;
 
-        const amountTarget3 = ether(5);
-        const amountTrade3 = ether(1);
-        const tradeFee3 = ether(0.1);
-        const gasFee3 = ether(0.001);
+        const amountTarget3 = ether('5');
+        const amountTrade3 = ether('1');
+        const tradeFee3 = ether('0.1');
+        const gasFee3 = ether('0.001');
         const isBuy3 = true;
         const isFeeMain3 = true;
 
-        const amountTarget4 = ether(10);
-        const amountTrade4 = ether(2);
-        const tradeFee4 = ether(0.1);
-        const gasFee4 = ether(0.001);
+        const amountTarget4 = ether('10');
+        const amountTrade4 = ether('2');
+        const tradeFee4 = ether('0.1');
+        const gasFee4 = ether('0.001');
         const isBuy4 = true;
         const isFeeMain4 = true;
 
@@ -422,35 +417,35 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             let walletDGO = await this.Dinngo.balances.call(DGO, dinngoWallet);
             let walletToken = await this.Dinngo.balances.call(token, dinngoWallet);
             user1Ether.should.be.bignumber.eq(
-                BALANCE.plus(
+                BALANCE.add(
                     amountTrade2
-                ).minus(
+                ).sub(
                     tradeFee1.mul(amountTarget2).div(amountTarget1)
-                ).minus(
+                ).sub(
                     gasFee1
                 )
             );
             user1DGO.should.be.bignumber.eq(BALANCE);
-            user1Token.should.be.bignumber.eq(BALANCE.minus(amountTarget2));
+            user1Token.should.be.bignumber.eq(BALANCE.sub(amountTarget2));
             user2Ether.should.be.bignumber.eq(
-                BALANCE.minus(
+                BALANCE.sub(
                     amountTrade2
-                ).minus(
+                ).sub(
                     tradeFee2
-                ).minus(
+                ).sub(
                     gasFee2
                 )
             );
             user2DGO.should.be.bignumber.eq(BALANCE);
-            user2Token.should.be.bignumber.eq(BALANCE.plus(amountTarget2));
+            user2Token.should.be.bignumber.eq(BALANCE.add(amountTarget2));
             walletEther.should.be.bignumber.eq(
-                BALANCE.plus(
+                BALANCE.add(
                 tradeFee1.mul(amountTrade2).div(amountTrade1)
-                ).plus(
+                ).add(
                     gasFee1
-                ).plus(
+                ).add(
                     tradeFee2
-                ).plus(
+                ).add(
                     gasFee2
                 )
             );
