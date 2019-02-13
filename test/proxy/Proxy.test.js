@@ -1,15 +1,10 @@
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
-import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
+const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
 
-const BigNumber = web3.BigNumber;
 const Proxy = artifacts.require('ProxyMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
-
-require('chai')
-    .use(require('chai-as-promised'))
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
 
 contract('Proxy', function ([_, nonContractAddress, owner]) {
     it('cannot be initialized with a non-contract address', async function () {
