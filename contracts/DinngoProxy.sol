@@ -83,7 +83,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint8 rank) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address, uint8)", user, rank));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address,uint8)", user, rank));
         require(ok);
     }
 
