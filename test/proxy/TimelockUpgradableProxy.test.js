@@ -1,16 +1,11 @@
-import { increase, duration } from 'openzeppelin-solidity/test/helpers/time';
-import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
+const { expectEvent, shouldFail, time } = require('openzeppelin-test-helpers');
+const { duration, increase } = time;
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
 
-const BigNumber = web3.BigNumber;
 const Proxy = artifacts.require('TimelockUpgradableProxyMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
-
-require('chai')
-    .use(require('chai-as-promised'))
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
 
 contract('TimelockUpgradableProxy', function ([_, nonContractAddress, owner]) {
     it('cannot be initialized with a non-contract address', async function () {
@@ -67,7 +62,7 @@ contract('TimelockUpgradableProxy', function ([_, nonContractAddress, owner]) {
                 });
 
                 it('upgrade with a different address', async function () {
-                    await increase(duration.days(14));
+                    await increase(duration.days('14'));
                     await reverting(this.proxy.upgrade(this.implementationV3.address, { from: owner }));
                 });
 
@@ -77,7 +72,7 @@ contract('TimelockUpgradableProxy', function ([_, nonContractAddress, owner]) {
 
                 describe('upgrade ready', function () {
                     beforeEach(async function () {
-                        await increase(duration.days(14));
+                        await increase(duration.days('14'));
                     });
 
                     it('upgrade by owner', async function () {
