@@ -1,12 +1,10 @@
 const { constants, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
 const { ZERO_ADDRESS } = constants;
 
 const AdministrableMock = artifacts.require('AdministrableMock');
 const OwnableAdministrableMock = artifacts.require('OwnableAdministrableMock');
-
-const should = require('chai')
-    .use(require('chai-as-promised'))
-    .should();
 
 contract('Administrable', function ([_, admin, newAdmin]) {
     beforeEach(async function () {
@@ -15,24 +13,23 @@ contract('Administrable', function ([_, admin, newAdmin]) {
 
     describe('as an administrable', function () {
         it('should have an admin', async function () {
-            (await this.administrable.admin()).should.equal(admin);
+            (await this.administrable.admin()).should.eq(admin);
         });
 
         it('changes admin after transfer', async function () {
-            (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(false);
+            (await this.administrable.isAdmin({ from: newAdmin })).should.eq(false);
             const { logs } = await this.administrable.transferAdmin(newAdmin, { from: admin });
-            expectEvent.inLogs(logs, 'AdminTransferred');
-
-            (await this.administrable.admin()).should.equal(newAdmin);
-            (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(true);
+            inLogs(logs, 'AdminTransferred', { previousAdmin: admin, newAdmin: newAdmin });
+            (await this.administrable.admin()).should.eq(newAdmin);
+            (await this.administrable.isAdmin({ from: newAdmin })).should.eq(true);
         });
 
-        it('should prevent non-admins from transfering', async function () {
-            await shouldFail.reverting(this.administrable.transferAdmin(newAdmin));
+        it('should prevent non-admins from transferring', async function () {
+            await reverting(this.administrable.transferAdmin(newAdmin));
         });
 
         it('should guard admin against stuck state', async function () {
-            await shouldFail.reverting(this.administrable.transferAdmin(ZERO_ADDRESS, { from: admin }));
+            await reverting(this.administrable.transferAdmin(ZERO_ADDRESS, { from: admin }));
         });
     });
 });
@@ -43,7 +40,7 @@ contract('Ownable Adminstrable', function ([_, owner, admin, newAdmin]) {
     });
 
     it('admin should initially be owner', async function () {
-        (await this.administrable.admin()).should.equal(owner);
+        (await this.administrable.admin()).should.eq(owner);
     });
 
     describe('as an ownable administrable', function () {
@@ -52,22 +49,21 @@ contract('Ownable Adminstrable', function ([_, owner, admin, newAdmin]) {
         });
 
         it('changes admin after transfer', async function () {
-            (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(false);
+            (await this.administrable.isAdmin({ from: newAdmin })).should.eq(false);
             const { logs } = await this.administrable.transferAdmin(newAdmin, { from: owner });
-            expectEvent.inLogs(logs, 'AdminTransferred');
-
-            (await this.administrable.admin()).should.equal(newAdmin);
-            (await this.administrable.isAdmin({ from: newAdmin })).should.be.equal(true);
+            inLogs(logs, 'AdminTransferred', { previousAdmin: admin, newAdmin: newAdmin });
+            (await this.administrable.admin()).should.eq(newAdmin);
+            (await this.administrable.isAdmin({ from: newAdmin })).should.eq(true);
         });
 
-        it('should prevent admin from transfering', async function () {
+        it('should prevent admin from transferring', async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
-            await shouldFail.reverting(this.administrable.transferAdmin(admin), { from: admin });
+            await reverting(this.administrable.transferAdmin(admin), { from: admin });
         })
 
-        it('should prevent non-admins from transfering', async function () {
+        it('should prevent non-admins from transferring', async function () {
             await this.administrable.transferAdmin(admin, { from: owner });
-            await shouldFail.reverting(this.administrable.transferAdmin(newAdmin));
+            await reverting(this.administrable.transferAdmin(newAdmin));
         });
     });
 });
