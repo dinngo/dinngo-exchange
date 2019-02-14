@@ -1,16 +1,16 @@
 /*
  * @title Solidity Bytes Arrays Utils
- * @author Nick Johnson <arachnid@notdot.net>
+ * @author Gonçalo Sá <goncalo.sa@consensys.net>
  *
  * @dev Bytes tightly packed arrays utility library for ethereum contracts written in Solidity.
  *      The library lets you concatenate, slice and type cast bytes arrays both in memory and storage.
  */
 
-pragma solidity ^0.4.19;
+pragma solidity ^0.5.0;
 
 
 library BytesLib {
-    function concat(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bytes) {
+    function concat(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bytes memory) {
         bytes memory tempBytes;
 
         assembly {
@@ -218,7 +218,7 @@ library BytesLib {
         }
     }
 
-    function slice(bytes _bytes, uint _start, uint _length) internal  pure returns (bytes) {
+    function slice(bytes memory _bytes, uint _start, uint _length) internal  pure returns (bytes memory) {
         require(_bytes.length >= (_start + _length));
 
         bytes memory tempBytes;
@@ -275,7 +275,7 @@ library BytesLib {
         return tempBytes;
     }
 
-    function toAddress(bytes _bytes, uint _start) internal  pure returns (address) {
+    function toAddress(bytes memory _bytes, uint _start) internal  pure returns (address) {
         require(_bytes.length >= (_start + 20));
         address tempAddress;
 
@@ -286,40 +286,40 @@ library BytesLib {
         return tempAddress;
     }
 
-    function toUint8(bytes _bytes, uint _start) internal  pure returns (uint8) {
+    function toUint8(bytes memory _bytes, uint _start) internal  pure returns (uint8) {
         require(_bytes.length >= (_start + 1));
         uint8 tempUint;
 
         assembly {
-            tempUint := mload(add(add(_bytes, 0x01), _start))
+            tempUint := mload(add(add(_bytes, 0x1), _start))
         }
 
         return tempUint;
     }
 
-    function toUint16(bytes _bytes, uint _start) internal  pure returns (uint16) {
+    function toUint16(bytes memory _bytes, uint _start) internal  pure returns (uint16) {
         require(_bytes.length >= (_start + 2));
         uint16 tempUint;
 
         assembly {
-            tempUint := mload(add(add(_bytes, 0x02), _start))
+            tempUint := mload(add(add(_bytes, 0x2), _start))
         }
 
         return tempUint;
     }
 
-    function toUint32(bytes _bytes, uint _start) internal  pure returns (uint32) {
+    function toUint32(bytes memory _bytes, uint _start) internal  pure returns (uint32) {
         require(_bytes.length >= (_start + 4));
         uint32 tempUint;
 
         assembly {
-            tempUint := mload(add(add(_bytes, 0x04), _start))
+            tempUint := mload(add(add(_bytes, 0x4), _start))
         }
 
         return tempUint;
     }
 
-    function toUint(bytes _bytes, uint _start) internal  pure returns (uint256) {
+    function toUint(bytes memory _bytes, uint _start) internal  pure returns (uint256) {
         require(_bytes.length >= (_start + 32));
         uint256 tempUint;
 
@@ -330,7 +330,7 @@ library BytesLib {
         return tempUint;
     }
 
-    function toBytes32(bytes _bytes, uint _start) internal  pure returns (bytes32) {
+    function toBytes32(bytes memory _bytes, uint _start) internal  pure returns (bytes32) {
         require(_bytes.length >= (_start + 32));
         bytes32 tempBytes32;
 

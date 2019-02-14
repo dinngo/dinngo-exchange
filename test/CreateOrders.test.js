@@ -1,12 +1,6 @@
-import { ether } from 'openzeppelin-solidity/test/helpers/ether';
+const { constants, ether } = require('openzeppelin-test-helpers');
+const { ZERO_ADDRESS } = constants;
 const utils = require('web3-utils');
-
-const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-require('chai')
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
 
 function getHash(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, config, tradeFee, gasFee, nonce) {
     const userID_h = utils.padLeft(utils.toHex(userID), 8);
@@ -58,58 +52,59 @@ function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, 
         userID_h.slice(2)
     );
 }
-/*
+
 contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) {
     const user1ID = 11;
     const tokenTarget1 = 11;
-    const amountTarget1 = ether(100);
+    const amountTarget1 = ether('100');
     const tokenTrade1 = 0;
-    const amountTrade1 = ether(1);
+    const amountTrade1 = ether('1');
     const config1 = 1 + 2;
-    const tradeFee1 = ether(1);
-    const gasFee1 = ether(0.001);
+    const tradeFee1 = ether('1');
+    const gasFee1 = ether('0.001');
     const nonce1 = 1;
 
     const user2ID = 12;
     const tokenTarget2 = 11;
-    const amountTarget2 = ether(10);
+    const amountTarget2 = ether('10');
     const tokenTrade2 = 0;
-    const amountTrade2 = ether(0.1);
+    const amountTrade2 = ether('0.1');
     const config2 = 2;
-    const tradeFee2 = ether(0.1);
-    const gasFee2 = ether(0.001);
+    const tradeFee2 = ether('0.1');
+    const gasFee2 = ether('0.001');
     const nonce2 = 2;
 
     const user3ID = 13;
     const tokenTarget3 = 11;
-    const amountTarget3 = ether(20);
+    const amountTarget3 = ether('20');
     const tokenTrade3 = 0;
-    const amountTrade3 = ether(0.2);
+    const amountTrade3 = ether('0.2');
     const config3 = 2;
-    const tradeFee3 = ether(0.2);
-    const gasFee3 = ether(0.001);
+    const tradeFee3 = ether('0.2');
+    const gasFee3 = ether('0.001');
     const nonce3 = 3;
 
     const user4ID = 14;
     const tokenTarget4 = 11;
-    const amountTarget4 = ether(30);
+    const amountTarget4 = ether('30');
     const tokenTrade4 = 0;
-    const amountTrade4 = ether(0.3);
+    const amountTrade4 = ether('0.3');
     const config4 = 2;
-    const tradeFee4 = ether(0.3);
-    const gasFee4 = ether(0.001);
+    const tradeFee4 = ether('0.3');
+    const gasFee4 = ether('0.001');
     const nonce4 = 4;
 
     const user5ID = 15;
     const tokenTarget5 = 11;
-    const amountTarget5 = ether(10);
+    const amountTarget5 = ether('10');
     const tokenTrade5 = 0;
-    const amountTrade5 = ether(0.1);
+    const amountTrade5 = ether('0.1');
     const config5 = 0;
-    const tradeFee5 = ether(5);
-    const gasFee5 = ether(1);
+    const tradeFee5 = ether('5');
+    const gasFee5 = ether('1');
     const nonce5 = 5;
 
+/*
     describe('single order', async function () {
         it('hex1', async function () {
             const hash = getHash(
@@ -123,7 +118,7 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee1,
                 nonce1
             );
-            let sgn = await web3.eth.sign(user1, hash);
+            let sgn = await web3.eth.sign(hash, user1);
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
@@ -159,7 +154,7 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee2,
                 nonce2
             );
-            let sgn = await web3.eth.sign(user2, hash);
+            let sgn = await web3.eth.sign(hash, user2);
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
@@ -196,7 +191,7 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee3,
                 nonce3
             );
-            let sgn = await web3.eth.sign(user3, hash);
+            let sgn = await web3.eth.sign(hash, user3);
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
@@ -233,7 +228,7 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee4,
                 nonce4
             );
-            let sgn = await web3.eth.sign(user4, hash);
+            let sgn = await web3.eth.sign(hash, user4);
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
@@ -270,7 +265,7 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee5,
                 nonce5
             );
-            let sgn = await web3.eth.sign(user5, hash);
+            let sgn = await web3.eth.sign(hash, user5);
             let r = sgn.slice(0,66);
             let s = '0x' + sgn.slice(66,130);
             let v = '0x' + sgn.slice(130,132);
@@ -352,11 +347,11 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
                 gasFee5,
                 nonce5
             );
-            let sgn1 = await web3.eth.sign(user1, hash1);
-            let sgn2 = await web3.eth.sign(user2, hash2);
-            let sgn3 = await web3.eth.sign(user3, hash3);
-            let sgn4 = await web3.eth.sign(user4, hash4);
-            let sgn5 = await web3.eth.sign(user5, hash5);
+            let sgn1 = await web3.eth.sign(hash1, user1);
+            let sgn2 = await web3.eth.sign(hash2, user2);
+            let sgn3 = await web3.eth.sign(hash3, user3);
+            let sgn4 = await web3.eth.sign(hash4, user4);
+            let sgn5 = await web3.eth.sign(hash5, user5);
             let r1 = sgn1.slice(0,66);
             let r2 = sgn2.slice(0,66);
             let r3 = sgn3.slice(0,66);
@@ -452,5 +447,5 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             console.log(ser_hex1 + ser_hex2.slice(2) + ser_hex3.slice(2) + ser_hex4.slice(2) + ser_hex5.slice(2));
         });
     });
-});
 */
+});

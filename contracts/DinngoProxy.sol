@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -23,7 +23,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
 
     mapping (address => mapping (address => uint256)) public balances;
     mapping (bytes32 => uint256) public orderFills;
-    mapping (uint256 => address) public userID_Address;
+    mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
     mapping (address => uint8) public userRanks;
     mapping (address => uint8) public tokenRanks;
@@ -36,7 +36,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param dinngoToken The contract address of DGO
      */
     constructor(
-        address dinngoWallet,
+        address payable dinngoWallet,
         address dinngoToken,
         address impl
     ) Proxy(impl) public {
@@ -50,7 +50,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     /**
      * @dev All ether directly sent to contract will be refunded
      */
-    function() public payable {
+    function() external payable {
         revert();
     }
 
@@ -63,7 +63,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param user The user address to be added
      */
     function addUser(uint32 id, address user) external onlyAdmin {
-        require(_implementation().delegatecall(bytes4(keccak256("addUser(uint32,address)")), id, user));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addUser(uint32,address)", id, user));
+        require(ok);
     }
 
     /**
@@ -72,7 +73,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param user The user address to be added
      */
     function removeUser(address user) external onlyAdmin {
-        require(_implementation().delegatecall(bytes4(keccak256("removeUser(address)")), user));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("removeUser(address)", user));
+        require(ok);
     }
 
     /**
@@ -81,7 +83,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint8 rank) external onlyAdmin {
-        require(_implementation().delegatecall(bytes4(keccak256("updateUserRank(address,uint8)")), user, rank));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address,uint8)", user, rank));
+        require(ok);
     }
 
     /**
@@ -94,7 +97,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param token The token contract address to be added
      */
     function addToken(uint16 id, address token) external onlyOwner {
-        require(_implementation().delegatecall(bytes4(keccak256("addToken(uint16,address)")), id, token));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addToken(uint16,address)", id, token));
+        require(ok);
     }
 
     /**
@@ -103,7 +107,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param token The token contract address to be removed.
      */
     function removeToken(address token) external onlyOwner {
-        require(_implementation().delegatecall(bytes4(keccak256("removeToken(address)")), token));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("removeToken(address)", token));
+        require(ok);
     }
 
     /**
@@ -112,7 +117,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param rank The rank to be assigned.
      */
     function updateTokenRank(address token, uint8 rank) external onlyOwner {
-        require(_implementation().delegatecall(bytes4(keccak256("updateTokenRank(address,uint8)")), token, rank));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateTokenRank(address,uint8)", token, rank));
+        require(ok);
     }
 
     /**
@@ -131,7 +137,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * Event Deposit will be emitted after execution.
      */
     function deposit() external payable {
-        require(_implementation().delegatecall(bytes4(keccak256("deposit()"))));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("deposit()"));
+        require(ok);
     }
 
     /**
@@ -141,7 +148,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount Amount of the token to be depositied
      */
     function depositToken(address token, uint256 amount) external {
-        require(_implementation().delegatecall(bytes4(keccak256("depositToken(address,uint256)")), token, amount));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("depositToken(address,uint256)", token, amount));
+        require(ok);
     }
 
     /**
@@ -150,7 +158,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount The amount to be withdrawn.
      */
     function withdraw(uint256 amount) external {
-        require(_implementation().delegatecall(bytes4(keccak256("withdraw(uint256)")), amount));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdraw(uint256)", amount));
+        require(ok);
     }
 
     /**
@@ -160,7 +169,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
-        require(_implementation().delegatecall(bytes4(keccak256("withdrawToken(address,uint256)")), token, amount));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawToken(address,uint256)", token, amount));
+        require(ok);
     }
 
     /**
@@ -168,8 +178,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes withdrawal) external onlyAdmin {
-        require(_implementation().delegatecall(bytes4(keccak256("withdrawByAdmin(bytes)")), 0x20, withdrawal.length, withdrawal));
+    function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal));
+        require(ok);
     }
 
     /**
@@ -177,28 +188,32 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes orders) external onlyAdmin {
-        require(_implementation().delegatecall(bytes4(keccak256("settle(bytes)")), 0x20, orders.length, orders));
+    function settle(bytes calldata orders) external onlyAdmin {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", orders));
+        require(ok);
     }
 
     /**
      * @notice Announce lock of the sender
      */
     function lock() external {
-        require(_implementation().delegatecall(bytes4(keccak256("lock()"))));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("lock()"));
+        require(ok);
     }
 
     /**
      * @notice Unlock the sender
      */
     function unlock() external {
-        require(_implementation().delegatecall(bytes4(keccak256("unlock()"))));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("unlock()"));
+        require(ok);
     }
 
     /**
      * @notice Change the processing time of locking the user address
      */
     function changeProcessTime(uint256 time) external onlyOwner {
-        require(_implementation().delegatecall(bytes4(keccak256("changeProcessTime(uint256)")), time));
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("changeProcessTime(uint256)", time));
+        require(ok);
     }
 }

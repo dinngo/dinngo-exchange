@@ -1,15 +1,10 @@
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
-import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
+const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
 
-const BigNumber = web3.BigNumber;
 const Proxy = artifacts.require('ProxyMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
-
-require('chai')
-    .use(require('chai-as-promised'))
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
 
 contract('Proxy', function ([_, nonContractAddress, owner]) {
     it('cannot be initialized with a non-contract address', async function () {
@@ -23,8 +18,7 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
         });
 
         it('get implementation address', async function () {
-            const implementation = await this.proxy.implementation.call();
-            implementation.should.eq(this.implementation.address);
+            (await this.proxy.implementation.call()).should.eq(this.implementation.address);
         });
 
         describe('upgrade' , function () {
@@ -34,16 +28,13 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
 
             it('by owner', async function () {
                 const { logs } = await this.proxy.upgrade(this.implementationV2.address, { from: owner });
-                const event = await inLogs(logs, 'Upgraded');
-                event.args.implementation.should.eq(this.implementationV2.address);
-                const implementationV2 = await this.proxy.implementation.call();
-                implementationV2.should.be.equal(this.implementationV2.address);
+                inLogs(logs, 'Upgraded', { implementation: this.implementationV2.address });
+                (await this.proxy.implementation.call()).should.be.equal(this.implementationV2.address);
             });
 
             it('by non-owner', async function () {
                 await reverting(this.proxy.upgrade(this.implementationV2.address));
-                const implementationV2 = await this.proxy.implementation.call();
-                implementationV2.should.be.equal(this.implementation.address);
+                (await this.proxy.implementation.call()).should.be.equal(this.implementation.address);
             });
         });
     });

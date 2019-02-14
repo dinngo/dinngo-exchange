@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "../Dinngo.sol";
 
@@ -12,7 +12,7 @@ contract DinngoMock is Dinngo {
         balances[token][user] = amount;
     }
 
-    function setUser(uint256 userID, address user, uint8 rank) external {
+    function setUser(uint256 userID, address payable user, uint8 rank) external {
         userID_Address[userID] = user;
         userRanks[user] = rank;
     }
