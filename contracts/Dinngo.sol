@@ -174,7 +174,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(_isLocked(msg.sender));
         require(_isValidUser(msg.sender));
         require(amount > 0);
-        require(amount <= balances[address(0)][msg.sender]);
         balances[address(0)][msg.sender] = balances[address(0)][msg.sender].sub(amount);
         emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender]);
         msg.sender.transfer(amount);
@@ -191,7 +190,6 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(_isValidUser(msg.sender));
         require(token != address(0));
         require(amount > 0);
-        require(amount <= balances[token][msg.sender]);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
         IERC20(token).safeTransfer(msg.sender, amount);
