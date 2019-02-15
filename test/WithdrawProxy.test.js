@@ -148,6 +148,8 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         this.dinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
         await this.dinngo.transferAdmin(admin, { from: owner });
+        await this.dinngo.setUserBalance(tokenWallet, ZERO_ADDRESS, ether('1'));
+        await this.dinngo.setUserBalance(tokenWallet, tokenContract, ether('1'));
     });
 
     const userId1 = new BN('11');
