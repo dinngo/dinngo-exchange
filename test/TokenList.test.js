@@ -27,6 +27,14 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
                 (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank1);
             });
 
+            it('assigning (2**16 - 1) to id', async function () {
+                await this.dinngo.addToken(new BN('65535'), this.token.address, { from: owner });
+            });
+
+            it('assigning id that is too large', async function () {
+                await reverting(this.dinngo.addToken(new BN('65536'), this.token.address, { from: owner }));
+            });
+
             it('removed with same address', async function () {
                 await this.dinngo.setToken(tokenId1, this.token.address, rank1);
                 await this.dinngo.removeToken(this.token.address, { from: owner });

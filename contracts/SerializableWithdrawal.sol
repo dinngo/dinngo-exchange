@@ -21,7 +21,7 @@ contract SerializableWithdrawal {
      * @param ser_data Serialized withdrawal data
      * @return userID User ID
      */
-    function _getWithdrawalUserID(bytes memory ser_data) internal pure returns (uint32 userID) {
+    function _getWithdrawalUserID(bytes memory ser_data) internal pure returns (uint256 userID) {
         userID = ser_data.toUint32(WITHDRAWAL_SIZE - 4);
     }
 
@@ -30,7 +30,7 @@ contract SerializableWithdrawal {
      * @param ser_data Serialized withdrawal data
      * @return tokenID Withdrawal token ID
      */
-    function _getWithdrawalTokenID(bytes memory ser_data) internal pure returns (uint16 tokenID) {
+    function _getWithdrawalTokenID(bytes memory ser_data) internal pure returns (uint256 tokenID) {
         tokenID = ser_data.toUint16(WITHDRAWAL_SIZE - 6);
     }
 
@@ -57,7 +57,7 @@ contract SerializableWithdrawal {
      * @param ser_data Serialized withdrawal data
      * @return nonce Nonce
      */
-    function _getWithdrawalNonce(bytes memory ser_data) internal pure returns (uint32 nonce) {
+    function _getWithdrawalNonce(bytes memory ser_data) internal pure returns (uint256 nonce) {
         nonce = ser_data.toUint32(WITHDRAWAL_SIZE - 43);
     }
 

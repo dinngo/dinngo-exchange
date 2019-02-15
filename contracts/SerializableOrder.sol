@@ -22,7 +22,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return userID User ID
      */
-    function _getOrderUserID(bytes memory ser_data) internal pure returns (uint32 userID) {
+    function _getOrderUserID(bytes memory ser_data) internal pure returns (uint256 userID) {
         userID = ser_data.toUint32(ORDER_SIZE - 4);
     }
 
@@ -31,7 +31,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return tokenTarget Target token ID
      */
-    function _getOrderTokenIDTarget(bytes memory ser_data) internal pure returns (uint16 tokenTarget) {
+    function _getOrderTokenIDTarget(bytes memory ser_data) internal pure returns (uint256 tokenTarget) {
         tokenTarget = ser_data.toUint16(ORDER_SIZE - 6);
     }
 
@@ -49,7 +49,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return tokenTrade Trade token ID
      */
-    function _getOrderTokenIDTrade(bytes memory ser_data) internal pure returns (uint16 tokenTrade) {
+    function _getOrderTokenIDTrade(bytes memory ser_data) internal pure returns (uint256 tokenTrade) {
         tokenTrade = ser_data.toUint16(ORDER_SIZE - 40);
     }
 
@@ -85,7 +85,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return nonce Nonce
      */
-    function _getOrderNonce(bytes memory ser_data) internal pure returns (uint32 nonce) {
+    function _getOrderNonce(bytes memory ser_data) internal pure returns (uint256 nonce) {
         nonce = ser_data.toUint32(ORDER_SIZE - 77);
     }
 

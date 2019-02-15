@@ -6,11 +6,11 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
     constructor() public {
     }
 
-    function getWithdrawalUserIDMock(bytes calldata ser_data) external pure returns (uint32 userID) {
+    function getWithdrawalUserIDMock(bytes calldata ser_data) external pure returns (uint256 userID) {
         return _getWithdrawalUserID(ser_data);
     }
 
-    function getWithdrawalTokenIDMock(bytes calldata ser_data) external pure returns (uint16 tokenID) {
+    function getWithdrawalTokenIDMock(bytes calldata ser_data) external pure returns (uint256 tokenID) {
         return _getWithdrawalTokenID(ser_data);
     }
 
@@ -22,7 +22,7 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         return _isWithdrawalFeeETH(ser_data);
     }
 
-    function getWithdrawalNonceMock(bytes calldata ser_data) external pure returns (uint32 nonce) {
+    function getWithdrawalNonceMock(bytes calldata ser_data) external pure returns (uint256 nonce) {
         return _getWithdrawalNonce(ser_data);
     }
 
