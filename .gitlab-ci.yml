@@ -10,7 +10,7 @@ before_script:
 stages:
  - build
  - test
- - coverage
+# - deploy
 
 build:
  stage: build
@@ -23,12 +23,6 @@ test:
  tags: [docker]
  script:
    - npm run test
-
-coverage:
- stage: coverage
- tags: [docker]
- script:
-   - npm run coverage
 
 deploy:
  stage: deploy
