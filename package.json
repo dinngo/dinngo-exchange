@@ -7,7 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "scripts/build.sh",
+    "compile": "truffle compile",
+    "coverage": "scripts/coverage.sh --network coverage",
+    "test": "npm run compile && scripts/test.sh --network development"
   },
   "repository": {
     "type": "git",
@@ -31,6 +34,7 @@
     "ganache-cli": "^6.2.3",
     "openzeppelin-test-helpers": "^0.1.2",
     "pify": "^4.0.1",
+    "solidity-coverage": "git+https://github.com/rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
     "truffle": "^5.0.3",
     "web3-utils": "^1.0.0-beta.34"
   }

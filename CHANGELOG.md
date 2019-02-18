@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Upgrading implementation requires contract registration.
 - Trade-token is always the main token.
 - Target-token is always the sub token.
+- Unify the integer type to uint256.
 
 ### Security
 - Fix withdraw related functions to avoid reentrancy bugs.
