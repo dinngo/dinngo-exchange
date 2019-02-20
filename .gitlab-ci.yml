@@ -10,13 +10,13 @@ before_script:
 stages:
  - build
  - test
-# - deploy
+ - deploy
 
 build:
  stage: build
  tags: [docker]
  script:
-   - npm run compile
+   - npm run build
 
 test:
  stage: test
