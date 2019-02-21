@@ -6,11 +6,11 @@ contract SerializableOrderMock is SerializableOrder{
     constructor () public {
     }
 
-    function getOrderUserIDMock(bytes calldata ser_data) external pure returns (uint32 userID) {
+    function getOrderUserIDMock(bytes calldata ser_data) external pure returns (uint256 userID) {
         return _getOrderUserID(ser_data);
     }
 
-    function getOrderTokenIDTargetMock(bytes calldata ser_data) external pure returns (uint16 tokenTarget) {
+    function getOrderTokenIDTargetMock(bytes calldata ser_data) external pure returns (uint256 tokenTarget) {
         return _getOrderTokenIDTarget(ser_data);
     }
 
@@ -18,7 +18,7 @@ contract SerializableOrderMock is SerializableOrder{
         return _getOrderAmountTarget(ser_data);
     }
 
-    function getOrderTokenIDTradeMock(bytes calldata ser_data) external pure returns (uint16 tokenTrade) {
+    function getOrderTokenIDTradeMock(bytes calldata ser_data) external pure returns (uint256 tokenTrade) {
         return _getOrderTokenIDTrade(ser_data);
     }
 
@@ -34,7 +34,7 @@ contract SerializableOrderMock is SerializableOrder{
         return _isOrderFeeMain(ser_data);
     }
 
-    function getOrderNonceMock(bytes calldata ser_data) external pure returns (uint32 nonce) {
+    function getOrderNonceMock(bytes calldata ser_data) external pure returns (uint256 nonce) {
         return _getOrderNonce(ser_data);
     }
 
@@ -66,7 +66,7 @@ contract SerializableOrderMock is SerializableOrder{
         return _getOrder(ser_data, index);
     }
 
-    function getOrderCountMock(bytes calldata ser_data) external pure returns (uint amount) {
+    function getOrderCountMock(bytes calldata ser_data) external pure returns (uint256 amount) {
         return _getOrderCount(ser_data);
     }
 

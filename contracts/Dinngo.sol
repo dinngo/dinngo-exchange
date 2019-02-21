@@ -25,8 +25,8 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (address => uint8) public userRanks;
-    mapping (address => uint8) public tokenRanks;
+    mapping (address => uint256) public userRanks;
+    mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
     event AddUser(uint256 userID, address indexed user);
@@ -56,12 +56,14 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * after execution.
      * @dev Record the user list to map the user address to a specific user ID, in
      * order to compact the data size when transferring user address information
+     * @dev id should be less than 2**32
      * @param id The user id to be assigned
      * @param user The user address to be added
      */
-    function addUser(uint32 id, address payable user) external onlyAdmin {
+    function addUser(uint256 id, address payable user) external {
         require(user != address(0));
         require(userRanks[user] == 0);
+        require(id < 2**32);
         if (userID_Address[id] == address(0))
             userID_Address[id] = user;
         else
@@ -75,7 +77,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @dev The user rank is set to 0 to remove the user.
      * @param user The user address to be added
      */
-    function removeUser(address user) external onlyAdmin {
+    function removeUser(address user) external {
         require(user != address(0));
         require(userRanks[user] != 0);
         userRanks[user] = 0;
@@ -86,7 +88,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param user The user address
      * @param rank The rank to be assigned
      */
-    function updateUserRank(address user, uint8 rank) external onlyAdmin {
+    function updateUserRank(address user, uint256 rank) external {
         require(user != address(0));
         require(rank != 0);
         require(userRanks[user] != 0);
@@ -100,12 +102,14 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @dev Record the token list to map the token contract address to a specific
      * token ID, in order to compact the data size when transferring token contract
      * address information
+     * @dev id should be less than 2**16
      * @param id The token id to be assigned
      * @param token The token contract address to be added
      */
-    function addToken(uint16 id, address token) external onlyOwner {
+    function addToken(uint256 id, address token) external {
         require(token != address(0));
         require(tokenRanks[token] == 0);
+        require(id < 2**16);
         if (tokenID_Address[id] == address(0))
             tokenID_Address[id] = token;
         else
@@ -119,7 +123,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @dev The token rank is set to 0 to remove the token.
      * @param token The token contract address to be removed.
      */
-    function removeToken(address token) external onlyOwner {
+    function removeToken(address token) external {
         require(token != address(0));
         require(tokenRanks[token] != 0);
         tokenRanks[token] = 0;
@@ -130,7 +134,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param token The token contract address.
      * @param rank The rank to be assigned.
      */
-    function updateTokenRank(address token, uint8 rank) external onlyOwner {
+    function updateTokenRank(address token, uint256 rank) external {
         require(token != address(0));
         require(rank != 0);
         require(tokenRanks[token] != 0);
@@ -200,7 +204,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
+    function withdrawByAdmin(bytes calldata withdrawal) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -296,7 +300,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
     /**
      * @notice Change the processing time of locking the user address
      */
-    function changeProcessTime(uint256 time) external onlyOwner {
+    function changeProcessTime(uint256 time) external {
         require(processTime != time);
         processTime = time;
     }

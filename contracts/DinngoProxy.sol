@@ -25,8 +25,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (address => uint8) public userRanks;
-    mapping (address => uint8) public tokenRanks;
+    mapping (address => uint256) public userRanks;
+    mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
     /**
@@ -62,8 +62,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param id The user id to be assigned
      * @param user The user address to be added
      */
-    function addUser(uint32 id, address user) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addUser(uint32,address)", id, user));
+    function addUser(uint256 id, address user) external onlyAdmin {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addUser(uint256,address)", id, user));
         require(ok);
     }
 
@@ -82,8 +82,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param user The user address
      * @param rank The rank to be assigned
      */
-    function updateUserRank(address user, uint8 rank) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address,uint8)", user, rank));
+    function updateUserRank(address user, uint256 rank) external onlyAdmin {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address,uint256)", user, rank));
         require(ok);
     }
 
@@ -96,8 +96,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param id The token id to be assigned
      * @param token The token contract address to be added
      */
-    function addToken(uint16 id, address token) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addToken(uint16,address)", id, token));
+    function addToken(uint256 id, address token) external onlyOwner {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addToken(uint256,address)", id, token));
         require(ok);
     }
 
@@ -116,8 +116,8 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param token The token contract address.
      * @param rank The rank to be assigned.
      */
-    function updateTokenRank(address token, uint8 rank) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateTokenRank(address,uint8)", token, rank));
+    function updateTokenRank(address token, uint256 rank) external onlyOwner {
+        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateTokenRank(address,uint256)", token, rank));
         require(ok);
     }
 

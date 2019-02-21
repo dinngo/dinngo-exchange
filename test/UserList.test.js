@@ -26,6 +26,14 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
                 (await this.dinngo.userRanks.call(user)).should.be.bignumber.eq(rank1);
             });
 
+            it('assigning (2**32 - 1) to id ', async function () {
+                await this.dinngo.addUser(new BN('4294967295'), user, { from: admin });
+            });
+
+            it('assigning id that is too large', async function () {
+                await reverting(this.dinngo.addUser(new BN('4294967296'), user, { from: admin }));
+            });
+
             it('called by owner', async function () {
                 await reverting(this.dinngo.addUser(userId1, user, { from: owner }));
             });

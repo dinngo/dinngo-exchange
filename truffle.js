@@ -19,19 +19,24 @@ module.exports = {
     networks: {
         development: {
             host: "localhost",
-            port: 8242,
+            port: 8545,
             network_id: "*", // Match any network id
             gasPrice: 0x01      // <-- Use this low gas price
         },
-        integration: {
-            host: "integration.my-dapp.com",
-            port: 80,
-            network_id: "*"
+        coverage: {
+            host: "localhost",
+            port: 8555,
+            network_id: "*",
+            gasPrice: 0x01
         }
     },
     compilers: {
         solc: {
-            version: "0.5.3"
+            version: "0.5.3",
+            optimizer: {
+                enabled: true,
+                runs: 200
+            }
         }
     }
 };
