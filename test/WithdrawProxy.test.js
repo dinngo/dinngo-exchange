@@ -7,6 +7,7 @@ const { ZERO_ADDRESS } = constants;
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
+const BadToken = artifacts.require('BadToken');
 
 contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
@@ -82,6 +83,69 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('token', function () {
         beforeEach(async function () {
             this.token = await SimpleToken.new({ from: user });
+            await this.dinngo.setUser(userId, user, rank);
+            await this.token.approve(this.dinngo.address, depositValue, { from: user });
+            await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
+        });
+
+        it('when normal', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(91));
+            const { logs } = await this.dinngo.withdrawToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user, amount: amount, balance: balance });
+        });
+
+        it('when user not locked', async function () {
+            const amount = ether('1');
+            await reverting(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user not yet locked', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(89));
+            await reverting(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when token with address 0', async function () {
+            const amount = ether('1');
+            await reverting(this.dinngo.withdrawToken(ZERO_ADDRESS, amount, { from: user }));
+        });
+
+        it('when token with amount 0', async function () {
+            const amount = ether('0');
+            await reverting(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user balance is not sufficient', async function () {
+            const amount = ether('11');
+            await reverting(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user is removed', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(91));
+            await this.dinngo.removeUser(user, { from: owner });
+            await reverting(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when locking process time changed', async function () {
+            const amount = ether('1');
+            await this.dinngo.changeProcessTime(duration.days(80), { from: owner });
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(81));
+            const { logs } = await this.dinngo.withdrawToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user, amount: amount, balance: balance });
+        });
+    });
+
+    describe('bad token', function () {
+        beforeEach(async function () {
+            this.token = await BadToken.new({ from: user });
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
@@ -224,6 +288,70 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
     describe('token', function () {
         beforeEach(async function () {
             this.token = await SimpleToken.new({ from: user2 });
+            await this.dinngo.setToken(tokenId2, this.token.address, rank);
+        });
+
+        it('when normal', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
+            balance = balance.sub(amount2);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+        });
+
+        it('when normal count gas', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            const receipt = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
+            console.log(receipt.receipt.gasUsed);
+        });
+
+        it('when sent by non-owner', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await reverting(this.dinngo.withdrawByAdmin(withdrawal2));
+        });
+
+        it('when user balance is not sufficient', async function () {
+            const amount = amount2.sub(ether('0.1'));
+            await this.token.approve(this.dinngo.address, amount, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, amount, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await reverting(this.dinngo.withdrawByAdmin(withdrawal2, { from: admin }));
+        });
+
+        it('when user is removed', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.removeUser(user2, { from: admin });
+            await reverting(this.dinngo.withdrawByAdmin(withdrawal2, { from: admin }));
+        });
+
+        it('when fee is paid in DGO', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
+            balance = balance.sub(amount2);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+            (await this.dinngo.balances.call(tokenContract, user2)).should.be.bignumber.eq(ether('3').sub(fee2));
+        });
+
+        it('when fee is insufficient', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, tokenContract, ether('0.0001'));
+            await reverting(this.dinngo.withdrawByAdmin(withdrawal2, { from: admin }));
+        });
+    });
+
+    describe('bad token', function () {
+        beforeEach(async function () {
+            this.token = await BadToken.new({ from: user2 });
             await this.dinngo.setToken(tokenId2, this.token.address, rank);
         });
 
