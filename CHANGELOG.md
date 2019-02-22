@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Fix the error price calculation when verifying the settlement.
+- Add generalERC20 handler to handle non-comliant token contract.
 
 ### Changed
 - Remove the unnecessary assignments in implementation functions.
