@@ -1,86 +1,132 @@
-import { ether } from 'openzeppelin-solidity/test/helpers/ether';
-import { reverting } from 'openzeppelin-solidity/test/helpers/shouldFail';
-import { inLogs } from 'openzeppelin-solidity/test/helpers/expectEvent';
-
-const BigNumber = web3.BigNumber;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const { BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
+const { ZERO_ADDRESS } = constants;
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
-
-require('chai')
-    .use(require('chai-as-promised'))
-    .use(require('chai-bignumber')(BigNumber))
-    .should();
+const BadToken = artifacts.require('BadToken');
 
 contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
-        this.DinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
-        this.Dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.DinngoImpl.address, { from: owner });
+        this.dinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
+        this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
     });
 
     describe('ether', function () {
         it('when normal', async function () {
-            await this.Dinngo.setUser(1, user, 1);
-            const value = ether(10);
-            const { logs } = await this.Dinngo.deposit({ value: value, from: user });
-            const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balances.call(0, user);
-            eventDeposit.args.token.should.eq(ZERO_ADDRESS);
-            eventDeposit.args.user.should.eq(user);
-            eventDeposit.args.amount.should.be.bignumber.eq(value);
-            eventDeposit.args.balance.should.be.bignumber.eq(balance);
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('1');
+            await this.dinngo.setUser(id, user, rank);
+            const { logs } = await this.dinngo.deposit({ value: amount, from: user });
+            const balance = await this.dinngo.balances.call(ZERO_ADDRESS, user);
+            inLogs(logs, 'Deposit', { token: ZERO_ADDRESS, user: user, amount: amount, balance: balance });
         });
 
         it('when user invalid', async function () {
-            const value = ether(10);
-            await reverting(this.Dinngo.deposit({ value: value, from: user }));
+            const amount = ether('1');
+            const { logs } = await this.dinngo.deposit({ value: amount, from: user });
+            const balance = await this.dinngo.balances.call(ZERO_ADDRESS, user);
+            inLogs(logs, 'Deposit', { token: ZERO_ADDRESS, user: user, amount: amount, balance: balance });
         });
 
         it('when value with amount 0', async function () {
-            const value = ether(0);
-            await this.Dinngo.setUser(1, user, 1);
-            await reverting(this.Dinngo.deposit({ value: value, from: user }));
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('0');
+            await this.dinngo.setUser(id, user, rank);
+            await reverting(this.dinngo.deposit({ value: amount, from: user }));
         });
+
     });
 
     describe('token', function () {
         beforeEach(async function () {
-            this.Token = await SimpleToken.new({ from: user });
+            this.token = await SimpleToken.new({ from: user });
         });
 
         it('when normal with new user', async function () {
-            await this.Dinngo.setUser(1, user, 1);
-            const value = ether(10);
-            await this.Token.approve(this.Dinngo.address, value, { from: user });
-            const { logs } = await this.Dinngo.depositToken(this.Token.address, value, { from: user });
-            const eventDeposit = await inLogs(logs, 'Deposit');
-            let balance = await this.Dinngo.balances.call(this.Token.address, user);
-            eventDeposit.args.token.should.eq(this.Token.address);
-            eventDeposit.args.user.should.eq(user);
-            eventDeposit.args.amount.should.be.bignumber.eq(value);
-            eventDeposit.args.balance.should.be.bignumber.eq(balance);
-            balance.should.be.bignumber.eq(value);
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('1');
+            await this.dinngo.setUser(id, user, rank);
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
+            balance.should.be.bignumber.eq(amount);
         });
 
         it('when user invalid', async function () {
-            const value = ether(10);
-            await this.Token.approve(this.Dinngo.address, value, { from: user });
-            await reverting(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
+            const amount = ether('1');
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
+            balance.should.be.bignumber.eq(amount);
         });
 
         it('when token with address 0', async function () {
-            const value = ether(10);
-            await this.Dinngo.setUser(1, user, 1);
-            await reverting(this.Dinngo.depositToken(ZERO_ADDRESS, value, { from: user }));
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('1');
+            await this.dinngo.setUser(id, user, rank);
+            await reverting(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
         });
 
         it('when token with amount 0', async function () {
-            const value = ether(0);
-            await this.Dinngo.setUser(1, user, 1);
-            await this.Token.approve(this.Dinngo.address, value, { from: user });
-            await reverting(this.Dinngo.depositToken(this.Token.address, value, { from: user }));
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('0');
+            await this.dinngo.setUser(id, user, rank);
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            await reverting(this.dinngo.depositToken(this.token.address, amount, { from: user }));
+        });
+    });
+
+    describe('bad token', function () {
+        beforeEach(async function () {
+            this.token = await BadToken.new({ from: user });
+        });
+
+        it('when normal with new user', async function () {
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('1');
+            await this.dinngo.setUser(id, user, rank);
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
+            balance.should.be.bignumber.eq(amount);
+        });
+
+        it('when user invalid', async function () {
+            const amount = ether('1');
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
+            balance.should.be.bignumber.eq(amount);
+        });
+
+        it('when token with address 0', async function () {
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('1');
+            await this.dinngo.setUser(id, user, rank);
+            await reverting(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
+        });
+
+        it('when token with amount 0', async function () {
+            const id = new BN('1');
+            const rank = new BN('1');
+            const amount = ether('0');
+            await this.dinngo.setUser(id, user, rank);
+            await this.token.approve(this.dinngo.address, amount, { from: user });
+            await reverting(this.dinngo.depositToken(this.token.address, amount, { from: user }));
         });
     });
 });

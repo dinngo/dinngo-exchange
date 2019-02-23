@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "bytes/BytesLib.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -22,7 +22,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return userID User ID
      */
-    function _getOrderUserID(bytes ser_data) internal pure returns (uint32 userID) {
+    function _getOrderUserID(bytes memory ser_data) internal pure returns (uint256 userID) {
         userID = ser_data.toUint32(ORDER_SIZE - 4);
     }
 
@@ -31,7 +31,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return tokenTarget Target token ID
      */
-    function _getOrderTokenIDTarget(bytes ser_data) internal pure returns (uint16 tokenTarget) {
+    function _getOrderTokenIDTarget(bytes memory ser_data) internal pure returns (uint256 tokenTarget) {
         tokenTarget = ser_data.toUint16(ORDER_SIZE - 6);
     }
 
@@ -40,7 +40,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return amountTarget Target token amount
      */
-    function _getOrderAmountTarget(bytes ser_data) internal pure returns (uint256 amountTarget) {
+    function _getOrderAmountTarget(bytes memory ser_data) internal pure returns (uint256 amountTarget) {
         amountTarget = ser_data.toUint(ORDER_SIZE - 38);
     }
 
@@ -49,7 +49,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return tokenTrade Trade token ID
      */
-    function _getOrderTokenIDTrade(bytes ser_data) internal pure returns (uint16 tokenTrade) {
+    function _getOrderTokenIDTrade(bytes memory ser_data) internal pure returns (uint256 tokenTrade) {
         tokenTrade = ser_data.toUint16(ORDER_SIZE - 40);
     }
 
@@ -58,7 +58,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return amountTrade Trade token amount
      */
-    function _getOrderAmountTrade(bytes ser_data) internal pure returns (uint256 amountTrade) {
+    function _getOrderAmountTrade(bytes memory ser_data) internal pure returns (uint256 amountTrade) {
         amountTrade = ser_data.toUint(ORDER_SIZE - 72);
     }
 
@@ -67,7 +67,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return fBuy Is buy order or not
      */
-    function _isOrderBuy(bytes ser_data) internal pure returns (bool fBuy) {
+    function _isOrderBuy(bytes memory ser_data) internal pure returns (bool fBuy) {
         fBuy = (ser_data.toUint8(ORDER_SIZE - 73) & _MASK_IS_BUY != 0);
     }
 
@@ -76,7 +76,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return fMain Is the fee paid in main token or not
      */
-    function _isOrderFeeMain(bytes ser_data) internal pure returns (bool fMain) {
+    function _isOrderFeeMain(bytes memory ser_data) internal pure returns (bool fMain) {
         fMain = (ser_data.toUint8(ORDER_SIZE - 73) & _MASK_IS_MAIN != 0);
     }
 
@@ -85,7 +85,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return nonce Nonce
      */
-    function _getOrderNonce(bytes ser_data) internal pure returns (uint32 nonce) {
+    function _getOrderNonce(bytes memory ser_data) internal pure returns (uint256 nonce) {
         nonce = ser_data.toUint32(ORDER_SIZE - 77);
     }
 
@@ -94,7 +94,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return fee Fee amount
      */
-    function _getOrderTradeFee(bytes ser_data) internal pure returns (uint256 tradeFee) {
+    function _getOrderTradeFee(bytes memory ser_data) internal pure returns (uint256 tradeFee) {
         tradeFee = ser_data.toUint(ORDER_SIZE - 109);
     }
 
@@ -103,7 +103,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return fee Fee amount
      */
-    function _getOrderGasFee(bytes ser_data) internal pure returns (uint256 gasFee) {
+    function _getOrderGasFee(bytes memory ser_data) internal pure returns (uint256 gasFee) {
         gasFee = ser_data.toUint(ORDER_SIZE - 141);
     }
 
@@ -112,7 +112,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return v Signature v
      */
-    function _getOrderV(bytes ser_data) internal pure returns (uint8 v) {
+    function _getOrderV(bytes memory ser_data) internal pure returns (uint8 v) {
         v = ser_data.toUint8(ORDER_SIZE - 142);
     }
 
@@ -121,7 +121,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return r Signature r
      */
-    function _getOrderR(bytes ser_data) internal pure returns (bytes32 r) {
+    function _getOrderR(bytes memory ser_data) internal pure returns (bytes32 r) {
         r = ser_data.toBytes32(ORDER_SIZE - 174);
     }
 
@@ -130,7 +130,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return s Signature s
      */
-    function _getOrderS(bytes ser_data) internal pure returns (bytes32 s) {
+    function _getOrderS(bytes memory ser_data) internal pure returns (bytes32 s) {
         s = ser_data.toBytes32(ORDER_SIZE - 206);
     }
 
@@ -139,7 +139,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return hash Order hash without signature
      */
-    function _getOrderHash(bytes ser_data) internal pure returns (bytes32 hash) {
+    function _getOrderHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
         hash = keccak256(ser_data.slice(65, UNSIGNED_ORDER_SIZE));
     }
 
@@ -149,7 +149,7 @@ contract SerializableOrder {
      * @param index The index of order to be fetched
      * @return order_data The fetched order data
      */
-    function _getOrder(bytes ser_data, uint index) internal pure returns (bytes order_data) {
+    function _getOrder(bytes memory ser_data, uint index) internal pure returns (bytes memory order_data) {
         require(index < _getOrderCount(ser_data));
         order_data = ser_data.slice(ORDER_SIZE.mul(index), ORDER_SIZE);
     }
@@ -159,7 +159,7 @@ contract SerializableOrder {
      * @param ser_data Serialized order data
      * @return amount Order amount
      */
-    function _getOrderCount(bytes ser_data) internal pure returns (uint256 amount) {
+    function _getOrderCount(bytes memory ser_data) internal pure returns (uint256 amount) {
         amount = ser_data.length.div(ORDER_SIZE);
     }
 }
