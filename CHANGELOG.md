@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [0.3.0] - 2019-02-25
 ### Added
 - Add a new role admin. Admin is initially owner. Can only be assigned by owner.
 - Upgrade solidity to 0.5.x.
