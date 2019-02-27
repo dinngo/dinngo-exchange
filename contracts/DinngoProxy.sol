@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
+import "./ec/ErrorHandler.sol";
 import "./proxy/TimelockUpgradableProxy.sol";
 
 
@@ -18,6 +19,7 @@ import "./proxy/TimelockUpgradableProxy.sol";
 contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using ErrorHandler for bytes;
 
     uint256 public processTime;
 
@@ -179,8 +181,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal));
+        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal));
         require(ok);
+        ret.errorHandler();
     }
 
     /**
@@ -189,8 +192,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param orders The serialized orders.
      */
     function settle(bytes calldata orders) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", orders));
+        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", orders));
         require(ok);
+        ret.errorHandler();
     }
 
     /**
