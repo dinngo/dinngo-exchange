@@ -198,6 +198,16 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     }
 
     /**
+     * @notice The migrate function that can only be triggered by admin.
+     * @param migration The serialized migration data
+     */
+    function migrateByAdmin(bytes calldata migration) external onlyAdmin {
+        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("migrateByAdmin(bytes)", migration));
+        require(ok);
+        ret.errorHandler();
+    }
+
+    /**
      * @notice Announce lock of the sender
      */
     function lock() external {
