@@ -1,5 +1,13 @@
 pragma solidity ^0.5.0;
 
+/**
+ * @title ErrorHandler
+ * @author Ben Huang
+ * @notice Handle the return status by a byte. 0x00 is success. Others will
+ * be transferred into string and appended on the reverting message.
+ * @dev This is for temporary usage. Should be suspended when ethereum support
+ * native exception handling for general calls.
+ */
 library ErrorHandler {
     function errorHandler(bytes memory ret) internal pure {
         if (ret.length > 0) {
