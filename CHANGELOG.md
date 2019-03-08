@@ -3,9 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 ### Added
-- Implement interface of migration.(just in case)
+- Implement interface of migration(just in case).
+
 ### Deprecated
 - Implement error handler.
+
+### Security
+- Fix deposit function to avoid reentrancy bugs.
 
 ## [0.3.0] - 2019-02-25
 ### Added
