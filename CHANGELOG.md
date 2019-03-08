@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Added
+- Implement interface of migration.(just in case)
+### Deprecated
+- Implement error handler.
 
 ## [0.3.0] - 2019-02-25
 ### Added
