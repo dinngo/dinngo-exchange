@@ -164,9 +164,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(!_isLocking(msg.sender));
         require(token != address(0));
         require(amount > 0);
-        IERC20(token).generalTransferFrom(msg.sender, address(this), amount);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
+        IERC20(token).generalTransferFrom(msg.sender, address(this), amount);
     }
 
     /**
