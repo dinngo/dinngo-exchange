@@ -1,0 +1,4 @@
+./node_modules/
+./installed_contracts/
+./contracts/examples/
+./contracts/mocks/
