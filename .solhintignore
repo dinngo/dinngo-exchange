@@ -1,4 +1,5 @@
-./node_modules/
-./installed_contracts/
-./contracts/examples/
-./contracts/mocks/
+node_modules/
+installed_contracts/
+contracts/examples/
+contracts/mocks/
+contracts/Migrations.sol
