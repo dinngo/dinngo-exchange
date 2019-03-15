@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Implement interface of migration(just in case).
 
+### Changed
+- Apply safeERC20 instead of generalERC20.
+
 ### Deprecated
 - Implement error handler.
 
