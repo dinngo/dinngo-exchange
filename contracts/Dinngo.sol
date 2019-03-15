@@ -3,11 +3,11 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
-import "./token/ERC20/GeneralERC20.sol";
 
 /**
  * @title Dinngo
@@ -16,7 +16,7 @@ import "./token/ERC20/GeneralERC20.sol";
  */
 contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdrawal {
     using ECDSA for bytes32;
-    using GeneralERC20 for IERC20;
+    using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
     uint256 public processTime;
@@ -166,7 +166,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
-        IERC20(token).generalTransferFrom(msg.sender, address(this), amount);
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
     }
 
     /**
@@ -196,7 +196,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
-        IERC20(token).generalTransfer(msg.sender, amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
     }
 
     /**
@@ -231,7 +231,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
         if (token == address(0)) {
             user.transfer(amount);
         } else {
-            IERC20(token).generalTransfer(user, amount);
+            IERC20(token).safeTransfer(user, amount);
         }
     }
 
