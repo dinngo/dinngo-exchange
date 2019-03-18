@@ -123,14 +123,24 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
         require(ok);
     }
 
+    function activateAdmin(address admin) external onlyOwner {
+        _activateAdmin(admin);
+    }
+
+    function deactivateAdmin(address admin) external onlyOwner {
+        _safeDeactivateAdmin(admin);
+    }
+
     /**
-     * @notice Transfer the admin to a new user address.
-     * @dev Overload the function in contract Administrable to limit the execution permission
-     * to owner.
-     * @param newAdmin The new admin address to be assigned.
+     * @notice Force-deactivate allows owner to deactivate admin even there will be
+     * no admin left. Should only be executed under emergency situation.
      */
-    function transferAdmin(address newAdmin) external onlyOwner {
-        _transferAdmin(newAdmin);
+    function forceDeactivateAdmin(address admin) external onlyOwner {
+        _deactivateAdmin(admin);
+    }
+
+    function setAdminLimit(uint256 n) external onlyOwner {
+        _setAdminLimit(n);
     }
 
     /**

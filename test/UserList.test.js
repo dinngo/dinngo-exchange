@@ -10,7 +10,8 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
-        await this.dinngo.transferAdmin(admin, { from: owner });
+        await this.dinngo.activateAdmin(admin, { from: owner });
+        await this.dinngo.deactivateAdmin(owner, { from: owner });
     });
 
     const userId1 = new BN('11');

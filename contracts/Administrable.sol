@@ -1,67 +1,85 @@
 pragma solidity ^0.5.0;
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 /**
  * @title Administrable
  * @dev The administrator structure
  */
 /**
  * @title Administrable
- * @dev A Ownable-base contract without the renounce function.
  */
 contract Administrable {
-    address private _admin;
+    using SafeMath for uint256;
+    mapping (address => bool) private admins;
+    uint256 private _nAdmin;
+    uint256 private _nLimit;
 
-    event AdminTransferred(
-        address indexed previousAdmin,
-        address indexed newAdmin
-    );
+    event Activated(address indexed admin);
+    event Deactivated(address indexed admin);
 
     /**
      * @dev The Administrable constructor sets the original `admin` of the contract to the sender
-     * account.
+     * account. The initial limit amount of admin is 2.
      */
     constructor() internal {
-        _admin = msg.sender;
-        emit AdminTransferred(address(0), _admin);
+        _setAdminLimit(2);
+        _activateAdmin(msg.sender);
     }
 
-    /**
-     * @return The address of the admin.
-     */
-    function admin() public view returns(address) {
-        return _admin;
+    function isAdmin() public view returns(bool) {
+        return admins[msg.sender];
     }
 
     /**
      * @dev Throws if called by non-admin.
      */
     modifier onlyAdmin() {
-        require(isAdmin());
+        require(isAdmin(), "sender not admin");
         _;
     }
 
-    /**
-     * @return true of `msg.sender` is the admin of the contract.
-     */
-    function isAdmin() public view returns(bool) {
-        return (msg.sender == _admin);
+    function activateAdmin(address admin) external onlyAdmin {
+        _activateAdmin(admin);
+    }
+
+    function deactivateAdmin(address admin) external onlyAdmin {
+        _safeDeactivateAdmin(admin);
+    }
+
+    function setAdminLimit(uint256 n) external onlyAdmin {
+        _setAdminLimit(n);
+    }
+
+    function _setAdminLimit(uint256 n) internal {
+        require(_nLimit != n, "same limit");
+        _nLimit = n;
     }
 
     /**
-     * @dev Allows the current admin to transfer to another account.
-     * @param newAdmin The address to be transferred to.
+     * @notice The Amount of admin should be bounded by _nLimit.
      */
-    function transferAdmin(address newAdmin) external onlyAdmin {
-        _transferAdmin(newAdmin);
+    function _activateAdmin(address admin) internal {
+        require(admin != address(0), "invalid address");
+        require(_nAdmin < _nLimit, "too many admins existed");
+        require(!admins[admin], "already admin");
+        admins[admin] = true;
+        _nAdmin = _nAdmin.add(1);
+        emit Activated(admin);
     }
 
     /**
-     * @dev Transfers the admin to a new admin.
-     * @param newAdmin The address to be transferred to.
+     * @notice At least one admin should exists.
      */
-    function _transferAdmin(address newAdmin) internal {
-        require(newAdmin != address(0));
-        emit AdminTransferred(_admin, newAdmin);
-        _admin = newAdmin;
+    function _safeDeactivateAdmin(address admin) internal {
+        require(_nAdmin > 1, "admin should > 1");
+        _deactivateAdmin(admin);
+    }
+
+    function _deactivateAdmin(address admin) internal {
+        require(admins[admin], "not admin");
+        admins[admin] = false;
+        _nAdmin = _nAdmin.sub(1);
+        emit Deactivated(admin);
     }
 }

@@ -19,7 +19,8 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(dinngoWallet, DGO, this.dinngoImpl.address, { from: owner });
-        await this.dinngo.transferAdmin(admin, { from: owner });
+        await this.dinngo.activateAdmin(admin, { from: owner });
+        await this.dinngo.deactivateAdmin(owner, { from: owner });
         await this.dinngo.setUser(id1, user1, rank);
         await this.dinngo.setUser(id2, user2, rank);
         await this.dinngo.setUser(id3, user3, rank);

@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Apply safeERC20 instead of generalERC20.
+- Update the administrable structure to achieve 0-downtime rotation.
 
 ### Deprecated
 - Implement error handler.
