@@ -13,7 +13,20 @@ contract OwnableAdministrableMock is Administrable {
         require(msg.sender == _owner);
         _;
     }
-    function transferAdmin(address newAdmin) external onlyOwner {
-        _transferAdmin(newAdmin);
+
+    function activateAdmin(address admin) external onlyOwner {
+        _activateAdmin(admin);
+    }
+
+    function deactivateAdmin(address admin) external onlyOwner {
+        _safeDeactivateAdmin(admin);
+    }
+
+    function forceDeactivateAdmin(address admin) external onlyOwner {
+        _deactivateAdmin(admin);
+    }
+
+    function setAdminLimit(uint256 n) external onlyOwner {
+        _setAdminLimit(n);
     }
 }
