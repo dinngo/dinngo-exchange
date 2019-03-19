@@ -65,7 +65,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param user The user address to be added
      */
     function addUser(uint256 id, address user) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addUser(uint256,address)", id, user));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("addUser(uint256,address)", id, user)
+        );
         require(ok);
     }
 
@@ -75,7 +77,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param user The user address to be added
      */
     function removeUser(address user) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("removeUser(address)", user));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("removeUser(address)", user)
+        );
         require(ok);
     }
 
@@ -85,7 +89,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint256 rank) external onlyAdmin {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateUserRank(address,uint256)", user, rank));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("updateUserRank(address,uint256)",user, rank)
+        );
         require(ok);
     }
 
@@ -99,7 +105,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param token The token contract address to be added
      */
     function addToken(uint256 id, address token) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("addToken(uint256,address)", id, token));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("addToken(uint256,address)", id, token)
+        );
         require(ok);
     }
 
@@ -109,7 +117,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param token The token contract address to be removed.
      */
     function removeToken(address token) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("removeToken(address)", token));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("removeToken(address)", token)
+        );
         require(ok);
     }
 
@@ -119,7 +129,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param rank The rank to be assigned.
      */
     function updateTokenRank(address token, uint256 rank) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("updateTokenRank(address,uint256)", token, rank));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("updateTokenRank(address,uint256)", token, rank)
+        );
         require(ok);
     }
 
@@ -160,7 +172,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount Amount of the token to be depositied
      */
     function depositToken(address token, uint256 amount) external {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("depositToken(address,uint256)", token, amount));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("depositToken(address,uint256)", token, amount)
+        );
         require(ok);
     }
 
@@ -170,7 +184,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount The amount to be withdrawn.
      */
     function withdraw(uint256 amount) external {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdraw(uint256)", amount));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("withdraw(uint256)", amount)
+        );
         require(ok);
     }
 
@@ -181,7 +197,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("withdrawToken(address,uint256)", token, amount));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("withdrawToken(address,uint256)", token, amount)
+        );
         require(ok);
     }
 
@@ -191,7 +209,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param withdrawal The serialized withdrawal data
      */
     function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
-        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal));
+        (bool ok, bytes memory ret) = _implementation().delegatecall(
+            abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal)
+        );
         require(ok);
         ret.errorHandler();
     }
@@ -202,7 +222,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param orders The serialized orders.
      */
     function settle(bytes calldata orders) external onlyAdmin {
-        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("settle(bytes)", orders));
+        (bool ok, bytes memory ret) = _implementation().delegatecall(
+            abi.encodeWithSignature("settle(bytes)", orders)
+        );
         require(ok);
         ret.errorHandler();
     }
@@ -212,7 +234,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @param migration The serialized migration data
      */
     function migrateByAdmin(bytes calldata migration) external onlyAdmin {
-        (bool ok, bytes memory ret) = _implementation().delegatecall(abi.encodeWithSignature("migrateByAdmin(bytes)", migration));
+        (bool ok, bytes memory ret) = _implementation().delegatecall(
+            abi.encodeWithSignature("migrateByAdmin(bytes)", migration)
+        );
         require(ok);
         ret.errorHandler();
     }
@@ -237,7 +261,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @notice Change the processing time of locking the user address
      */
     function changeProcessTime(uint256 time) external onlyOwner {
-        (bool ok,) = _implementation().delegatecall(abi.encodeWithSignature("changeProcessTime(uint256)", time));
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("changeProcessTime(uint256)", time)
+        );
         require(ok);
     }
 }
