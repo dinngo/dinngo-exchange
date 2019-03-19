@@ -388,7 +388,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
     function _verifySig(address user, bytes32 hash, bytes32 r, bytes32 s, uint8 v) internal pure {
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (v < 27) {
-          v += 27;
+            v += 27;
         }
         require(v == 27 || v == 28);
 
