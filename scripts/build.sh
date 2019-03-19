@@ -14,6 +14,9 @@ do
     mv "contracts/$ignored" "$tmp_dir"
 done < contracts/.npmignore
 
+# Perform linting
+node_modules/.bin/solhint "contracts/**/*.sol"
+
 # Compile everything else.
 npm run compile
 

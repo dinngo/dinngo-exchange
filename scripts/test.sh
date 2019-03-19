@@ -11,6 +11,7 @@ cleanup() {
     fi
 }
 
+
 if [ "$SOLIDITY_COVERAGE" = true ]; then
     ganache_port=8555
 else
@@ -47,3 +48,4 @@ if [ "$SOLIDITY_COVERAGE" = true ]; then
 else
     node_modules/.bin/truffle test "$@"
 fi
+
