@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity 0.5.6;
 
 contract Impl {
     function version() public pure returns (string memory);
