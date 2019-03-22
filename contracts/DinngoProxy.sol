@@ -1,12 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./Administrable.sol";
-import "./SerializableOrder.sol";
-import "./SerializableWithdrawal.sol";
 import "./ec/ErrorHandler.sol";
 import "./proxy/TimelockUpgradableProxy.sol";
 
@@ -17,8 +13,6 @@ import "./proxy/TimelockUpgradableProxy.sol";
  * @notice Main exchange contract for Dinngo
  */
 contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
-    using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     using ErrorHandler for bytes;
 
     uint256 public processTime;
