@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [0.4.0] - 2019-03-22
 ### Added
 - Implement interface of migration(just in case).
 
