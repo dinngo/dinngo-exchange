@@ -45,6 +45,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('token', function () {
         beforeEach(async function () {
             this.token = await SimpleToken.new({ from: user });
+            await this.dinngo.setToken('11', this.token.address, '1');
         });
 
         it('when normal with new user', async function () {
@@ -89,6 +90,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('bad token', function () {
         beforeEach(async function () {
             this.token = await BadToken.new({ from: user });
+            await this.dinngo.setToken('11', this.token.address, '1');
         });
 
         it('when normal with new user', async function () {

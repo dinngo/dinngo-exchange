@@ -14,7 +14,8 @@ All notable changes to this project will be documented in this file.
 
 ### Security
 - Fix deposit function to avoid reentrancy bugs.
-- Fix an overflow bug in lock(). 
+- Fix an overflow bug in lock().
+- Verify token contract before calling.
 
 ## [0.3.0] - 2019-02-25
 ### Added
