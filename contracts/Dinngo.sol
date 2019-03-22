@@ -284,7 +284,7 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      */
     function lock() external {
         require(!_isLocking(msg.sender));
-        lockTimes[msg.sender] = now + processTime;
+        lockTimes[msg.sender] = now.add(processTime);
         emit Lock(msg.sender, lockTimes[msg.sender]);
     }
 
