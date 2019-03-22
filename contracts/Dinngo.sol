@@ -161,8 +161,9 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param amount Amount of the token to be depositied
      */
     function depositToken(address token, uint256 amount) external {
-        require(!_isLocking(msg.sender));
         require(token != address(0));
+        require(!_isLocking(msg.sender));
+        require(_isValidToken(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
@@ -190,9 +191,10 @@ contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdr
      * @param amount The token amount to be withdrawn.
      */
     function withdrawToken(address token, uint256 amount) external {
+        require(token != address(0));
         require(_isLocked(msg.sender));
         require(_isValidUser(msg.sender));
-        require(token != address(0));
+        require(_isValidToken(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
