@@ -83,6 +83,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('token', function () {
         beforeEach(async function () {
             this.token = await SimpleToken.new({ from: user });
+            await this.dinngo.setToken('11', this.token.address, '1');
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
@@ -146,6 +147,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     describe('bad token', function () {
         beforeEach(async function () {
             this.token = await BadToken.new({ from: user });
+            await this.dinngo.setToken('11', this.token.address, '1');
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
