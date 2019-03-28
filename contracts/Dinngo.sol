@@ -1,11 +1,9 @@
 pragma solidity 0.5.6;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
-import "./Administrable.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 
@@ -14,7 +12,13 @@ import "./SerializableWithdrawal.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is Ownable, Administrable, SerializableOrder, SerializableWithdrawal {
+contract Dinngo is SerializableOrder, SerializableWithdrawal {
+    // Storage alignment
+    address private _owner;
+    mapping (address => bool) private admins;
+    uint256 private _nAdmin;
+    uint256 private _nLimit;
+    // end
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
