@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
-###
+
+## [1.0.0] - 2019-04-09
+### Changed
 - Fix the storage alignment of implementation contract.
 
 ## [0.4.0] - 2019-03-22
