@@ -28,6 +28,7 @@
     	 * 4.2.2 - [Dinngo](#heading-4.2.2)
     * 4.3 - [Smart Contract Weakness Classification](#heading-4.3)
 * 5 - [Summary](#heading-5)
+* [Disclaimer](#heading-d)
 
 # <a id="heading-2"/> Section 2 - Introduction
 
@@ -73,7 +74,7 @@ Dinngo is a hybrid-based exchange, which enables a single party to place order a
 
 ## <a id="heading-3.1"/> 3.1 Source Code
 
-The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `66280ccc56f6eaceda65c7867ab60fb738e7f12c`.
+The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `39285f31d6b24df0c50bf1c4fcbedb86201927ea`.
 
 The following Solidity source files (with SHA1 sums) were audited:
 
@@ -81,7 +82,7 @@ The following Solidity source files (with SHA1 sums) were audited:
 SHA1(dinngo-exchange/contracts/Administrable.sol)=
 d1cdf8a2e34d3ff5703c32051dd5280cc4026f49
 SHA1(dinngo-exchange/contracts/Dinngo.sol)=
-eec53ad5a4981311d76eec916c5278eddfc19692
+fe66cb6c56e9e6a3cc17b32bd15a4ff6ac92e16e
 SHA1(dinngo-exchange/contracts/DinnogProxy.sol)=
 00af77375d760f1ec748530ee185990bb605bbe6
 SHA1(dinngo-exchange/contracts/SerializableOrder.sol)=
