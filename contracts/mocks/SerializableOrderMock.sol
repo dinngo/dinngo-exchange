@@ -10,20 +10,20 @@ contract SerializableOrderMock is SerializableOrder{
         return _getOrderUserID(ser_data);
     }
 
-    function getOrderTokenIDTargetMock(bytes calldata ser_data) external pure returns (uint256 tokenTarget) {
-        return _getOrderTokenIDTarget(ser_data);
+    function getOrderTokenIDBaseMock(bytes calldata ser_data) external pure returns (uint256 tokenBase) {
+        return _getOrderTokenIDBase(ser_data);
     }
 
-    function getOrderAmountTargetMock(bytes calldata ser_data) external pure returns (uint256 amountTarget) {
-        return _getOrderAmountTarget(ser_data);
+    function getOrderAmountBaseMock(bytes calldata ser_data) external pure returns (uint256 amountBase) {
+        return _getOrderAmountBase(ser_data);
     }
 
-    function getOrderTokenIDTradeMock(bytes calldata ser_data) external pure returns (uint256 tokenTrade) {
-        return _getOrderTokenIDTrade(ser_data);
+    function getOrderTokenIDQuoteMock(bytes calldata ser_data) external pure returns (uint256 tokenQuote) {
+        return _getOrderTokenIDQuote(ser_data);
     }
 
-    function getOrderAmountTradeMock(bytes calldata ser_data) external pure returns (uint256 amountTrade) {
-        return _getOrderAmountTrade(ser_data);
+    function getOrderAmountQuoteMock(bytes calldata ser_data) external pure returns (uint256 amountQuote) {
+        return _getOrderAmountQuote(ser_data);
     }
 
     function isOrderBuyMock(bytes calldata ser_data) external pure returns (bool fBuy) {

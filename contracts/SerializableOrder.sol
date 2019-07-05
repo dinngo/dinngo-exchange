@@ -27,39 +27,39 @@ contract SerializableOrder {
     }
 
     /**
-     * @notice Get target token ID from the serialized order data
+     * @notice Get base token ID from the serialized order data
      * @param ser_data Serialized order data
-     * @return tokenTarget Target token ID
+     * @return tokenBase Base token ID
      */
-    function _getOrderTokenIDTarget(bytes memory ser_data) internal pure returns (uint256 tokenTarget) {
-        tokenTarget = ser_data.toUint16(ORDER_SIZE - 6);
+    function _getOrderTokenIDBase(bytes memory ser_data) internal pure returns (uint256 tokenBase) {
+        tokenBase = ser_data.toUint16(ORDER_SIZE - 6);
     }
 
     /**
-     * @notice Get target token amount from the serialized order data
+     * @notice Get base token amount from the serialized order data
      * @param ser_data Serialized order data
-     * @return amountTarget Target token amount
+     * @return amountBase Base token amount
      */
-    function _getOrderAmountTarget(bytes memory ser_data) internal pure returns (uint256 amountTarget) {
-        amountTarget = ser_data.toUint(ORDER_SIZE - 38);
+    function _getOrderAmountBase(bytes memory ser_data) internal pure returns (uint256 amountBase) {
+        amountBase = ser_data.toUint(ORDER_SIZE - 38);
     }
 
     /**
-     * @notice Get trade token ID from the serialized order data
+     * @notice Get quote token ID from the serialized order data
      * @param ser_data Serialized order data
-     * @return tokenTrade Trade token ID
+     * @return tokenQuote Quote token ID
      */
-    function _getOrderTokenIDTrade(bytes memory ser_data) internal pure returns (uint256 tokenTrade) {
-        tokenTrade = ser_data.toUint16(ORDER_SIZE - 40);
+    function _getOrderTokenIDQuote(bytes memory ser_data) internal pure returns (uint256 tokenQuote) {
+        tokenQuote = ser_data.toUint16(ORDER_SIZE - 40);
     }
 
     /**
-     * @notice Get trade token amount from the serialized order data
+     * @notice Get quote token amount from the serialized order data
      * @param ser_data Serialized order data
-     * @return amountTrade Trade token amount
+     * @return amountQuote Quote token amount
      */
-    function _getOrderAmountTrade(bytes memory ser_data) internal pure returns (uint256 amountTrade) {
-        amountTrade = ser_data.toUint(ORDER_SIZE - 72);
+    function _getOrderAmountQuote(bytes memory ser_data) internal pure returns (uint256 amountQuote) {
+        amountQuote = ser_data.toUint(ORDER_SIZE - 72);
     }
 
     /**
