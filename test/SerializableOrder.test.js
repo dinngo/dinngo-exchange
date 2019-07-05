@@ -30,22 +30,22 @@ contract('SerializableOrder', function ([_, user]) {
             orderData.should.be.bignumber.eq(userId);
         });
 
-        it('get target token ID', async function () {
+        it('get base token ID', async function () {
             const orderData = await this.serializableOrder.getOrderTokenIDBaseMock.call(serializedHex1);
             orderData.should.be.bignumber.eq(tokenIdBase);
         });
 
-        it('get target amount', async function () {
+        it('get base amount', async function () {
             const orderData = await this.serializableOrder.getOrderAmountBaseMock.call(serializedHex1);
             orderData.should.be.bignumber.eq(amountBase);
         });
 
-        it('get trade token ID', async function () {
+        it('get quote token ID', async function () {
             const orderData = await this.serializableOrder.getOrderTokenIDQuoteMock.call(serializedHex1);
             orderData.should.be.bignumber.eq(tokenIdQuote);
         });
 
-        it('get trade amount', async function () {
+        it('get quote amount', async function () {
             const orderData = await this.serializableOrder.getOrderAmountQuoteMock.call(serializedHex1);
             orderData.should.be.bignumber.eq(amountQuote);
         });

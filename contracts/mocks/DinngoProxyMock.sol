@@ -10,10 +10,10 @@ contract DinngoProxyMock is DinngoProxy {
     event Trade(
         address indexed user,
         bool isBuy,
-        address indexed tokenTarget,
-        uint256 amountTarget,
-        address indexed tokenTrade,
-        uint256 amountTrade
+        address indexed tokenBase,
+        uint256 amountBase,
+        address indexed tokenQuote,
+        uint256 amountQuote
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);

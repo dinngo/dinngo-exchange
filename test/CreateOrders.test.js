@@ -2,12 +2,12 @@ const { constants, ether } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 const utils = require('web3-utils');
 
-function getHash(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, config, tradeFee, gasFee, nonce) {
+function getHash(userID, tokenID, amountBase, tokenIDQuote, amountQuote, config, tradeFee, gasFee, nonce) {
     const userID_h = utils.padLeft(utils.toHex(userID), 8);
-    const tokenIDTarget_h = utils.padLeft(utils.toHex(tokenIDTarget), 4);
-    const amountTarget_h = utils.padLeft(utils.toHex(amountTarget), 64);
-    const tokenIDTrade_h = utils.padLeft(utils.toHex(tokenIDTrade), 4);
-    const amountTrade_h = utils.padLeft(utils.toHex(amountTrade), 64);
+    const tokenIDBase_h = utils.padLeft(utils.toHex(tokenIDBase), 4);
+    const amountBase_h = utils.padLeft(utils.toHex(amountBase), 64);
+    const tokenIDQuote_h = utils.padLeft(utils.toHex(tokenIDQuote), 4);
+    const amountQuote_h = utils.padLeft(utils.toHex(amountQuote), 64);
     const config_h = utils.padLeft(utils.toHex(config), 2);
     const tradeFee_h = utils.padLeft(utils.toHex(tradeFee), 64);
     const gasFee_h = utils.padLeft(utils.toHex(gasFee), 64);
@@ -18,20 +18,20 @@ function getHash(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade,
         tradeFee_h.slice(2) +
         nonce_h.slice(2) +
         config_h.slice(2) +
-        amountTrade_h.slice(2) +
-        tokenIDTrade_h.slice(2) +
-        amountTarget_h.slice(2) +
-        tokenIDTarget_h.slice(2) +
+        amountQuote_h.slice(2) +
+        tokenIDQuote_h.slice(2) +
+        amountBase_h.slice(2) +
+        tokenIDBase_h.slice(2) +
         userID_h.slice(2)
     );
 }
 
-function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, config, tradeFee, gasFee, nonce, r, s, v) {
+function getHex(userID, tokenIDBase, amountBase, tokenIDQuote, amountQuote, config, tradeFee, gasFee, nonce, r, s, v) {
     const userID_h = utils.padLeft(utils.toHex(userID), 8);
-    const tokenIDTarget_h = utils.padLeft(utils.toHex(tokenIDTarget), 4);
-    const amountTarget_h = utils.padLeft(utils.toHex(amountTarget), 64);
-    const tokenIDTrade_h = utils.padLeft(utils.toHex(tokenIDTrade), 4);
-    const amountTrade_h = utils.padLeft(utils.toHex(amountTrade), 64);
+    const tokenIDBase_h = utils.padLeft(utils.toHex(tokenIDBase), 4);
+    const amountBase_h = utils.padLeft(utils.toHex(amountBase), 64);
+    const tokenIDQuote_h = utils.padLeft(utils.toHex(tokenIDQuote), 4);
+    const amountQuote_h = utils.padLeft(utils.toHex(amountQuote), 64);
     const config_h = utils.padLeft(utils.toHex(config), 2);
     const tradeFee_h = utils.padLeft(utils.toHex(tradeFee), 64);
     const gasFee_h = utils.padLeft(utils.toHex(gasFee), 64);
@@ -45,60 +45,60 @@ function getHex(userID, tokenIDTarget, amountTarget, tokenIDTrade, amountTrade, 
         tradeFee_h.slice(2) +
         nonce_h.slice(2) +
         config_h.slice(2) +
-        amountTrade_h.slice(2) +
-        tokenIDTrade_h.slice(2) +
-        amountTarget_h.slice(2) +
-        tokenIDTarget_h.slice(2) +
+        amountQuote_h.slice(2) +
+        tokenIDQuote_h.slice(2) +
+        amountBase_h.slice(2) +
+        tokenIDBase_h.slice(2) +
         userID_h.slice(2)
     );
 }
 
 contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) {
     const user1ID = 11;
-    const tokenTarget1 = 11;
-    const amountTarget1 = ether('100');
-    const tokenTrade1 = 0;
-    const amountTrade1 = ether('1');
+    const tokenBase1 = 11;
+    const amountBase1 = ether('100');
+    const tokenQuote1 = 0;
+    const amountQuote1 = ether('1');
     const config1 = 1 + 2;
     const tradeFee1 = ether('1');
     const gasFee1 = ether('0.001');
     const nonce1 = 1;
 
     const user2ID = 12;
-    const tokenTarget2 = 11;
-    const amountTarget2 = ether('10');
-    const tokenTrade2 = 0;
-    const amountTrade2 = ether('0.1');
+    const tokenBase2 = 11;
+    const amountBase2 = ether('10');
+    const tokenQuote2 = 0;
+    const amountQuote2 = ether('0.1');
     const config2 = 2;
     const tradeFee2 = ether('0.1');
     const gasFee2 = ether('0.001');
     const nonce2 = 2;
 
     const user3ID = 13;
-    const tokenTarget3 = 11;
-    const amountTarget3 = ether('20');
-    const tokenTrade3 = 0;
-    const amountTrade3 = ether('0.2');
+    const tokenBase3 = 11;
+    const amountBase3 = ether('20');
+    const tokenQuote3 = 0;
+    const amountQuote3 = ether('0.2');
     const config3 = 2;
     const tradeFee3 = ether('0.2');
     const gasFee3 = ether('0.001');
     const nonce3 = 3;
 
     const user4ID = 14;
-    const tokenTarget4 = 11;
-    const amountTarget4 = ether('30');
-    const tokenTrade4 = 0;
-    const amountTrade4 = ether('0.3');
+    const tokenBase4 = 11;
+    const amountBase4 = ether('30');
+    const tokenQuote4 = 0;
+    const amountQuote4 = ether('0.3');
     const config4 = 2;
     const tradeFee4 = ether('0.3');
     const gasFee4 = ether('0.001');
     const nonce4 = 4;
 
     const user5ID = 15;
-    const tokenTarget5 = 11;
-    const amountTarget5 = ether('10');
-    const tokenTrade5 = 0;
-    const amountTrade5 = ether('0.1');
+    const tokenBase5 = 11;
+    const amountBase5 = ether('10');
+    const tokenQuote5 = 0;
+    const amountQuote5 = ether('0.1');
     const config5 = 0;
     const tradeFee5 = ether('5');
     const gasFee5 = ether('1');
@@ -109,10 +109,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex1', async function () {
             const hash = getHash(
                 user1ID,
-                tokenTarget1,
-                amountTarget1,
-                tokenTrade1,
-                amountTrade1,
+                tokenBase1,
+                amountBase1,
+                tokenQuote1,
+                amountQuote1,
                 config1,
                 tradeFee1,
                 gasFee1,
@@ -124,10 +124,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user1ID,
-                tokenTarget1,
-                amountTarget1,
-                tokenTrade1,
-                amountTrade1,
+                tokenBase1,
+                amountBase1,
+                tokenQuote1,
+                amountQuote1,
                 config1,
                 tradeFee1,
                 gasFee1,
@@ -145,10 +145,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex2', async function () {
             let hash = getHash(
                 user2ID,
-                tokenTarget2,
-                amountTarget2,
-                tokenTrade2,
-                amountTrade2,
+                tokenBase2,
+                amountBase2,
+                tokenQuote2,
+                amountQuote2,
                 config2,
                 tradeFee2,
                 gasFee2,
@@ -160,10 +160,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user2ID,
-                tokenTarget2,
-                amountTarget2,
-                tokenTrade2,
-                amountTrade2,
+                tokenBase2,
+                amountBase2,
+                tokenQuote2,
+                amountQuote2,
                 config2,
                 tradeFee2,
                 gasFee2,
@@ -182,10 +182,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex3', async function () {
             let hash = getHash(
                 user3ID,
-                tokenTarget3,
-                amountTarget3,
-                tokenTrade3,
-                amountTrade3,
+                tokenBase3,
+                amountBase3,
+                tokenQuote3,
+                amountQuote3,
                 config3,
                 tradeFee3,
                 gasFee3,
@@ -197,10 +197,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user3ID,
-                tokenTarget3,
-                amountTarget3,
-                tokenTrade3,
-                amountTrade3,
+                tokenBase3,
+                amountBase3,
+                tokenQuote3,
+                amountQuote3,
                 config3,
                 tradeFee3,
                 gasFee3,
@@ -219,10 +219,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex4', async function () {
             let hash = getHash(
                 user4ID,
-                tokenTarget4,
-                amountTarget4,
-                tokenTrade4,
-                amountTrade4,
+                tokenBase4,
+                amountBase4,
+                tokenQuote4,
+                amountQuote4,
                 config4,
                 tradeFee4,
                 gasFee4,
@@ -234,10 +234,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user4ID,
-                tokenTarget4,
-                amountTarget4,
-                tokenTrade4,
-                amountTrade4,
+                tokenBase4,
+                amountBase4,
+                tokenQuote4,
+                amountQuote4,
                 config4,
                 tradeFee4,
                 gasFee4,
@@ -256,10 +256,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex5', async function () {
             let hash = getHash(
                 user5ID,
-                tokenTarget5,
-                amountTarget5,
-                tokenTrade5,
-                amountTrade5,
+                tokenBase5,
+                amountBase5,
+                tokenQuote5,
+                amountQuote5,
                 config5,
                 tradeFee5,
                 gasFee5,
@@ -271,10 +271,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user5ID,
-                tokenTarget5,
-                amountTarget5,
-                tokenTrade5,
-                amountTrade5,
+                tokenBase5,
+                amountBase5,
+                tokenQuote5,
+                amountQuote5,
                 config5,
                 tradeFee5,
                 gasFee5,
@@ -294,10 +294,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
         it('hex_1_2_3_4_5', async function () {
             let hash1 = getHash(
                 user1ID,
-                tokenTarget1,
-                amountTarget1,
-                tokenTrade1,
-                amountTrade1,
+                tokenBase1,
+                amountBase1,
+                tokenQuote1,
+                amountQuote1,
                 config1,
                 tradeFee1,
                 gasFee1,
@@ -305,10 +305,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let hash2 = getHash(
                 user2ID,
-                tokenTarget2,
-                amountTarget2,
-                tokenTrade2,
-                amountTrade2,
+                tokenBase2,
+                amountBase2,
+                tokenQuote2,
+                amountQuote2,
                 config2,
                 tradeFee2,
                 gasFee2,
@@ -316,10 +316,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let hash3 = getHash(
                 user3ID,
-                tokenTarget3,
-                amountTarget3,
-                tokenTrade3,
-                amountTrade3,
+                tokenBase3,
+                amountBase3,
+                tokenQuote3,
+                amountQuote3,
                 config3,
                 tradeFee3,
                 gasFee3,
@@ -327,10 +327,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let hash4 = getHash(
                 user4ID,
-                tokenTarget4,
-                amountTarget4,
-                tokenTrade4,
-                amountTrade4,
+                tokenBase4,
+                amountBase4,
+                tokenQuote4,
+                amountQuote4,
                 config4,
                 tradeFee4,
                 gasFee4,
@@ -338,10 +338,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let hash5 = getHash(
                 user5ID,
-                tokenTarget5,
-                amountTarget5,
-                tokenTrade5,
-                amountTrade5,
+                tokenBase5,
+                amountBase5,
+                tokenQuote5,
+                amountQuote5,
                 config5,
                 tradeFee5,
                 gasFee5,
@@ -369,10 +369,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             let v5 = '0x' + sgn5.slice(130,132);
             let ser_hex1 = getHex(
                 user1ID,
-                tokenTarget1,
-                amountTarget1,
-                tokenTrade1,
-                amountTrade1,
+                tokenBase1,
+                amountBase1,
+                tokenQuote1,
+                amountQuote1,
                 config1,
                 tradeFee1,
                 gasFee1,
@@ -383,10 +383,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let ser_hex2 = getHex(
                 user2ID,
-                tokenTarget2,
-                amountTarget2,
-                tokenTrade2,
-                amountTrade2,
+                tokenBase2,
+                amountBase2,
+                tokenQuote2,
+                amountQuote2,
                 config2,
                 tradeFee2,
                 gasFee2,
@@ -397,10 +397,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let ser_hex3 = getHex(
                 user3ID,
-                tokenTarget3,
-                amountTarget3,
-                tokenTrade3,
-                amountTrade3,
+                tokenBase3,
+                amountBase3,
+                tokenQuote3,
+                amountQuote3,
                 config3,
                 tradeFee3,
                 gasFee3,
@@ -411,10 +411,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let ser_hex4 = getHex(
                 user4ID,
-                tokenTarget4,
-                amountTarget4,
-                tokenTrade4,
-                amountTrade4,
+                tokenBase4,
+                amountBase4,
+                tokenQuote4,
+                amountQuote4,
                 config4,
                 tradeFee4,
                 gasFee4,
@@ -425,10 +425,10 @@ contract('SerializableOrder', function ([_, user1, user2, user3, user4, user5]) 
             );
             let ser_hex5 = getHex(
                 user5ID,
-                tokenTarget5,
-                amountTarget5,
-                tokenTrade5,
-                amountTrade5,
+                tokenBase5,
+                amountBase5,
+                tokenQuote5,
+                amountQuote5,
                 config5,
                 tradeFee5,
                 gasFee5,
