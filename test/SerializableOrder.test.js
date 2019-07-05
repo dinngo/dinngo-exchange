@@ -8,10 +8,10 @@ contract('SerializableOrder', function ([_, user]) {
         this.serializableOrder = await SerializableOrderMock.new();
     });
     const userId = new BN('11');
-    const tokenIdTarget = new BN('0');
-    const tokenIdTrade = new BN('11');
-    const amountTarget = ether('1');
-    const amountTrade = ether('100');
+    const tokenIdBase = new BN('0');
+    const tokenIdQuote = new BN('11');
+    const amountBase = ether('1');
+    const amountQuote = ether('100');
     const config = new BN('3');
     const tradeFee = ether('1');
     const gasFee = ether('0.001');
@@ -31,23 +31,23 @@ contract('SerializableOrder', function ([_, user]) {
         });
 
         it('get target token ID', async function () {
-            const orderData = await this.serializableOrder.getOrderTokenIDTargetMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(tokenIdTarget);
+            const orderData = await this.serializableOrder.getOrderTokenIDBaseMock.call(serializedHex1);
+            orderData.should.be.bignumber.eq(tokenIdBase);
         });
 
         it('get target amount', async function () {
-            const orderData = await this.serializableOrder.getOrderAmountTargetMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(amountTarget);
+            const orderData = await this.serializableOrder.getOrderAmountBaseMock.call(serializedHex1);
+            orderData.should.be.bignumber.eq(amountBase);
         });
 
         it('get trade token ID', async function () {
-            const orderData = await this.serializableOrder.getOrderTokenIDTradeMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(tokenIdTrade);
+            const orderData = await this.serializableOrder.getOrderTokenIDQuoteMock.call(serializedHex1);
+            orderData.should.be.bignumber.eq(tokenIdQuote);
         });
 
         it('get trade amount', async function () {
-            const orderData = await this.serializableOrder.getOrderAmountTradeMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(amountTrade);
+            const orderData = await this.serializableOrder.getOrderAmountQuoteMock.call(serializedHex1);
+            orderData.should.be.bignumber.eq(amountQuote);
         });
 
         it('is buy order', async function () {
