@@ -325,36 +325,43 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         bytes32 hash = _getOrderHash(order);
         address tokenQuote = tokenID_Address[_getOrderTokenIDQuote(order)];
         address tokenBase = tokenID_Address[_getOrderTokenIDBase(order)];
+        address tokenFee;
         uint256 balanceQuote;
         uint256 balanceBase;
+        uint256 amountFee =
+            _getOrderTradeFee(order).mul(amountBase).div(_getOrderAmountBase(order));
         require(_isValidUser(user));
-        // Trade
-        if (_isOrderBuy(order)) {
-            balanceQuote = balances[tokenQuote][user].sub(amountQuote);
-            balanceBase = balances[tokenBase][user].add(amountBase);
-        } else {
-            balanceQuote = balances[tokenQuote][user].add(amountQuote);
-            balanceBase = balances[tokenBase][user].sub(amountBase);
-        }
-        // Get fee
-        address tokenFee = _isOrderFeeMain(order)? tokenQuote : tokenID_Address[1];
-        uint256 amountFee = _getOrderTradeFee(order).mul(amountBase).div(_getOrderAmountBase(order));
-        // Order fill
+        // Trade and fee setting
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
-        orderFills[hash] = orderFills[hash].add(amountBase);
-        if (tokenFee == tokenBase) {
-            balanceBase = balanceBase.sub(amountFee);
-        } else if (tokenFee == tokenQuote) {
-            balanceQuote = balanceQuote.sub(amountFee);
+        if (_isOrderBuy(order)) {
+            balanceQuote =
+                balances[tokenQuote][user].sub(amountQuote);
+            balanceBase =
+                balances[tokenBase][user].add(amountBase);
+            tokenFee = tokenBase;
         } else {
-            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
+            balanceQuote =
+                balances[tokenQuote][user].add(amountQuote);
+            balanceBase =
+                balances[tokenBase][user].sub(amountBase);
+            tokenFee = tokenQuote;
         }
-        balances[tokenFee][userID_Address[0]] = balances[tokenFee][userID_Address[0]].add(amountFee);
-        balances[tokenBase][user] = balanceBase;
+        if (!_isOrderFeeMain(order))
+            tokenFee = tokenID_Address[1];
+        if (tokenFee == tokenQuote)
+            balanceQuote = balanceQuote.sub(amountFee);
+        else if (tokenFee == tokenBase)
+            balanceBase = balanceBase.sub(amountFee);
+        else
+            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
         balances[tokenQuote][user] = balanceQuote;
+        balances[tokenBase][user] = balanceBase;
+        balances[tokenFee][userID_Address[0]] = balances[tokenFee][userID_Address[0]].add(amountFee);
+        // Order fill
+        orderFills[hash] = orderFills[hash].add(amountBase);
         emit Trade
         (
             user,
