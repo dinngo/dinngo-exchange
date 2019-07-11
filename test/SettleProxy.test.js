@@ -111,12 +111,20 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             event[0].args.amountBase.should.be.bignumber.eq(amountBase2);
             event[0].args.tokenQuote.should.eq(tokenQuote);
             event[0].args.amountQuote.should.be.bignumber.eq(amountQuote2);
+            event[0].args.tokenFee.should.eq(tokenQuote);
+            event[0].args.amountFee.should.be.bignumber.eq(
+                tradeFee2.add(gasFee2)
+            );
             event[1].args.user.should.eq(user1);
             event[1].args.isBuy.should.eq(true);
             event[1].args.tokenBase.should.eq(tokenBase);
             event[1].args.amountBase.should.be.bignumber.eq(amountBase2);
             event[1].args.tokenQuote.should.eq(tokenQuote);
             event[1].args.amountQuote.should.be.bignumber.eq(amountQuote2);
+            event[1].args.tokenFee.should.eq(tokenBase);
+            event[1].args.amountFee.should.be.bignumber.eq(
+                tradeFee1.mul(amountBase2).div(amountBase1).add(gasFee1)
+            );
 
             const user1Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             const user1DGO = await this.dinngo.balances.call(DGO, user1);
@@ -201,6 +209,9 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
         it('Normal 1 taker 4 maker', async function () {
             const { logs } = await this.dinngo.settle(orders1_2_3_4_5, { from: admin });
             const event = logs.filter(e => e.event === 'Trade');
+            const tradeFee = tradeFee1.mul(
+                amountBase2.add(amountBase3).add(amountBase4).add(amountBase5)
+            ).div(amountBase1);
             should.exist(event);
             event[0].args.user.should.eq(user2);
             event[0].args.isBuy.should.eq(false);
@@ -208,24 +219,40 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             event[0].args.amountBase.should.be.bignumber.eq(amountBase2);
             event[0].args.tokenQuote.should.eq(tokenQuote);
             event[0].args.amountQuote.should.be.bignumber.eq(amountQuote2);
+            event[0].args.tokenFee.should.eq(tokenQuote);
+            event[0].args.amountFee.should.be.bignumber.eq(
+                tradeFee2.add(gasFee2)
+            );
             event[1].args.user.should.eq(user3);
             event[1].args.isBuy.should.eq(false);
             event[1].args.tokenBase.should.eq(tokenBase);
             event[1].args.amountBase.should.be.bignumber.eq(amountBase3);
             event[1].args.tokenQuote.should.eq(tokenQuote);
             event[1].args.amountQuote.should.be.bignumber.eq(amountQuote3);
+            event[1].args.tokenFee.should.eq(tokenQuote);
+            event[1].args.amountFee.should.be.bignumber.eq(
+                tradeFee3.add(gasFee3)
+            );
             event[2].args.user.should.eq(user4);
             event[2].args.isBuy.should.eq(false);
             event[2].args.tokenBase.should.eq(tokenBase);
             event[2].args.amountBase.should.be.bignumber.eq(amountBase4);
             event[2].args.tokenQuote.should.eq(tokenQuote);
             event[2].args.amountQuote.should.be.bignumber.eq(amountQuote4);
+            event[2].args.tokenFee.should.eq(tokenQuote);
+            event[2].args.amountFee.should.be.bignumber.eq(
+                tradeFee4.add(gasFee4)
+            );
             event[3].args.user.should.eq(user5);
             event[3].args.isBuy.should.eq(false);
             event[3].args.tokenBase.should.eq(tokenBase);
             event[3].args.amountBase.should.be.bignumber.eq(amountBase5);
             event[3].args.tokenQuote.should.eq(tokenQuote);
             event[3].args.amountQuote.should.be.bignumber.eq(amountQuote5);
+            event[3].args.tokenFee.should.eq(DGO);
+            event[3].args.amountFee.should.be.bignumber.eq(
+                tradeFee5.add(gasFee5)
+            );
             event[4].args.user.should.eq(user1);
             event[4].args.isBuy.should.eq(true);
             event[4].args.tokenBase.should.eq(tokenBase);
@@ -248,6 +275,10 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
                     amountQuote5
                 )
             );
+            event[4].args.tokenFee.should.eq(tokenBase);
+            event[4].args.amountFee.should.be.bignumber.eq(
+                tradeFee.add(gasFee1)
+            );
             const user1Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             const user1DGO = await this.dinngo.balances.call(DGO, user1);
             const user1Token = await this.dinngo.balances.call(token, user1);
@@ -266,9 +297,6 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             const walletEther = await this.dinngo.balances.call(ZERO_ADDRESS, dinngoWallet);
             const walletDGO = await this.dinngo.balances.call(DGO, dinngoWallet);
             const walletToken = await this.dinngo.balances.call(token, dinngoWallet);
-            const tradeFee = tradeFee1.mul(
-                amountBase2.add(amountBase3).add(amountBase4).add(amountBase5)
-            ).div(amountBase1);
             user1Ether.should.be.bignumber.eq(
                 balance.sub(
                     amountQuote2
@@ -469,12 +497,20 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             event[0].args.amountBase.should.be.bignumber.eq(amountBase2);
             event[0].args.tokenQuote.should.eq(tokenQuote);
             event[0].args.amountQuote.should.be.bignumber.eq(amountQuote2);
+            event[0].args.tokenFee.should.eq(tokenBase);
+            event[0].args.amountFee.should.be.bignumber.eq(
+                tradeFee2.add(gasFee2)
+            );
             event[1].args.user.should.eq(user1);
             event[1].args.isBuy.should.eq(false);
             event[1].args.tokenBase.should.eq(tokenBase);
             event[1].args.amountBase.should.be.bignumber.eq(amountBase2);
             event[1].args.tokenQuote.should.eq(tokenQuote);
             event[1].args.amountQuote.should.be.bignumber.eq(amountQuote2);
+            event[1].args.tokenFee.should.eq(tokenQuote);
+            event[1].args.amountFee.should.be.bignumber.eq(
+                tradeFee1.mul(amountBase2).div(amountBase1).add(gasFee1)
+            );
 
             const user1Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             const user1DGO = await this.dinngo.balances.call(DGO, user1);

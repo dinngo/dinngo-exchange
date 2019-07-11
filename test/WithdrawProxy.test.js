@@ -245,7 +245,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.deposit({ from: user1, value: balance });
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, { from: admin });
             balance = balance.sub(amount1).sub(fee1);
-            inLogs(logs, 'Withdraw', { token: ZERO_ADDRESS, user: user1, amount: amount1, balance: balance });
+            inLogs(logs, 'Withdraw', { token: ZERO_ADDRESS, user: user1, amount: amount1, balance: balance, tokenFee: ZERO_ADDRESS, amountFee: fee1 });
         });
 
         it('when normal count gas', async function () {
@@ -279,7 +279,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.deposit({ from: user1, value: balance });
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, { from: admin });
             balance = balance.sub(amount1).sub(fee1);
-            inLogs(logs, 'Withdraw', { token: ZERO_ADDRESS, user: user1, amount: amount1, balance: balance });
+            inLogs(logs, 'Withdraw', { token: ZERO_ADDRESS, user: user1, amount: amount1, balance: balance, tokenFee: ZERO_ADDRESS, amountFee: fee1 });
         });
 
         it('when fee is insufficient', async function () {
@@ -300,7 +300,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, tokenContract, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
         });
 
         it('when normal count gas', async function () {
@@ -340,7 +340,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, tokenContract, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
             (await this.dinngo.balances.call(tokenContract, user2)).should.be.bignumber.eq(ether('3').sub(fee2));
         });
 
@@ -364,7 +364,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, tokenContract, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
         });
 
         it('when normal count gas', async function () {
@@ -404,7 +404,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, tokenContract, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
             (await this.dinngo.balances.call(tokenContract, user2)).should.be.bignumber.eq(ether('3').sub(fee2));
         });
 

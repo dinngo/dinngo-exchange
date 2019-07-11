@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - Change the fee token in trading from quote to the output token.
 - Gas optimization.
 
+### Deprecated
+- Add the fee information in event Trade and Withdraw.
+
 ## [1.0.0] - 2019-04-09
 ### Changed
 - Fix the storage alignment of implementation contract.
