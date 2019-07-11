@@ -36,14 +36,23 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
     event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
-    event Withdraw(address token, address indexed user, uint256 amount, uint256 balance);
+    event Withdraw(
+        address token,
+        address indexed user,
+        uint256 amount,
+        uint256 balance,
+        address tokenFee,
+        uint256 amountFee
+    );
     event Trade(
         address indexed user,
         bool isBuy,
         address indexed tokenBase,
         uint256 amountBase,
         address indexed tokenQuote,
-        uint256 amountQuote
+        uint256 amountQuote,
+        address tokenFee,
+        uint256 amountFee
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
@@ -184,7 +193,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         require(_isValidUser(msg.sender));
         require(amount > 0);
         balances[address(0)][msg.sender] = balances[address(0)][msg.sender].sub(amount);
-        emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender]);
+        emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender], address(0), 0);
         msg.sender.transfer(amount);
     }
 
@@ -201,7 +210,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         require(_isValidToken(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
-        emit Withdraw(token, msg.sender, amount, balances[token][msg.sender]);
+        emit Withdraw(token, msg.sender, amount, balances[token][msg.sender], address(0), 0);
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
@@ -234,7 +243,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         balances[tokenFee][wallet] =
             balances[tokenFee][wallet].add(amountFee);
         balances[token][user] = balance;
-        emit Withdraw(token, user, amount, balance);
+        emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
         if (token == address(0)) {
             user.transfer(amount);
         } else {
@@ -325,6 +334,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         bytes32 hash = _getOrderHash(order);
         address tokenQuote = tokenID_Address[_getOrderTokenIDQuote(order)];
         address tokenBase = tokenID_Address[_getOrderTokenIDBase(order)];
+        address tokenFee;
         uint256 amountFee =
             _getOrderTradeFee(order).mul(amountBase).div(_getOrderAmountBase(order));
         require(_isValidUser(user));
@@ -337,10 +347,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         if (fBuy) {
             balances[tokenQuote][user] = balances[tokenQuote][user].sub(amountQuote);
             if (_isOrderFeeMain(order)) {
+                tokenFee = tokenBase;
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase).sub(amountFee);
                 balances[tokenBase][wallet] = balances[tokenBase][wallet].add(amountFee);
             } else {
-                address tokenFee = tokenID_Address[1];
+                tokenFee = tokenID_Address[1];
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
                 balances[tokenFee][wallet] = balances[tokenFee][wallet].add(amountFee);
@@ -348,10 +359,11 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         } else {
             balances[tokenBase][user] = balances[tokenBase][user].sub(amountBase);
             if (_isOrderFeeMain(order)) {
+                tokenFee = tokenQuote;
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote).sub(amountFee);
                 balances[tokenQuote][wallet] = balances[tokenQuote][wallet].add(amountFee);
             } else {
-                address tokenFee = tokenID_Address[1];
+                tokenFee = tokenID_Address[1];
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
                 balances[tokenFee][wallet] = balances[tokenFee][wallet].add(amountFee);
@@ -366,7 +378,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
             tokenBase,
             amountBase,
             tokenQuote,
-            amountQuote
+            amountQuote,
+            tokenFee,
+            amountFee
         );
     }
 

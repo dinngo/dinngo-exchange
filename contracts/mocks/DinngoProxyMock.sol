@@ -6,14 +6,23 @@ contract DinngoProxyMock is DinngoProxy {
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
     event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
-    event Withdraw(address token, address indexed user, uint256 amount, uint256 balance);
+    event Withdraw(
+        address token,
+        address indexed user,
+        uint256 amount,
+        uint256 balance,
+        address tokenFee,
+        uint256 amountFee
+    );
     event Trade(
         address indexed user,
         bool isBuy,
         address indexed tokenBase,
         uint256 amountBase,
         address indexed tokenQuote,
-        uint256 amountQuote
+        uint256 amountQuote,
+        address tokenFee,
+        uint256 amountFee
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
