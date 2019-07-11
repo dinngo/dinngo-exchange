@@ -212,6 +212,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
      */
     function withdrawByAdmin(bytes calldata withdrawal) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
+        address wallet = userID_Address[0];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
         uint256 amountFee = _getWithdrawalFee(withdrawal);
@@ -230,8 +231,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
         } else {
             balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
         }
-        balances[tokenFee][userID_Address[0]] =
-            balances[tokenFee][userID_Address[0]].add(amountFee);
+        balances[tokenFee][wallet] =
+            balances[tokenFee][wallet].add(amountFee);
         balances[token][user] = balance;
         emit Withdraw(token, user, amount, balance);
         if (token == address(0)) {
