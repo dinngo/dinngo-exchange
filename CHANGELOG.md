@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Change the naming from target/trade to base/quote.
 - Change the fee token in trading from quote to the output token.
+- Gas optimization.
 
 ## [1.0.0] - 2019-04-09
 ### Changed
