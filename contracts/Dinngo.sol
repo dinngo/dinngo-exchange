@@ -6,13 +6,15 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
+import "./SerializableMigration.sol";
+import "./migrate/Migratable.sol";
 
 /**
  * @title Dinngo
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal {
+contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigration {
     // Storage alignment
     address private _owner;
     mapping (address => bool) private admins;
@@ -56,6 +58,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
+    event Migrate(address indexed user, address token, uint256 amount);
 
     /**
      * @dev All ether directly sent to contract will be refunded
@@ -248,6 +251,44 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal {
             user.transfer(amount);
         } else {
             IERC20(token).safeTransfer(user, amount);
+        }
+    }
+
+    /**
+     * @notice The migrate function the can only triggered by admin.
+     * Event Migrate will be emitted after execution.
+     * @param migration The serialized migration data
+     */
+    function migrateByAdmin(bytes calldata migration) external {
+        address target = _getMigrationTarget(migration);
+        address user = userID_Address[_getMigrationUserID(migration)];
+        address wallet = userID_Address[0];
+        uint256 nToken = _getMigrationCount(migration);
+        uint256 amountFee = _getMigrationFee(migration);
+        address tokenFee = _isMigrationFeeETH(migration)? address(0) : tokenID_Address[1];
+        _verifySig(
+            user,
+            _getMigrationHash(migration),
+            _getMigrationR(migration),
+            _getMigrationS(migration),
+            _getMigrationV(migration)
+        );
+        for (uint i = 0; i < nToken; i++) {
+            address token = tokenID_Address[_getMigrationTokenID(migration, i)];
+            uint256 amount = balances[token][user];
+            require(amount != 0);
+            uint256 balance = amount;
+            if (tokenFee == token) {
+                balance.sub(amountFee);
+                balances[token][wallet] = balances[token][wallet].add(amountFee);
+            }
+            balances[token][user] = 0;
+            emit Migrate(user, token, amount);
+            if (token == address(0)) {
+                Migratable(target).migrateTo.value(balance)(user, token, balance);
+            } else {
+                Migratable(target).migrateTo(user, token, balance);
+            }
         }
     }
 
