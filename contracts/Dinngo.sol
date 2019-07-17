@@ -287,6 +287,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);
             } else {
+                IERC20(token).approve(target, balance);
                 Migratable(target).migrateTo(user, token, balance);
             }
         }

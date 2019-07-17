@@ -82,7 +82,8 @@ function getHex3(target, userID, tokenID1, tokenID2, tokenID3, config, fee, r, s
     );
 }
 
-contract('SerializableMigration', function ([_, deployer, user1, user2]) {
+/*
+contract('SerializableMigration', function ([_, user1, user2, deployer]) {
     before(async function () {
         this.Target = await DummyTarget.new({ from: deployer });
     });
@@ -127,6 +128,7 @@ contract('SerializableMigration', function ([_, deployer, user1, user2]) {
             console.log(s);
             console.log(v);
             console.log(ser_hex);
+            console.log(this.Target.address);
         });
 
         it('hex2', async function () {
@@ -160,6 +162,8 @@ contract('SerializableMigration', function ([_, deployer, user1, user2]) {
             console.log(s);
             console.log(v);
             console.log(ser_hex);
+            console.log(this.Target.address);
         });
     });
 });
+*/

@@ -4,13 +4,11 @@ const { ZERO_ADDRESS } = constants;
 const DummyTarget = artifacts.require('DummyTarget');
 const SerializableMigrationMock = artifacts.require('SerializableMigrationMock');
 
-contract('SerializableMigration', function ([_, deployer, user1, user2]) {
-    before(async function () {
-        this.Target = await DummyTarget.new({ from: deployer });
-    });
+contract('SerializableMigration', function ([_, user1, user2]) {
     beforeEach(async function () {
         this.SerializableMigration = await SerializableMigrationMock.new();
     });
+    const target = '0x471C92F915ae766C4964eEdC300e5b8FF41e443c';
     const user1Id = new BN('11');
     const user2Id = new BN('12');
     const tokenId = new BN('0');
@@ -21,21 +19,21 @@ contract('SerializableMigration', function ([_, deployer, user1, user2]) {
     const config2 = new BN('0');
     const fee1 = ether('0');
     const fee2 = ether('0.001');
-    const r1 = '0x0e14227adc9b546aeba463db6390e20202caa4bdd9fdb630ba9d1d33374a6b35';
-    const s1 = '0x109602a489a8cd40b4603bc018eb42968256d972f2822d13d53ebd50186410e9';
-    const v1 = new BN('0');
-    const hash1 = '0x342a7db12b1cc1fe449cbc71c50f6e1c973607f7f8529a4c39377b8486e270c2';
-    const serializedHex1 = '0x109602a489a8cd40b4603bc018eb42968256d972f2822d13d53ebd50186410e90e14227adc9b546aeba463db6390e20202caa4bdd9fdb630ba9d1d33374a6b350000000000000000000000000000000000000000000000000000000000000000000100000000000bb9a219631aed55ebc3d998f17c3840b7ec39c0cc';
-    const r2 = '0x7bc5a1bcc00dfd5b93b539b1a6ac2a79d15de461f9407998346ecb963b0e60e4';
-    const s2 = '0x650431c890b805c47996819e04e5d0a206b287ad4d37ece64dbe69a0c3a8fd7c';
+    const r1 = '0xb2a61dc1054407b11469e977690f1a9707ecab83a1e7ed166a6ac6caac236f30';
+    const s1 = '0x07e3e2071788405915e2ec793847d7e5e3c81181d50e36d56a1eeba1e32f6fcd';
+    const v1 = new BN('1');
+    const hash1 = '0x1d7db85eea77bf8780540a92faad848ca75a76d6cbfc72d24c33f0f605cf89db';
+    const serializedHex1 = '0x07e3e2071788405915e2ec793847d7e5e3c81181d50e36d56a1eeba1e32f6fcdb2a61dc1054407b11469e977690f1a9707ecab83a1e7ed166a6ac6caac236f300100000000000000000000000000000000000000000000000000000000000000000100000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const r2 = '0x73f3bcc24139c57ea8b9affa666ff0371c412e6e25aaf156fe784cd20c19b359';
+    const s2 = '0x30e4e07a2020146450e4cdd71883d97e0f64f33f9fb5e4096fd2c8bcd01db339';
     const v2 = new BN('0');
-    const hash2 = '0x546ff5928871c8517d4cb1e00f91976d7013f71806bdc2153b35aba6edb08359';
-    const serializedHex2 = '0x650431c890b805c47996819e04e5d0a206b287ad4d37ece64dbe69a0c3a8fd7c7bc5a1bcc00dfd5b93b539b1a6ac2a79d15de461f9407998346ecb963b0e60e40000000000000000000000000000000000000000000000000000038d7ea4c68000000017000b00000000000cb9a219631aed55ebc3d998f17c3840b7ec39c0cc';
+    const hash2 = '0xc9bea99260c2398c640bbc208c393edc3e29e0accb1c06f0eb68cd25e9a5d45a';
+    const serializedHex2 = '0x30e4e07a2020146450e4cdd71883d97e0f64f33f9fb5e4096fd2c8bcd01db33973f3bcc24139c57ea8b9affa666ff0371c412e6e25aaf156fe784cd20c19b3590000000000000000000000000000000000000000000000000000038d7ea4c68000000017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
 
     describe('deserialize single', function () {
         it('get target', async function () {
             const migrationData = await this.SerializableMigration.getMigrationTargetMock.call(serializedHex1);
-            migrationData.should.eq(this.Target.address);
+            migrationData.should.eq(target);
         });
 
         it('get user ID', async function () {
@@ -82,7 +80,7 @@ contract('SerializableMigration', function ([_, deployer, user1, user2]) {
     describe('deserialize multiple', function () {
         it('get target', async function () {
             const migrationData = await this.SerializableMigration.getMigrationTargetMock.call(serializedHex2);
-            migrationData.should.eq(this.Target.address);
+            migrationData.should.eq(target);
         });
 
         it('get user ID', async function () {
