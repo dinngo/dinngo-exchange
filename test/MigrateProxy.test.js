@@ -20,7 +20,7 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
     const tokenID1 = new BN('0');
     const tokenID2 = new BN('11');
     const tokenID3 = new BN('23');
-    const depositValue = ether('10');
+    const depositValue = ether('0.1');
     const migration1 = '0x15ddf6a61e62aaa16e0be4328850414f188ae687755cad262cd971de571439b887a72fa86c8490370b4498d9afe1d75e876174ccf8018a14fd9da87756fb8c8a0100000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
     const migration2 = '0x75ec1c777383273eb634c579f4235161d721658fc7bc209f88ff392090622e34d3cf89a5a2de798c0d5dd21beddb67d16663ca0de2e59233f6fbc99484013322010017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
 
