@@ -13,7 +13,6 @@ contract SerializableMigration {
     using BytesLib for bytes;
 
     uint constant public MIGRATION_1_SIZE = 24;
-    uint constant public MIGRATION_2_SIZE = 33;
     uint constant public TOKENID_SIZE = 2;
     uint constant public SIGNATURE_SIZE = 65;
     uint8 constant internal _MASK_IS_ETH = 0x01;
@@ -42,7 +41,7 @@ contract SerializableMigration {
      * @return n The migrate token amount
      */
     function _getMigrationCount(bytes memory ser_data) internal pure returns (uint256 n) {
-        n = (ser_data.length - SIGNATURE_SIZE - MIGRATION_1_SIZE - MIGRATION_2_SIZE) / 2;
+        n = (ser_data.length - SIGNATURE_SIZE - MIGRATION_1_SIZE) / 2;
     }
 
     /**
@@ -54,24 +53,6 @@ contract SerializableMigration {
     function _getMigrationTokenID(bytes memory ser_data, uint index) internal pure returns (uint256 tokenID) {
         require(index < _getMigrationCount(ser_data));
         tokenID = ser_data.toUint16(ser_data.length - MIGRATION_1_SIZE - (TOKENID_SIZE.mul(index + 1)));
-    }
-
-    /**
-     * @notice Check if the fee is paid by main token
-     * @param ser_data Serialized migration data
-     * @return fETH Is the fee paid in ETH or DGO
-     */
-    function _isMigrationFeeETH(bytes memory ser_data) internal pure returns (bool fFeeETH) {
-        fFeeETH = (ser_data.toUint8(SIGNATURE_SIZE + MIGRATION_2_SIZE - 1) & _MASK_IS_ETH != 0);
-    }
-
-    /**
-     * @notice Get fee amount from the serialized migration data
-     * @param ser_data Serialized migration data
-     * @return fee Fee amount
-     */
-    function _getMigrationFee(bytes memory ser_data) internal pure returns (uint256 fee) {
-        fee = ser_data.toUint(SIGNATURE_SIZE + MIGRATION_2_SIZE - 33);
     }
 
     /**

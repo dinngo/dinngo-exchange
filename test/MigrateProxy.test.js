@@ -1,4 +1,6 @@
 const { BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { inLogs } = expectEvent;
+const { reverting } = shouldFail;
 const { ZERO_ADDRESS } = constants;
 
 const Dinngo = artifacts.require('Dinngo');
@@ -7,7 +9,7 @@ const DummyTarget = artifacts.require('DummyTarget');
 const SimpleToken = artifacts.require('SimpleToken');
 
 
-contract('Migrate', function ([_, user1, user2, deployer, owner, tokenWallet, tokenContract]) {
+contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWallet, tokenContract]) {
     before(async function () {
         this.target = await DummyTarget.new({ from: deployer });
     });
@@ -20,16 +22,14 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, tokenWallet, to
     const tokenID2 = new BN('11');
     const tokenID3 = new BN('23');
     const depositValue = ether('10');
-    const isFeeETH1 = true;
-    const isFeeETH2 = false;
-    const fee1 = new BN('0');
-    const fee2 = new BN('0.001');
-    const migration1 = '0x07e3e2071788405915e2ec793847d7e5e3c81181d50e36d56a1eeba1e32f6fcdb2a61dc1054407b11469e977690f1a9707ecab83a1e7ed166a6ac6caac236f300100000000000000000000000000000000000000000000000000000000000000000100000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
-    const migration2 = '0x30e4e07a2020146450e4cdd71883d97e0f64f33f9fb5e4096fd2c8bcd01db33973f3bcc24139c57ea8b9affa666ff0371c412e6e25aaf156fe784cd20c19b3590000000000000000000000000000000000000000000000000000038d7ea4c68000000017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const migration1 = '0x15ddf6a61e62aaa16e0be4328850414f188ae687755cad262cd971de571439b887a72fa86c8490370b4498d9afe1d75e876174ccf8018a14fd9da87756fb8c8a0100000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const migration2 = '0x75ec1c777383273eb634c579f4235161d721658fc7bc209f88ff392090622e34d3cf89a5a2de798c0d5dd21beddb67d16663ca0de2e59233f6fbc99484013322010017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
 
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
+        await this.dinngo.activateAdmin(admin, { from: owner });
+        await this.dinngo.deactivateAdmin(owner, { from: owner });
         await this.dinngo.setUser(userID1, user1, rank);
         await this.dinngo.setUser(userID2, user2, rank);
         this.token1 = await SimpleToken.new({ from: user2 });
@@ -58,7 +58,9 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, tokenWallet, to
             etherTarget.should.be.bignumber.eq('0');
             etherOld.should.eq(depositValue.toString());
             etherNew.should.eq('0');
-            await this.dinngo.migrateByAdmin(migration1, { from: owner });
+            const receipt = await this.dinngo.migrateByAdmin(migration1, { from: admin });
+            console.log(receipt.receipt.gasUsed);
+            inLogs(receipt.logs, 'Migrate', { user: user1, token: ZERO_ADDRESS, amount: depositValue });
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user1);
             etherDinngo.should.be.bignumber.eq('0');
@@ -68,6 +70,19 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, tokenWallet, to
             etherOld.should.eq('0');
             etherNew.should.eq(depositValue.toString());
         });
+
+        it('when sent by owner', async function () {
+            await reverting(this.dinngo.migrateByAdmin(migration1, { from: owner }));
+        });
+
+        it('when sent by non-admin', async function () {
+            await reverting(this.dinngo.migrateByAdmin(migration1));
+        });
+
+        it('when user is removed', async function () {
+            await this.dinngo.removeUser(user1, { from: admin });
+            await reverting(this.dinngo.migrateByAdmin(migration1, { from: admin }));
+        })
     });
 
     describe('multiple tokens', function () {
@@ -119,7 +134,10 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, tokenWallet, to
             token2New.should.be.bignumber.eq('0');
 
             await this.dinngo.setUserBalance(user2, tokenContract, depositValue);
-            await this.dinngo.migrateByAdmin(migration2, { from: owner });
+            const receipt = await this.dinngo.migrateByAdmin(migration2, { from: admin });
+            console.log(receipt.receipt.gasUsed);
+            inLogs(receipt.logs, 'Migrate', { user: user2, token: ZERO_ADDRESS, amount: depositValue });
+            console.log(receipt.logs);
 
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user2);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user2);

@@ -14,14 +14,6 @@ contract SerializableMigrationMock is SerializableMigration {
         return _getMigrationUserID(ser_data);
     }
 
-    function isMigrationFeeETHMock(bytes calldata ser_data) external pure returns (bool fFeeETH) {
-        return _isMigrationFeeETH(ser_data);
-    }
-
-    function getMigrationFeeMock(bytes calldata ser_data) external pure returns (uint256 fee) {
-        return _getMigrationFee(ser_data);
-    }
-
     function getMigrationCountMock(bytes calldata ser_data) external pure returns (uint256 n) {
         return _getMigrationCount(ser_data);
     }

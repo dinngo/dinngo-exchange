@@ -262,10 +262,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     function migrateByAdmin(bytes calldata migration) external {
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
-        address wallet = userID_Address[0];
         uint256 nToken = _getMigrationCount(migration);
-        uint256 amountFee = _getMigrationFee(migration);
-        address tokenFee = _isMigrationFeeETH(migration)? address(0) : tokenID_Address[1];
+        require(_isValidUser(user));
         _verifySig(
             user,
             _getMigrationHash(migration),
@@ -275,15 +273,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         );
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
-            uint256 amount = balances[token][user];
-            require(amount != 0);
-            uint256 balance = amount;
-            if (tokenFee == token) {
-                balance.sub(amountFee);
-                balances[token][wallet] = balances[token][wallet].add(amountFee);
-            }
+            uint256 balance = balances[token][user];
+            require(balance != 0);
             balances[token][user] = 0;
-            emit Migrate(user, token, amount);
+            emit Migrate(user, token, balance);
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);
             } else {
