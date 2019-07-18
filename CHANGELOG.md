@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Added
+- Implement the migration function.
+
 ### Changed
 - Change the naming from target/trade to base/quote.
 - Change the fee token in trading from quote to the output token.
