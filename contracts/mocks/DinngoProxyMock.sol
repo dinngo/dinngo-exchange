@@ -26,7 +26,6 @@ contract DinngoProxyMock is DinngoProxy {
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
-    event Migrate(address indexed user, address token, uint256 amount);
 
     constructor(address payable dinngoWallet, address dinngoToken, address impl)
         DinngoProxy(dinngoWallet, dinngoToken, impl)

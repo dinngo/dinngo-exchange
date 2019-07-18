@@ -58,7 +58,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
-    event Migrate(address indexed user, address token, uint256 amount);
 
     /**
      * @dev All ether directly sent to contract will be refunded
@@ -276,7 +275,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             uint256 balance = balances[token][user];
             require(balance != 0);
             balances[token][user] = 0;
-            emit Migrate(user, token, balance);
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);
             } else {

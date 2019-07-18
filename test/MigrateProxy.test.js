@@ -1,5 +1,4 @@
-const { BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
-const { inLogs } = expectEvent;
+const { BN, constants, ether, shouldFail } = require('openzeppelin-test-helpers');
 const { reverting } = shouldFail;
 const { ZERO_ADDRESS } = constants;
 
@@ -60,7 +59,6 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             etherNew.should.eq('0');
             const receipt = await this.dinngo.migrateByAdmin(migration1, { from: admin });
             console.log(receipt.receipt.gasUsed);
-            inLogs(receipt.logs, 'Migrate', { user: user1, token: ZERO_ADDRESS, amount: depositValue });
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user1);
             etherDinngo.should.be.bignumber.eq('0');
@@ -136,8 +134,6 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             await this.dinngo.setUserBalance(user2, tokenContract, depositValue);
             const receipt = await this.dinngo.migrateByAdmin(migration2, { from: admin });
             console.log(receipt.receipt.gasUsed);
-            inLogs(receipt.logs, 'Migrate', { user: user2, token: ZERO_ADDRESS, amount: depositValue });
-            console.log(receipt.logs);
 
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user2);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user2);
