@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [1.1.0] - 2019-07-19
 ### Added
 - Implement the migration function.
 
