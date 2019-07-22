@@ -35,6 +35,9 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
+    address public dinngoWallet;
+    address public DGOToken;
+
     event AddUser(uint256 userID, address indexed user);
     event AddToken(uint256 tokenID, address indexed token);
     event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
@@ -223,11 +226,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      */
     function withdrawByAdmin(bytes calldata withdrawal) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
-        address wallet = userID_Address[0];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
         uint256 amountFee = _getWithdrawalFee(withdrawal);
-        address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : tokenID_Address[1];
+        address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
         uint256 balance = balances[token][user].sub(amount);
         require(_isValidUser(user));
         _verifySig(
@@ -242,8 +244,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         } else {
             balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
         }
-        balances[tokenFee][wallet] =
-            balances[tokenFee][wallet].add(amountFee);
+        balances[tokenFee][dinngoWallet] =
+            balances[tokenFee][dinngoWallet].add(amountFee);
         balances[token][user] = balance;
         emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
         if (token == address(0)) {
@@ -363,7 +365,6 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(amountBase != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
-        address wallet = userID_Address[0];
         bytes32 hash = _getOrderHash(order);
         address tokenQuote = tokenID_Address[_getOrderTokenIDQuote(order)];
         address tokenBase = tokenID_Address[_getOrderTokenIDBase(order)];
@@ -382,24 +383,24 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             if (_isOrderFeeMain(order)) {
                 tokenFee = tokenBase;
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase).sub(amountFee);
-                balances[tokenBase][wallet] = balances[tokenBase][wallet].add(amountFee);
+                balances[tokenBase][dinngoWallet] = balances[tokenBase][dinngoWallet].add(amountFee);
             } else {
-                tokenFee = tokenID_Address[1];
+                tokenFee = DGOToken;
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
-                balances[tokenFee][wallet] = balances[tokenFee][wallet].add(amountFee);
+                balances[tokenFee][dinngoWallet] = balances[tokenFee][dinngoWallet].add(amountFee);
             }
         } else {
             balances[tokenBase][user] = balances[tokenBase][user].sub(amountBase);
             if (_isOrderFeeMain(order)) {
                 tokenFee = tokenQuote;
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote).sub(amountFee);
-                balances[tokenQuote][wallet] = balances[tokenQuote][wallet].add(amountFee);
+                balances[tokenQuote][dinngoWallet] = balances[tokenQuote][dinngoWallet].add(amountFee);
             } else {
-                tokenFee = tokenID_Address[1];
+                tokenFee = DGOToken;
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
-                balances[tokenFee][wallet] = balances[tokenFee][wallet].add(amountFee);
+                balances[tokenFee][dinngoWallet] = balances[tokenFee][dinngoWallet].add(amountFee);
             }
         }
         // Order fill

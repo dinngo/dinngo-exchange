@@ -25,22 +25,28 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
+    address public dinngoWallet;
+    address public DGOToken;
+
     /**
      * @dev User ID 0 is the management wallet.
      * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
-     * @param dinngoWallet The main address of dinngo
-     * @param dinngoToken The contract address of DGO
+     * @param _dinngoWallet The main address of dinngo
+     * @param _dinngoToken The contract address of DGO
+     * @param _impl The implementation contract address
      */
     constructor(
-        address payable dinngoWallet,
-        address dinngoToken,
-        address impl
-    ) Proxy(impl) public {
+        address payable _dinngoWallet,
+        address _dinngoToken,
+        address _impl
+    ) Proxy(_impl) public {
         processTime = 90 days;
-        userID_Address[0] = dinngoWallet;
-        userRanks[dinngoWallet] = 255;
+        dinngoWallet = _dinngoWallet;
         tokenID_Address[0] = address(0);
-        tokenID_Address[1] = dinngoToken;
+        tokenRanks[address(0)] = 1;
+        tokenID_Address[1] = _dinngoToken;
+        tokenRanks[_dinngoToken] = 1;
+        DGOToken = _dinngoToken;
     }
 
     /**
