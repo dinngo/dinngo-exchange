@@ -227,7 +227,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     function extractFee(uint256 amount) external {
         require(amount > 0);
         require(msg.sender == dinngoWallet);
-        balances[address(0)][dinngoWallet] = balances[address(0)][msg.sender].sub(amount);
+        balances[address(0)][address(0)] = balances[address(0)][address(0)].sub(amount);
         msg.sender.transfer(amount);
     }
 
@@ -241,7 +241,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(amount > 0);
         require(msg.sender ==  dinngoWallet);
         require(token != address(0));
-        balances[token][dinngoWallet] = balances[token][dinngoWallet].sub(amount);
+        balances[token][address(0)] = balances[token][address(0)].sub(amount);
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
@@ -270,8 +270,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         } else {
             balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
         }
-        balances[tokenFee][dinngoWallet] =
-            balances[tokenFee][dinngoWallet].add(amountFee);
+        balances[tokenFee][address(0)] =
+            balances[tokenFee][address(0)].add(amountFee);
         balances[token][user] = balance;
         emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
         if (token == address(0)) {
@@ -409,24 +409,24 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             if (_isOrderFeeMain(order)) {
                 tokenFee = tokenBase;
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase).sub(amountFee);
-                balances[tokenBase][dinngoWallet] = balances[tokenBase][dinngoWallet].add(amountFee);
+                balances[tokenBase][address(0)] = balances[tokenBase][address(0)].add(amountFee);
             } else {
                 tokenFee = DGOToken;
                 balances[tokenBase][user] = balances[tokenBase][user].add(amountBase);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
-                balances[tokenFee][dinngoWallet] = balances[tokenFee][dinngoWallet].add(amountFee);
+                balances[tokenFee][address(0)] = balances[tokenFee][address(0)].add(amountFee);
             }
         } else {
             balances[tokenBase][user] = balances[tokenBase][user].sub(amountBase);
             if (_isOrderFeeMain(order)) {
                 tokenFee = tokenQuote;
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote).sub(amountFee);
-                balances[tokenQuote][dinngoWallet] = balances[tokenQuote][dinngoWallet].add(amountFee);
+                balances[tokenQuote][address(0)] = balances[tokenQuote][address(0)].add(amountFee);
             } else {
                 tokenFee = DGOToken;
                 balances[tokenQuote][user] = balances[tokenQuote][user].add(amountQuote);
                 balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
-                balances[tokenFee][dinngoWallet] = balances[tokenFee][dinngoWallet].add(amountFee);
+                balances[tokenFee][address(0)] = balances[tokenFee][address(0)].add(amountFee);
             }
         }
         // Order fill

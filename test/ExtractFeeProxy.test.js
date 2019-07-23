@@ -24,13 +24,13 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
         beforeEach(async function () {
             await this.dinngo.setUser(userId, user, rank);
             await this.dinngo.deposit({ value: depositValue, from: user });
-            await this.dinngo.setUserBalance(tokenWallet, ZERO_ADDRESS, depositValue);
+            await this.dinngo.setUserBalance(ZERO_ADDRESS, ZERO_ADDRESS, depositValue);
         });
 
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractFee(amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(ZERO_ADDRESS, tokenWallet);
+            const balance = await this.dinngo.balances.call(ZERO_ADDRESS, ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
@@ -52,13 +52,13 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
-            await this.dinngo.setUserBalance(tokenWallet, this.token.address, depositValue);
+            await this.dinngo.setUserBalance(ZERO_ADDRESS, this.token.address, depositValue);
         });
 
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(this.token.address, tokenWallet);
+            const balance = await this.dinngo.balances.call(this.token.address, ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
@@ -85,13 +85,13 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
-            await this.dinngo.setUserBalance(tokenWallet, this.token.address, depositValue);
+            await this.dinngo.setUserBalance(ZERO_ADDRESS, this.token.address, depositValue);
         });
 
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(this.token.address, tokenWallet);
+            const balance = await this.dinngo.balances.call(this.token.address, ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
