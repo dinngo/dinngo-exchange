@@ -220,6 +220,32 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     }
 
     /**
+     * @notice The extract function for fee in ether. Can only be triggered by
+     * the dinngo wallet owner.
+     * @param amount The amount to be withdrawn
+     */
+    function extractFee(uint256 amount) external {
+        require(amount > 0);
+        require(msg.sender == dinngoWallet);
+        balances[address(0)][dinngoWallet] = balances[address(0)][msg.sender].sub(amount);
+        msg.sender.transfer(amount);
+    }
+
+    /**
+     * @notice The extract function for fee in token. Can only be triggered by
+     * the dinngo wallet owner.
+     * @param token The token contract address to be withdrawn
+     * @param amount The amount to be withdrawn
+     */
+    function extractTokenFee(address token, uint256 amount) external {
+        require(amount > 0);
+        require(msg.sender ==  dinngoWallet);
+        require(token != address(0));
+        balances[token][dinngoWallet] = balances[token][dinngoWallet].sub(amount);
+        IERC20(token).safeTransfer(msg.sender, amount);
+    }
+
+    /**
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data

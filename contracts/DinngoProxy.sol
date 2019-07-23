@@ -204,6 +204,31 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     }
 
     /**
+     * @notice The function to extract the fee from the fee account. This function can
+     * only be triggered by the income wallet owner.
+     * @param amount The amount to be extracted
+     */
+    function extractFee(uint256 amount) external {
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("extractFee(uint256)", amount)
+        );
+        require(ok);
+    }
+
+    /**
+     * @notice The function to extract the fee from the fee account. This function can
+     * only be triggered by the income wallet owner.
+     * @param token The token to be extracted
+     * @param amount The amount to be extracted
+     */
+    function extractTokenFee(address token, uint256 amount) external {
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("extractTokenFee(address,uint256)", token, amount)
+        );
+        require(ok);
+    }
+
+    /**
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
