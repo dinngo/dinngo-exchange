@@ -9,7 +9,7 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
-contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
+contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenContract]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
