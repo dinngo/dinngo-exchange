@@ -246,6 +246,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     }
 
     /**
+     * @notice The function to get the balance from fee account.
+     * @param token The token of the balance to be queried
+     */
+    function getFeeWallet(address token) external view returns (uint256) {
+        return balances[token][address(0)];
+    }
+
+    /**
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data

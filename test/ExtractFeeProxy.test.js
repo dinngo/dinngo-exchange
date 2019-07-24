@@ -30,7 +30,7 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractFee(amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(ZERO_ADDRESS, ZERO_ADDRESS);
+            const balance = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
@@ -58,7 +58,7 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(this.token.address, ZERO_ADDRESS);
+            const balance = await this.dinngo.getFeeWallet.call(this.token.address);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
@@ -91,7 +91,7 @@ contract('ExtractFee', function ([_, user, owner, tokenWallet, tokenContract]) {
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
-            const balance = await this.dinngo.balances.call(this.token.address, ZERO_ADDRESS);
+            const balance = await this.dinngo.getFeeWallet.call(this.token.address);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
