@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### Added
+- A new role `walletOwner` is created.
+- `extractFee(uint256 amount)` is implemented to extract the collected fee(ether). Can only be executed by wallet owner.
+- `extractTokenFee(address token, uint256 amount)` is implemented to extract the collected fee(token). Can only be executed by wallet owner.
+- `getWalletBalance(address token)` is implemented to get the balance of fee wallet in specific token.
+- `changeWalletOwner(address newOwner)` is implemented to change the wallet owner to new owner.
+
+### Changed
+- Fee is now collected under the zero address.
+
 ## [1.1.0] - 2019-07-19
 ### Added
 - Implement the migration function.
