@@ -254,6 +254,16 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     }
 
     /**
+     * @notice The function to change the owner of fee wallet.
+     * @param newOwner The new wallet owner to be assigned
+     */
+    function changeFeeWalletOwner(address newOwner) external {
+        require(newOwner != address(0));
+        require(newOwner != dinngoWallet);
+        dinngoWallet = newOwner;
+    }
+
+    /**
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data

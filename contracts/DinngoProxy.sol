@@ -241,6 +241,17 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     }
 
     /**
+     * @notice The function to change the owner of fee wallet.
+     * @param newOwner The new wallet owner to be assigned
+     */
+    function changeFeeWalletOwner(address newOwner) external onlyOwner {
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("changeFeeWalletOwner(address)", newOwner)
+        );
+        require(ok);
+    }
+
+    /**
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data

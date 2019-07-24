@@ -9,7 +9,7 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
-contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenContract]) {
+contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenContract, newOwner]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
@@ -30,6 +30,20 @@ contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenCo
         it('when normal', async function () {
             const amount = depositValue;
             const { logs } = await this.dinngo.extractFee(amount, { from: tokenWallet });
+            const balance = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
+            balance.should.be.bignumber.eq(ether('0'));
+        });
+
+        it('when owner changed', async function () {
+            const amount = depositValue;
+            await this.dinngo.changeFeeWalletOwner(newOwner, { from: owner });
+            await reverting(this.dinngo.extractFee(amount, { from: tokenWallet }));
+        });
+
+        it('when owner changed and extract from new owner', async function () {
+            const amount = depositValue;
+            await this.dinngo.changeFeeWalletOwner(newOwner, { from: owner });
+            const { logs } = await this.dinngo.extractFee(amount, { from: newOwner });
             const balance = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
@@ -59,6 +73,20 @@ contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenCo
             const amount = depositValue;
             const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
             const balance = await this.dinngo.getFeeWallet.call(this.token.address);
+            balance.should.be.bignumber.eq(ether('0'));
+        });
+
+        it('when owner changed', async function () {
+            const amount = depositValue;
+            await this.dinngo.changeFeeWalletOwner(newOwner, { from: owner });
+            await reverting(this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet }));
+        });
+
+        it('when owner changed and extract from new owner', async function () {
+            const amount = depositValue;
+            await this.dinngo.changeFeeWalletOwner(newOwner, { from: owner });
+            const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: newOwner });
+            const balance = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
             balance.should.be.bignumber.eq(ether('0'));
         });
 
@@ -108,6 +136,40 @@ contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenCo
         it('when user balance is not sufficient', async function () {
             const amount = exceed;
             await reverting(this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet }));
+        });
+    });
+});
+
+contract('Fee wallet management', function ([_, user, owner, deployer, tokenWallet, tokenContract, newOwner]) {
+    beforeEach(async function () {
+        this.dinngoImpl = await Dinngo.new();
+        this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
+    });
+
+    const depositValue = ether('1');
+    const exceed = ether('1.1');
+    const userId = new BN('1');
+    const rank = new BN('1');
+
+    describe('change owner address', function () {
+        it('when normal', async function () {
+            let wallet = await this.dinngo.dinngoWallet.call();
+            wallet.should.eq(tokenWallet);
+            await this.dinngo.changeFeeWalletOwner(newOwner, { from: owner });
+            wallet = await this.dinngo.dinngoWallet.call();
+            wallet.should.eq(newOwner);
+        });
+
+        it('when changed by non-owner', async function () {
+            await reverting(this.dinngo.changeFeeWalletOwner(newOwner));
+        });
+
+        it('when changed to a zero address', async function () {
+            await reverting(this.dinngo.changeFeeWalletOwner(ZERO_ADDRESS, { from: owner }));
+        });
+
+        it('when changed to a same address', async function () {
+            await reverting(this.dinngo.changeFeeWalletOwner(tokenWallet, { from: owner }));
         });
     });
 });
