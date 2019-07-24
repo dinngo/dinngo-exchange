@@ -25,23 +25,23 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
     mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
-    address public dinngoWallet;
+    address public walletOwner;
     address public DGOToken;
 
     /**
      * @dev User ID 0 is the management wallet.
      * Token ID 0 is ETH (address 0). Token ID 1 is DGO.
-     * @param _dinngoWallet The main address of dinngo
+     * @param _walletOwner The fee wallet owner
      * @param _dinngoToken The contract address of DGO
      * @param _impl The implementation contract address
      */
     constructor(
-        address payable _dinngoWallet,
+        address payable _walletOwner,
         address _dinngoToken,
         address _impl
     ) Proxy(_impl) public {
         processTime = 90 days;
-        dinngoWallet = _dinngoWallet;
+        walletOwner = _walletOwner;
         tokenID_Address[0] = address(0);
         tokenRanks[address(0)] = 1;
         tokenID_Address[1] = _dinngoToken;
@@ -232,9 +232,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @notice The function to get the balance from fee account.
      * @param token The token of the balance to be queried
      */
-    function getFeeWallet(address token) external returns (uint256 balance) {
+    function getWalletBalance(address token) external returns (uint256 balance) {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
-            abi.encodeWithSignature("getFeeWallet(address)", token)
+            abi.encodeWithSignature("getWalletBalance(address)", token)
         );
         require(ok);
         balance = abi.decode(ret, (uint256));
@@ -244,9 +244,9 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      * @notice The function to change the owner of fee wallet.
      * @param newOwner The new wallet owner to be assigned
      */
-    function changeFeeWalletOwner(address newOwner) external onlyOwner {
+    function changeWalletOwner(address newOwner) external onlyOwner {
         (bool ok,) = _implementation().delegatecall(
-            abi.encodeWithSignature("changeFeeWalletOwner(address)", newOwner)
+            abi.encodeWithSignature("changeWalletOwner(address)", newOwner)
         );
         require(ok);
     }

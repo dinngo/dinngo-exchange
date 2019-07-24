@@ -35,7 +35,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     mapping (address => uint256) public tokenRanks;
     mapping (address => uint256) public lockTimes;
 
-    address public dinngoWallet;
+    address public walletOwner;
     address public DGOToken;
 
     event AddUser(uint256 userID, address indexed user);
@@ -226,7 +226,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      */
     function extractFee(uint256 amount) external {
         require(amount > 0);
-        require(msg.sender == dinngoWallet);
+        require(msg.sender == walletOwner);
         balances[address(0)][address(0)] = balances[address(0)][address(0)].sub(amount);
         msg.sender.transfer(amount);
     }
@@ -239,7 +239,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      */
     function extractTokenFee(address token, uint256 amount) external {
         require(amount > 0);
-        require(msg.sender ==  dinngoWallet);
+        require(msg.sender ==  walletOwner);
         require(token != address(0));
         balances[token][address(0)] = balances[token][address(0)].sub(amount);
         IERC20(token).safeTransfer(msg.sender, amount);
@@ -249,7 +249,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * @notice The function to get the balance from fee account.
      * @param token The token of the balance to be queried
      */
-    function getFeeWallet(address token) external view returns (uint256) {
+    function getWalletBalance(address token) external view returns (uint256) {
         return balances[token][address(0)];
     }
 
@@ -257,10 +257,10 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * @notice The function to change the owner of fee wallet.
      * @param newOwner The new wallet owner to be assigned
      */
-    function changeFeeWalletOwner(address newOwner) external {
+    function changeWalletOwner(address newOwner) external {
         require(newOwner != address(0));
-        require(newOwner != dinngoWallet);
-        dinngoWallet = newOwner;
+        require(newOwner != walletOwner);
+        walletOwner = newOwner;
     }
 
     /**

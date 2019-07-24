@@ -132,9 +132,9 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             const user2Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user2);
             const user2DGO = await this.dinngo.balances.call(DGO, user2);
             const user2Token = await this.dinngo.balances.call(token, user2);
-            const walletEther = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
-            const walletDGO = await this.dinngo.getFeeWallet.call(DGO);
-            const walletToken = await this.dinngo.getFeeWallet.call(token);
+            const walletEther = await this.dinngo.getWalletBalance.call(ZERO_ADDRESS);
+            const walletDGO = await this.dinngo.getWalletBalance.call(DGO);
+            const walletToken = await this.dinngo.getWalletBalance.call(token);
             user1Ether.should.be.bignumber.eq(
                 balance.sub(
                     amountQuote2
@@ -294,9 +294,9 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             const user5Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user5);
             const user5DGO = await this.dinngo.balances.call(DGO, user5);
             const user5Token = await this.dinngo.balances.call(token, user5);
-            const walletEther = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
-            const walletDGO = await this.dinngo.getFeeWallet.call(DGO);
-            const walletToken = await this.dinngo.getFeeWallet.call(token);
+            const walletEther = await this.dinngo.getWalletBalance.call(ZERO_ADDRESS);
+            const walletDGO = await this.dinngo.getWalletBalance.call(DGO);
+            const walletToken = await this.dinngo.getWalletBalance.call(token);
             user1Ether.should.be.bignumber.eq(
                 balance.sub(
                     amountQuote2
@@ -518,9 +518,9 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             const user2Ether = await this.dinngo.balances.call(ZERO_ADDRESS, user2);
             const user2DGO = await this.dinngo.balances.call(DGO, user2);
             const user2Token = await this.dinngo.balances.call(token, user2);
-            const walletEther = await this.dinngo.getFeeWallet.call(ZERO_ADDRESS);
-            const walletDGO = await this.dinngo.getFeeWallet.call(DGO);
-            const walletToken = await this.dinngo.getFeeWallet.call(token);
+            const walletEther = await this.dinngo.getWalletBalance.call(ZERO_ADDRESS);
+            const walletDGO = await this.dinngo.getWalletBalance.call(DGO);
+            const walletToken = await this.dinngo.getWalletBalance.call(token);
             user1Ether.should.be.bignumber.eq(
                 balance.add(
                     amountQuote2
