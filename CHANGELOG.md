@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - `extractTokenFee(address token, uint256 amount)` is implemented to extract the collected fee(token). Can only be executed by wallet owner.
 - `getWalletBalance(address token)` is implemented to get the balance of fee wallet in specific token.
 - `changeWalletOwner(address newOwner)` is implemented to change the wallet owner to new owner.
+- Event emission is separate into three groups. Each group can be turn on/off individually.
 
 ### Changed
 - Fee is now collected under the zero address.
