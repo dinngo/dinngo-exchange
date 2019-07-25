@@ -27,6 +27,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
 
     address public walletOwner;
     address public DGOToken;
+    uint8 public eventConf;
 
     /**
      * @dev User ID 0 is the management wallet.
@@ -47,6 +48,7 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
         tokenID_Address[1] = _dinngoToken;
         tokenRanks[_dinngoToken] = 1;
         DGOToken = _dinngoToken;
+        eventConf = 0xff;
     }
 
     /**
@@ -54,6 +56,13 @@ contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
      */
     function() external payable {
         revert();
+    }
+
+    function setEvent(uint8 conf) external onlyAdmin {
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("setEvent(uint8)", conf)
+        );
+        require(ok);
     }
 
     /**

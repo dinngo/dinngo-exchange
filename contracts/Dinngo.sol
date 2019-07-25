@@ -37,9 +37,13 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
 
     address public walletOwner;
     address public DGOToken;
+    uint8 public eventConf;
 
+    // On/Off by _isEventUserOn()
     event AddUser(uint256 userID, address indexed user);
+    // On/Off by _isEventTokenOn()
     event AddToken(uint256 tokenID, address indexed token);
+    // On/Off by _isEventFundsOn()
     event Deposit(address token, address indexed user, uint256 amount, uint256 balance);
     event Withdraw(
         address token,
@@ -59,14 +63,31 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         address tokenFee,
         uint256 amountFee
     );
+    // On/Off by _isEventUserOn()
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
+
+    uint8 constant internal _MASK_EVENT_USER = 0x01;
+    uint8 constant internal _MASK_EVENT_TOKEN = 0x02;
+    uint8 constant internal _MASK_EVENT_FUNDS = 0x04;
 
     /**
      * @dev All ether directly sent to contract will be refunded
      */
     function() external payable {
         revert();
+    }
+
+    /**
+     * @dev bit 0: user event
+     *      bit 1: token event
+     *      bit 2: funds event
+     * @notice Set the event switch configuration.
+     * @param conf Event configuration
+     */
+    function setEvent(uint8 conf) external {
+        require(eventConf != conf);
+        eventConf = conf;
     }
 
     /**
@@ -87,7 +108,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         else
             require(userID_Address[id] == user);
         userRanks[user] = 1;
-        emit AddUser(id, user);
+        if (_isEventUserOn())
+            emit AddUser(id, user);
     }
 
     /**
@@ -133,7 +155,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         else
             require(tokenID_Address[id] == token);
         tokenRanks[token] = 1;
-        emit AddToken(id, token);
+        if (_isEventTokenOn())
+            emit AddToken(id, token);
     }
 
     /**
@@ -169,7 +192,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(!_isLocking(msg.sender));
         require(msg.value > 0);
         balances[address(0)][msg.sender] = balances[address(0)][msg.sender].add(msg.value);
-        emit Deposit(address(0), msg.sender, msg.value, balances[address(0)][msg.sender]);
+        if (_isEventFundsOn())
+            emit Deposit(address(0), msg.sender, msg.value, balances[address(0)][msg.sender]);
     }
 
     /**
@@ -184,7 +208,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(_isValidToken(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
-        emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
+        if (_isEventFundsOn())
+            emit Deposit(token, msg.sender, amount, balances[token][msg.sender]);
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
     }
 
@@ -198,7 +223,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(_isValidUser(msg.sender));
         require(amount > 0);
         balances[address(0)][msg.sender] = balances[address(0)][msg.sender].sub(amount);
-        emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender], address(0), 0);
+        if (_isEventFundsOn())
+            emit Withdraw(address(0), msg.sender, amount, balances[address(0)][msg.sender], address(0), 0);
         msg.sender.transfer(amount);
     }
 
@@ -215,7 +241,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(_isValidToken(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
-        emit Withdraw(token, msg.sender, amount, balances[token][msg.sender], address(0), 0);
+        if (_isEventFundsOn())
+            emit Withdraw(token, msg.sender, amount, balances[token][msg.sender], address(0), 0);
         IERC20(token).safeTransfer(msg.sender, amount);
     }
 
@@ -291,7 +318,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         balances[tokenFee][address(0)] =
             balances[tokenFee][address(0)].add(amountFee);
         balances[token][user] = balance;
-        emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
+        if (_isEventFundsOn())
+            emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
         if (token == address(0)) {
             user.transfer(amount);
         } else {
@@ -379,7 +407,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     function lock() external {
         require(!_isLocking(msg.sender));
         lockTimes[msg.sender] = now.add(processTime);
-        emit Lock(msg.sender, lockTimes[msg.sender]);
+        if (_isEventUserOn())
+            emit Lock(msg.sender, lockTimes[msg.sender]);
     }
 
     /**
@@ -388,7 +417,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     function unlock() external {
         require(_isLocking(msg.sender));
         lockTimes[msg.sender] = 0;
-        emit Unlock(msg.sender);
+        if (_isEventUserOn())
+            emit Unlock(msg.sender);
     }
 
     /**
@@ -449,17 +479,18 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         }
         // Order fill
         orderFills[hash] = orderFills[hash].add(amountBase);
-        emit Trade
-        (
-            user,
-            fBuy,
-            tokenBase,
-            amountBase,
-            tokenQuote,
-            amountQuote,
-            tokenFee,
-            amountFee
-        );
+        if (_isEventFundsOn())
+            emit Trade
+            (
+                user,
+                fBuy,
+                tokenBase,
+                amountBase,
+                tokenQuote,
+                amountQuote,
+                tokenFee,
+                amountFee
+            );
     }
 
     /**
@@ -513,5 +544,17 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      */
     function _isLocked(address user) internal view returns (bool) {
         return _isLocking(user) && lockTimes[user] < now;
+    }
+
+    function _isEventUserOn() internal view returns (bool) {
+        return (eventConf & _MASK_EVENT_USER != 0);
+    }
+
+    function _isEventTokenOn() internal view returns (bool) {
+        return (eventConf & _MASK_EVENT_TOKEN != 0);
+    }
+
+    function _isEventFundsOn() internal view returns (bool) {
+        return (eventConf & _MASK_EVENT_FUNDS != 0);
     }
 }
