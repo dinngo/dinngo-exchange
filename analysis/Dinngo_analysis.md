@@ -74,7 +74,7 @@ Dinngo is a hybrid-based exchange, which enables a single party to place order a
 
 ## <a id="heading-3.1"/> 3.1 Source Code
 
-The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `39285f31d6b24df0c50bf1c4fcbedb86201927ea`.
+The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `dc324d5e4f2a1aea5a356ff6878a640c235bc0cf`.
 
 The following Solidity source files (with SHA1 sums) were audited:
 
@@ -82,15 +82,19 @@ The following Solidity source files (with SHA1 sums) were audited:
 SHA1(dinngo-exchange/contracts/Administrable.sol)=
 d1cdf8a2e34d3ff5703c32051dd5280cc4026f49
 SHA1(dinngo-exchange/contracts/Dinngo.sol)=
-fe66cb6c56e9e6a3cc17b32bd15a4ff6ac92e16e
+fca839cd2c0dd611491484d1ebadf854f9ac11eb
 SHA1(dinngo-exchange/contracts/DinnogProxy.sol)=
 00af77375d760f1ec748530ee185990bb605bbe6
+SHA1(dinngo-exchange/contracts/SerializableMigration.sol)=
+c59fe531bda52a5a49d846325b40bb2970db4514
 SHA1(dinngo-exchange/contracts/SerializableOrder.sol)=
-91afbf55118cfa1bf2a3d0820d7f050b4c8a6b50
+1af67c7f7b50de89df00aeaccac74a9018ba3d88
 SHA1(dinngo-exchange/contracts/SerializableWithdrawal.sol)=
 3ea52a930635fa8e02aedec0090efba5a3424a24
 SHA1(dinngo-exchange/contracts/ec/ErrorHandler.sol)=
 7df1665ca922e1f46e76a6cbe14e5efc2aee2fea
+SHA1(dinngo-exchange/contracts/migratable/Migratable.sol)=
+20faea14ad820635b2eb06ef29de61d771e0f240
 SHA1(dinngo-exchange/contracts/proxy/Proxy.sol)=
 0a88d06d413812412f80e610c4dc6f9f69f38a45
 SHA1(dinngo-exchange/contracts/proxy/TimelockUpgradable.sol)=
@@ -127,7 +131,9 @@ Manticore is a symbolic execution tool for analysis of smart contracts and binar
 
 `ErrorHandler` enables the proxy contract to handle the status code that is returned by the execution result of implementation contract. Reverting will be triggered from proxy contract.
 
-`SerializableOrder` and `SerializableWithdrawal` define the order and withdrawal handler by specifying the location within a `bytes` variable.
+`Migratable` provides an interface for the new contract when the data needs to be migrated to the new service. Migration requires user's permission.
+
+`SerializableMigration`, `SerializableOrder` and `SerializableWithdrawal` define the migration, the order and the withdrawal handler by specifying the location within a `bytes` variable.
 
 `DinngoProxy` defines a proxy contract that enables a delegate structure to upgrade the exchange contract by switching the implementation contract. Upgrading the contract requires a certain announcement period. New implementation can only be activated manually after that.
 
@@ -157,7 +163,7 @@ Dinngo exchange is combined by two contracts, `DinngoProxy` and `Dinngo`. `Dinng
 
 
 ### <a id="heading-4.2.2"/> 4.2.2 Dinngo
-`Dinngo` inheritates `SerializableOrder` and `SerializableWithdrawal` to handle the serialized data structure. `Ownable` and `Administrable` are for storage alignment with proxy contract.
+`Dinngo` inheritates `SerializeMigration`, `SerializableOrder` and `SerializableWithdrawal` to handle the serialized data structure.
 
 ![Alt text](./img/Dinngo_inheritance.png)
 
