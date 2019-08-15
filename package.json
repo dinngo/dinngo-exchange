@@ -27,7 +27,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^3.0.0",
     "ganache-cli": "^6.6.0",
-    "openzeppelin-test-helpers": "^0.1.2",
+    "openzeppelin-test-helpers": "^0.4.2",
     "solhint": "^2.2.0",
     "truffle": "^5.0.31"
   }

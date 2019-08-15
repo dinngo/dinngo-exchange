@@ -1,6 +1,7 @@
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { inLogs } = expectEvent;
-const { reverting } = shouldFail;
+
+const { expect } = require('chai');
 
 const Proxy = artifacts.require('ProxyMock');
 const DummyImplementation = artifacts.require('DummyImplementation');
@@ -8,7 +9,7 @@ const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
 
 contract('Proxy', function ([_, nonContractAddress, owner]) {
     it('cannot be initialized with a non-contract address', async function () {
-        await reverting(Proxy.new(nonContractAddress, { from: owner }))
+        await expectRevert.unspecified(Proxy.new(nonContractAddress, { from: owner }))
     });
 
     describe('initialized normally', function () {
@@ -18,7 +19,7 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
         });
 
         it('get implementation address', async function () {
-            (await this.proxy.implementation.call()).should.eq(this.implementation.address);
+            expect(await this.proxy.implementation.call()).to.eq(this.implementation.address);
         });
 
         describe('upgrade' , function () {
@@ -29,12 +30,12 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
             it('by owner', async function () {
                 const { logs } = await this.proxy.upgrade(this.implementationV2.address, { from: owner });
                 inLogs(logs, 'Upgraded', { implementation: this.implementationV2.address });
-                (await this.proxy.implementation.call()).should.be.equal(this.implementationV2.address);
+                expect(await this.proxy.implementation.call()).to.be.equal(this.implementationV2.address);
             });
 
             it('by non-owner', async function () {
-                await reverting(this.proxy.upgrade(this.implementationV2.address));
-                (await this.proxy.implementation.call()).should.be.equal(this.implementation.address);
+                await expectRevert.unspecified(this.proxy.upgrade(this.implementationV2.address));
+                expect(await this.proxy.implementation.call()).to.be.equal(this.implementation.address);
             });
         });
     });

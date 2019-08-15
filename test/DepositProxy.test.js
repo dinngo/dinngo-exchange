@@ -1,7 +1,8 @@
-const { BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { inLogs } = expectEvent;
-const { reverting } = shouldFail;
 const { ZERO_ADDRESS } = constants;
+
+const { expect } = require('chai');
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
@@ -37,7 +38,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const rank = new BN('1');
             const amount = ether('0');
             await this.dinngo.setUser(id, user, rank);
-            await reverting(this.dinngo.deposit({ value: amount, from: user }));
+            await expectRevert.unspecified(this.dinngo.deposit({ value: amount, from: user }));
         });
 
     });
@@ -57,7 +58,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
             const balance = await this.dinngo.balances.call(this.token.address, user);
             inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
-            balance.should.be.bignumber.eq(amount);
+            expect(balance).to.be.bignumber.eq(amount);
         });
 
         it('when user invalid', async function () {
@@ -66,7 +67,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
             const balance = await this.dinngo.balances.call(this.token.address, user);
             inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
-            balance.should.be.bignumber.eq(amount);
+            expect(balance).to.be.bignumber.eq(amount);
         });
 
         it('when token with address 0', async function () {
@@ -74,7 +75,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const rank = new BN('1');
             const amount = ether('1');
             await this.dinngo.setUser(id, user, rank);
-            await reverting(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
+            await expectRevert.unspecified(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
         });
 
         it('when token with amount 0', async function () {
@@ -83,7 +84,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const amount = ether('0');
             await this.dinngo.setUser(id, user, rank);
             await this.token.approve(this.dinngo.address, amount, { from: user });
-            await reverting(this.dinngo.depositToken(this.token.address, amount, { from: user }));
+            await expectRevert.unspecified(this.dinngo.depositToken(this.token.address, amount, { from: user }));
         });
     });
 
@@ -102,7 +103,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
             const balance = await this.dinngo.balances.call(this.token.address, user);
             inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
-            balance.should.be.bignumber.eq(amount);
+            expect(balance).to.be.bignumber.eq(amount);
         });
 
         it('when user invalid', async function () {
@@ -111,7 +112,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const { logs } = await this.dinngo.depositToken(this.token.address, amount, { from: user });
             const balance = await this.dinngo.balances.call(this.token.address, user);
             inLogs(logs, 'Deposit', { token: this.token.address, user: user, amount: amount, balance: balance });
-            balance.should.be.bignumber.eq(amount);
+            expect(balance).to.be.bignumber.eq(amount);
         });
 
         it('when token with address 0', async function () {
@@ -119,7 +120,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const rank = new BN('1');
             const amount = ether('1');
             await this.dinngo.setUser(id, user, rank);
-            await reverting(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
+            await expectRevert.unspecified(this.dinngo.depositToken(ZERO_ADDRESS, amount, { from: user }));
         });
 
         it('when token with amount 0', async function () {
@@ -128,7 +129,7 @@ contract('Deposit', function ([_, user, owner, tokenWallet, tokenContract]) {
             const amount = ether('0');
             await this.dinngo.setUser(id, user, rank);
             await this.token.approve(this.dinngo.address, amount, { from: user });
-            await reverting(this.dinngo.depositToken(this.token.address, amount, { from: user }));
+            await expectRevert.unspecified(this.dinngo.depositToken(this.token.address, amount, { from: user }));
         });
     });
 });
