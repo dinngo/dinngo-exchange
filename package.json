@@ -23,15 +23,12 @@
     "openzeppelin-solidity": "^2.3.0"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
+    "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.2",
-    "ganache-cli": "^6.2.3",
+    "chai-bignumber": "^3.0.0",
+    "ganache-cli": "^6.6.0",
     "openzeppelin-test-helpers": "^0.1.2",
-    "pify": "^4.0.1",
-    "solhint": "^2.0.0",
-    "solidity-coverage": "git+https://github.com/rotcivegaf/solidity-coverage.git#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
-    "truffle": "^5.0.3",
-    "web3-utils": "^1.0.0-beta.34"
+    "solhint": "^2.2.0",
+    "truffle": "^5.0.3"
   }
 }
