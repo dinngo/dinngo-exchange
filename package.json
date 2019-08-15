@@ -29,6 +29,6 @@
     "ganache-cli": "^6.6.0",
     "openzeppelin-test-helpers": "^0.1.2",
     "solhint": "^2.2.0",
-    "truffle": "^5.0.3"
+    "truffle": "^5.0.31"
   }
 }
