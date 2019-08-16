@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - Upgrade solidity to 0.5.11.
 - Upgrade truffle to 5.0.31.
 - Upgrade other packages.
+- Change trade fee to handle fee.
 
 ## [1.1.0] - 2019-07-19
 ### Added
