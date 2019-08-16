@@ -38,8 +38,8 @@ contract SerializableOrderMock is SerializableOrder{
         return _getOrderNonce(ser_data);
     }
 
-    function getOrderTradeFeeMock(bytes calldata ser_data) external pure returns (uint256 tradeFee) {
-        return _getOrderTradeFee(ser_data);
+    function getOrderHandleFeeMock(bytes calldata ser_data) external pure returns (uint256 handleFee) {
+        return _getOrderHandleFee(ser_data);
     }
 
     function getOrderGasFeeMock(bytes calldata ser_data) external pure returns (uint256 gasFee) {

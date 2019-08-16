@@ -15,7 +15,7 @@ contract('SerializableOrder', function ([_, user]) {
     const amountBase = ether('1');
     const amountQuote = ether('100');
     const config = new BN('3');
-    const tradeFee = ether('1');
+    const handleFee = ether('1');
     const gasFee = ether('0.001');
     const nonce = new BN('1');
     const r = '0xe210212a1d3790c95bb3e56bfac578ab59479aef335ae48885ec48295fd510f8';
@@ -62,9 +62,9 @@ contract('SerializableOrder', function ([_, user]) {
             expect(orderData).to.eq(true);
         });
 
-        it('get trade fee', async function () {
-            const orderData = await this.serializableOrder.getOrderTradeFeeMock.call(serializedHex1);
-            expect(orderData).to.be.bignumber.eq(tradeFee);
+        it('get handle fee', async function () {
+            const orderData = await this.serializableOrder.getOrderHandleFeeMock.call(serializedHex1);
+            expect(orderData).to.be.bignumber.eq(handleFee);
         });
 
         it('get gas fee', async function () {
