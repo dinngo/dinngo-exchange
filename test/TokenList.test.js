@@ -1,7 +1,8 @@
-const { BN, constants, ether, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { BN, constants, ether, expectEvent, expectRevert } = require('openzeppelin-test-helpers');
 const { inLogs } = expectEvent;
-const { reverting } = shouldFail;
 const { ZERO_ADDRESS } = constants;
+
+const { expect } = require('chai');
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
@@ -24,7 +25,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
             it('normal', async function () {
                 const { logs } = await this.dinngo.addToken(tokenId1, this.token.address, { from: owner });
                 inLogs(logs, 'AddToken', { tokenID: tokenId1, token: this.token.address });
-                (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank1);
+                expect(await this.dinngo.tokenRanks.call(this.token.address)).to.be.bignumber.eq(rank1);
             });
 
             it('assigning (2**16 - 1) to id', async function () {
@@ -32,7 +33,7 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
             });
 
             it('assigning id that is too large', async function () {
-                await reverting(this.dinngo.addToken(new BN('65536'), this.token.address, { from: owner }));
+                await expectRevert.unspecified(this.dinngo.addToken(new BN('65536'), this.token.address, { from: owner }));
             });
 
             it('removed with same address', async function () {
@@ -40,14 +41,14 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
                 await this.dinngo.removeToken(this.token.address, { from: owner });
                 const { logs } = await this.dinngo.addToken(tokenId1, this.token.address, { from: owner });
                 inLogs(logs, 'AddToken', { tokenID: tokenId1, token: this.token.address });
-                (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank1);
+                expect(await this.dinngo.tokenRanks.call(this.token.address)).to.be.bignumber.eq(rank1);
             });
 
             it('removed with different address', async function () {
                 await this.dinngo.setToken(tokenId1, this.token.address, rank1);
                 await this.dinngo.removeToken(this.token.address, { from: owner });
-                await reverting(this.dinngo.addToken(tokenId1, token2, { from: owner }));
-                (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(new BN('0'));
+                await expectRevert.unspecified(this.dinngo.addToken(tokenId1, token2, { from: owner }));
+                expect(await this.dinngo.tokenRanks.call(this.token.address)).to.be.bignumber.eq(new BN('0'));
             });
         });
 
@@ -55,9 +56,9 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
             it('normal', async function () {
                 await this.dinngo.addToken(tokenId1, this.token.address, { from: owner });
                 const tokenAddress1 = await this.dinngo.tokenID_Address.call(tokenId1);
-                await reverting(this.dinngo.addToken(tokenId2, this.token.address, { from: owner }));
+                await expectRevert.unspecified(this.dinngo.addToken(tokenId2, this.token.address, { from: owner }));
                 await this.dinngo.addToken(tokenId2, token2, { from: owner });
-                (await this.dinngo.tokenID_Address.call(tokenId2)).should.eq(token2);
+                expect(await this.dinngo.tokenID_Address.call(tokenId2)).to.eq(token2);
             });
         });
     });
@@ -65,19 +66,19 @@ contract('Token', function ([_, user, owner, tokenWallet, tokenContract, token2]
     describe('update rank', function () {
         it('when normal', async function () {
             await this.dinngo.addToken(tokenId1, this.token.address, { from: owner });
-            (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank1);
+            expect(await this.dinngo.tokenRanks.call(this.token.address)).to.be.bignumber.eq(rank1);
             await this.dinngo.updateTokenRank(this.token.address, rank2, { from: owner });
-            (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank2);
+            expect((await this.dinngo.tokenRanks.call(this.token.address))).to.be.bignumber.eq(rank2);
         });
 
         it('when token not exist', async function () {
-            await reverting(this.dinngo.updateTokenRank(this.token.address, rank2, { from: owner }));
+            await expectRevert.unspecified(this.dinngo.updateTokenRank(this.token.address, rank2, { from: owner }));
         });
 
         it('when assigning same rank', async function () {
             await this.dinngo.addToken(tokenId1, this.token.address, { from: owner });
-            (await this.dinngo.tokenRanks.call(this.token.address)).should.be.bignumber.eq(rank1);
-            await reverting(this.dinngo.updateTokenRank(this.token.address, rank1, { from: owner }));
+            expect(await this.dinngo.tokenRanks.call(this.token.address)).to.be.bignumber.eq(rank1);
+            await expectRevert.unspecified(this.dinngo.updateTokenRank(this.token.address, rank1, { from: owner }));
         });
     });
 });

@@ -1,6 +1,8 @@
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 const DummyTarget = artifacts.require('DummyTarget');
 const SerializableMigrationMock = artifacts.require('SerializableMigrationMock');
 
@@ -29,78 +31,78 @@ contract('SerializableMigration', function ([_, user1, user2]) {
     describe('deserialize single', function () {
         it('get target', async function () {
             const migrationData = await this.SerializableMigration.getMigrationTargetMock.call(serializedHex1);
-            migrationData.should.eq(target);
+            expect(migrationData).to.eq(target);
         });
 
         it('get user ID', async function () {
             const migrationData = await this.SerializableMigration.getMigrationUserIDMock.call(serializedHex1);
-            migrationData.should.be.bignumber.eq(user1Id);
+            expect(migrationData).to.be.bignumber.eq(user1Id);
         });
 
         it('get token ID', async function () {
             const migrationData = await this.SerializableMigration.getMigrationTokenIDMock.call(serializedHex1, 0);
-            migrationData.should.be.bignumber.eq(tokenId);
+            expect(migrationData).to.be.bignumber.eq(tokenId);
         });
 
         it('get r', async function () {
             const migrationData = await this.SerializableMigration.getMigrationRMock.call(serializedHex1);
-            migrationData.should.eq(r1);
+            expect(migrationData).to.eq(r1);
         });
 
         it('get s', async function () {
             const migrationData = await this.SerializableMigration.getMigrationSMock.call(serializedHex1);
-            migrationData.should.eq(s1);
+            expect(migrationData).to.eq(s1);
         });
 
         it('get v', async function () {
             const migrationData = await this.SerializableMigration.getMigrationVMock.call(serializedHex1);
-            migrationData.should.be.bignumber.eq(v1);
+            expect(migrationData).to.be.bignumber.eq(v1);
         });
 
         it('get hash', async function () {
             const migrationData = await this.SerializableMigration.getMigrationHashMock.call(serializedHex1);
-            migrationData.should.eq(hash1);
+            expect(migrationData).to.eq(hash1);
         });
     });
 
     describe('deserialize multiple', function () {
         it('get target', async function () {
             const migrationData = await this.SerializableMigration.getMigrationTargetMock.call(serializedHex2);
-            migrationData.should.eq(target);
+            expect(migrationData).to.eq(target);
         });
 
         it('get user ID', async function () {
             const migrationData = await this.SerializableMigration.getMigrationUserIDMock.call(serializedHex2);
-            migrationData.should.be.bignumber.eq(user2Id);
+            expect(migrationData).to.be.bignumber.eq(user2Id);
         });
 
         it('get token ID', async function () {
             const migrationData1 = await this.SerializableMigration.getMigrationTokenIDMock.call(serializedHex2, 0);
-            migrationData1.should.be.bignumber.eq(tokenId1);
+            expect(migrationData1).to.be.bignumber.eq(tokenId1);
             const migrationData2 = await this.SerializableMigration.getMigrationTokenIDMock.call(serializedHex2, 1);
-            migrationData2.should.be.bignumber.eq(tokenId2);
+            expect(migrationData2).to.be.bignumber.eq(tokenId2);
             const migrationData3 = await this.SerializableMigration.getMigrationTokenIDMock.call(serializedHex2, 2);
-            migrationData3.should.be.bignumber.eq(tokenId3);
+            expect(migrationData3).to.be.bignumber.eq(tokenId3);
         });
 
         it('get r', async function () {
             const migrationData = await this.SerializableMigration.getMigrationRMock.call(serializedHex2);
-            migrationData.should.eq(r2);
+            expect(migrationData).to.eq(r2);
         });
 
         it('get s', async function () {
             const migrationData = await this.SerializableMigration.getMigrationSMock.call(serializedHex2);
-            migrationData.should.eq(s2);
+            expect(migrationData).to.eq(s2);
         });
 
         it('get v', async function () {
             const migrationData = await this.SerializableMigration.getMigrationVMock.call(serializedHex2);
-            migrationData.should.be.bignumber.eq(v2);
+            expect(migrationData).to.be.bignumber.eq(v2);
         });
 
         it('get hash', async function () {
             const migrationData = await this.SerializableMigration.getMigrationHashMock.call(serializedHex2);
-            migrationData.should.eq(hash2);
+            expect(migrationData).to.eq(hash2);
         });
     });
 });

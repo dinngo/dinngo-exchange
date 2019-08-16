@@ -1,6 +1,7 @@
-const { BN, constants, ether, shouldFail } = require('openzeppelin-test-helpers');
-const { reverting } = shouldFail;
+const { BN, constants, ether, expectRevert } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
+
+const { expect } = require('chai');
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
@@ -53,33 +54,33 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         });
 
         it('when normal', async function () {
-            etherDinngo.should.be.bignumber.eq(depositValue);
-            etherTarget.should.be.bignumber.eq('0');
-            etherOld.should.eq(depositValue.toString());
-            etherNew.should.eq('0');
+            expect(etherDinngo).to.be.bignumber.eq(depositValue);
+            expect(etherTarget).to.be.bignumber.eq('0');
+            expect(etherOld).to.eq(depositValue.toString());
+            expect(etherNew).to.eq('0');
             const receipt = await this.dinngo.migrateByAdmin(migration1, { from: admin });
             console.log(receipt.receipt.gasUsed);
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user1);
-            etherDinngo.should.be.bignumber.eq('0');
-            etherTarget.should.be.bignumber.eq(depositValue);
+            expect(etherDinngo).to.be.bignumber.eq('0');
+            expect(etherTarget).to.be.bignumber.eq(depositValue);
             etherOld = await web3.eth.getBalance(this.dinngo.address);
             etherNew = await web3.eth.getBalance(this.target.address);
-            etherOld.should.eq('0');
-            etherNew.should.eq(depositValue.toString());
+            expect(etherOld).to.eq('0');
+            expect(etherNew).to.eq(depositValue.toString());
         });
 
         it('when sent by owner', async function () {
-            await reverting(this.dinngo.migrateByAdmin(migration1, { from: owner }));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, { from: owner }));
         });
 
         it('when sent by non-admin', async function () {
-            await reverting(this.dinngo.migrateByAdmin(migration1));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1));
         });
 
         it('when user is removed', async function () {
             await this.dinngo.removeUser(user1, { from: admin });
-            await reverting(this.dinngo.migrateByAdmin(migration1, { from: admin }));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, { from: admin }));
         })
     });
 
@@ -118,18 +119,18 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         });
 
         it('when normal', async function () {
-            etherDinngo.should.be.bignumber.eq(depositValue);
-            etherTarget.should.be.bignumber.eq('0');
-            etherOld.should.eq(depositValue.toString());
-            etherNew.should.eq(depositValue.toString());
-            token1Dinngo.should.be.bignumber.eq(depositValue);
-            token1Target.should.be.bignumber.eq('0');
-            token1Old.should.be.bignumber.eq(depositValue);
-            token1New.should.be.bignumber.eq('0');
-            token2Dinngo.should.be.bignumber.eq(depositValue);
-            token2Target.should.be.bignumber.eq('0');
-            token2Old.should.be.bignumber.eq(depositValue);
-            token2New.should.be.bignumber.eq('0');
+            expect(etherDinngo).to.be.bignumber.eq(depositValue);
+            expect(etherTarget).to.be.bignumber.eq('0');
+            expect(etherOld).to.eq(depositValue.toString());
+            expect(etherNew).to.eq(depositValue.toString());
+            expect(token1Dinngo).to.be.bignumber.eq(depositValue);
+            expect(token1Target).to.be.bignumber.eq('0');
+            expect(token1Old).to.be.bignumber.eq(depositValue);
+            expect(token1New).to.be.bignumber.eq('0');
+            expect(token2Dinngo).to.be.bignumber.eq(depositValue);
+            expect(token2Target).to.be.bignumber.eq('0');
+            expect(token2Old).to.be.bignumber.eq(depositValue);
+            expect(token2New).to.be.bignumber.eq('0');
 
             await this.dinngo.setUserBalance(user2, tokenContract, depositValue);
             const receipt = await this.dinngo.migrateByAdmin(migration2, { from: admin });
@@ -141,12 +142,12 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             token1Target = await this.target.balances.call(this.token1.address, user2);
             token2Dinngo = await this.dinngo.balances.call(this.token2.address, user2);
             token2Target = await this.target.balances.call(this.token2.address, user2);
-            etherDinngo.should.be.bignumber.eq('0');
-            etherTarget.should.be.bignumber.eq(depositValue);
-            token1Dinngo.should.be.bignumber.eq('0');
-            token1Target.should.be.bignumber.eq(depositValue);
-            token2Dinngo.should.be.bignumber.eq('0');
-            token2Target.should.be.bignumber.eq(depositValue);
+            expect(etherDinngo).to.be.bignumber.eq('0');
+            expect(etherTarget).to.be.bignumber.eq(depositValue);
+            expect(token1Dinngo).to.be.bignumber.eq('0');
+            expect(token1Target).to.be.bignumber.eq(depositValue);
+            expect(token2Dinngo).to.be.bignumber.eq('0');
+            expect(token2Target).to.be.bignumber.eq(depositValue);
 
             etherOld = await web3.eth.getBalance(this.dinngo.address);
             etherNew = await web3.eth.getBalance(this.target.address);
@@ -155,12 +156,12 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             token2Old = await this.token2.balanceOf.call(this.dinngo.address);
             token2New = await this.token2.balanceOf.call(this.target.address);
 
-            etherOld.should.eq('0');
-            etherNew.should.eq((depositValue.add(depositValue)).toString());
-            token1Old.should.be.bignumber.eq('0');
-            token1New.should.be.bignumber.eq(depositValue);
-            token2Old.should.be.bignumber.eq('0');
-            token2New.should.be.bignumber.eq(depositValue);
+            expect(etherOld).to.eq('0');
+            expect(etherNew).to.eq((depositValue.add(depositValue)).toString());
+            expect(token1Old).to.be.bignumber.eq('0');
+            expect(token1New).to.be.bignumber.eq(depositValue);
+            expect(token2Old).to.be.bignumber.eq('0');
+            expect(token2New).to.be.bignumber.eq(depositValue);
         });
     });
 });

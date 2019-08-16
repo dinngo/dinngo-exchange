@@ -1,6 +1,8 @@
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 const SerializableOrderMock = artifacts.require('SerializableOrderMock');
 
 contract('SerializableOrder', function ([_, user]) {
@@ -27,79 +29,79 @@ contract('SerializableOrder', function ([_, user]) {
     describe('deserialize', function () {
         it('get user ID', async function () {
             const orderData = await this.serializableOrder.getOrderUserIDMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(userId);
+            expect(orderData).to.be.bignumber.eq(userId);
         });
 
         it('get base token ID', async function () {
             const orderData = await this.serializableOrder.getOrderTokenIDBaseMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(tokenIdBase);
+            expect(orderData).to.be.bignumber.eq(tokenIdBase);
         });
 
         it('get base amount', async function () {
             const orderData = await this.serializableOrder.getOrderAmountBaseMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(amountBase);
+            expect(orderData).to.be.bignumber.eq(amountBase);
         });
 
         it('get quote token ID', async function () {
             const orderData = await this.serializableOrder.getOrderTokenIDQuoteMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(tokenIdQuote);
+            expect(orderData).to.be.bignumber.eq(tokenIdQuote);
         });
 
         it('get quote amount', async function () {
             const orderData = await this.serializableOrder.getOrderAmountQuoteMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(amountQuote);
+            expect(orderData).to.be.bignumber.eq(amountQuote);
         });
 
         it('is buy order', async function () {
             const orderData = await this.serializableOrder.isOrderBuyMock.call(serializedHex1);
-            orderData.should.eq(true);
+            expect(orderData).to.eq(true);
         });
 
         it('is main fee', async function () {
             const orderData = await this.serializableOrder.isOrderFeeMainMock.call(serializedHex1);
-            orderData.should.eq(true);
+            expect(orderData).to.eq(true);
         });
 
         it('get trade fee', async function () {
             const orderData = await this.serializableOrder.getOrderTradeFeeMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(tradeFee);
+            expect(orderData).to.be.bignumber.eq(tradeFee);
         });
 
         it('get gas fee', async function () {
             const orderData = await this.serializableOrder.getOrderGasFeeMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(gasFee);
+            expect(orderData).to.be.bignumber.eq(gasFee);
         });
 
         it('get nonce', async function () {
             const orderData = await this.serializableOrder.getOrderNonceMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(nonce);
+            expect(orderData).to.be.bignumber.eq(nonce);
         });
 
         it('get r', async function () {
             const orderData = await this.serializableOrder.getOrderRMock.call(serializedHex1);
-            orderData.should.eq(r);
+            expect(orderData).to.eq(r);
         });
 
         it('get s', async function () {
             const orderData = await this.serializableOrder.getOrderSMock.call(serializedHex1);
-            orderData.should.eq(s);
+            expect(orderData).to.eq(s);
         });
 
         it('get v', async function () {
             const orderData = await this.serializableOrder.getOrderVMock.call(serializedHex1);
-            orderData.should.be.bignumber.eq(v);
+            expect(orderData).to.be.bignumber.eq(v);
         });
 
         it('get hash', async function () {
             const orderData = await this.serializableOrder.getOrderHashMock.call(serializedHex1);
-            orderData.should.eq(hash);
+            expect(orderData).to.eq(hash);
         });
 
         it('get order', async function () {
             const orderData0 = await this.serializableOrder.getOrderMock.call(serializedHexC, 0);
             const orderData1 = await this.serializableOrder.getOrderMock.call(serializedHexC, 1);
-            orderData0.should.eq(serializedHex1);
-            orderData1.should.eq(serializedHex2);
+            expect(orderData0).to.eq(serializedHex1);
+            expect(orderData1).to.eq(serializedHex2);
         });
     });
 });

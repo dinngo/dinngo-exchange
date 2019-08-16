@@ -1,6 +1,8 @@
 const { BN, constants, ether } = require('openzeppelin-test-helpers');
 const { ZERO_ADDRESS } = constants;
 
+const { expect } = require('chai');
+
 const SerializableWithdrawalMock = artifacts.require('SerializableWithdrawalMock');
 
 contract('SerializableWithdrawal', function ([_, user1]) {
@@ -22,52 +24,52 @@ contract('SerializableWithdrawal', function ([_, user1]) {
     describe('deserialize', function () {
         it('get user ID', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalUserIDMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(userId);
+            expect(withdrawalData).to.be.bignumber.eq(userId);
         });
 
         it('get token ID', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalTokenIDMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(tokenId);
+            expect(withdrawalData).to.be.bignumber.eq(tokenId);
         });
 
         it('get amount', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalAmountMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(amount);
+            expect(withdrawalData).to.be.bignumber.eq(amount);
         });
 
         it('is fee ETH', async function () {
             const withdrawalData = await this.SerializableWithdrawal.isWithdrawalFeeETHMock.call(serializedHex);
-            withdrawalData.should.eq(true);
+            expect(withdrawalData).to.eq(true);
         });
 
         it('get fee amount', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalFeeMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(fee);
+            expect(withdrawalData).to.be.bignumber.eq(fee);
         });
 
         it('get nonce', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalNonceMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(nonce);
+            expect(withdrawalData).to.be.bignumber.eq(nonce);
         });
 
         it('get r', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalRMock.call(serializedHex);
-            withdrawalData.should.eq(r);
+            expect(withdrawalData).to.eq(r);
         });
 
         it('get s', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalSMock.call(serializedHex);
-            withdrawalData.should.eq(s);
+            expect(withdrawalData).to.eq(s);
         });
 
         it('get v', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalVMock.call(serializedHex);
-            withdrawalData.should.be.bignumber.eq(v);
+            expect(withdrawalData).to.be.bignumber.eq(v);
         });
 
         it('get hash', async function () {
             const withdrawalData = await this.SerializableWithdrawal.getWithdrawalHashMock.call(serializedHex);
-            withdrawalData.should.eq(hash);
+            expect(withdrawalData).to.eq(hash);
         });
     });
 });

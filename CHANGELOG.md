@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Fee is now collected under the zero address.
+- Upgrade openzeppelin to 2.3.0.
+- Upgrade solidity to 0.5.11.
+- Upgrade truffle to 5.0.31.
+- Upgrade other packages.
 
 ## [1.1.0] - 2019-07-19
 ### Added
