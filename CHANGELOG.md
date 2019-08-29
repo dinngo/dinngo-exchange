@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Event emission is separate into three groups. Each group can be turn on/off individually.
 
 ### Changed
+- Change the proxy structure from timelock to normal.
 - Fee is now collected under the zero address.
 - Upgrade openzeppelin to 2.3.0.
 - Upgrade solidity to 0.5.11.
