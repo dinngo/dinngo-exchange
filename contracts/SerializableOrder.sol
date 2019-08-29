@@ -90,12 +90,12 @@ contract SerializableOrder {
     }
 
     /**
-     * @notice Get trading fee from the serialized order data
+     * @notice Get handling fee from the serialized order data
      * @param ser_data Serialized order data
      * @return fee Fee amount
      */
-    function _getOrderTradeFee(bytes memory ser_data) internal pure returns (uint256 tradeFee) {
-        tradeFee = ser_data.toUint(ORDER_SIZE - 109);
+    function _getOrderHandleFee(bytes memory ser_data) internal pure returns (uint256 handleFee) {
+        handleFee = ser_data.toUint(ORDER_SIZE - 109);
     }
 
     /**

@@ -444,7 +444,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         address tokenBase = tokenID_Address[_getOrderTokenIDBase(order)];
         address tokenFee;
         uint256 amountFee =
-            _getOrderTradeFee(order).mul(amountBase).div(_getOrderAmountBase(order));
+            _getOrderHandleFee(order).mul(amountBase).div(_getOrderAmountBase(order));
         require(_isValidUser(user));
         // Trade and fee setting
         if (orderFills[hash] == 0) {
