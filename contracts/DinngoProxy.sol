@@ -4,7 +4,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "./Administrable.sol";
 import "./ec/ErrorHandler.sol";
-import "./proxy/TimelockUpgradableProxy.sol";
+import "./proxy/Proxy.sol";
 
 
 /**
@@ -12,7 +12,7 @@ import "./proxy/TimelockUpgradableProxy.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract DinngoProxy is Ownable, Administrable, TimelockUpgradableProxy {
+contract DinngoProxy is Ownable, Administrable, Proxy {
     using ErrorHandler for bytes;
 
     uint256 public processTime;
