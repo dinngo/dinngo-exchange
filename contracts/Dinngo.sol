@@ -359,6 +359,29 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     }
 
     /**
+     * @notice The transfer function that can only be triggered by admin.
+     * Event transfer will be emitted after execution.
+     * @param transferral The serialized transferral data.
+     */
+    function transferByAdmin(bytes calldata transferral) external {
+        address from = _getTransferralFrom(transferral);
+        uint256 nTo = _getTransferralToAmount(transferral);
+        _verifySig(
+            from,
+            _getTransferralR(transferral),
+            _getTransferralS(transferral),
+            _getTransferralV(transferral)
+        );
+        for (uint256 i = 0; i < nTo; i++) {
+            address to = _getTransferralTo(transferral, i);
+            address token = _getTransferralToken(transferral, i);
+            uint256 amount = _getTransferralAmount(transferral, i);
+            balances[token][from] = balances[token][from].sub(amount);
+            balances[token][to] = balances[token][to].add(amount);
+        }
+    }
+
+    /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
      * @param orders The serialized orders.
