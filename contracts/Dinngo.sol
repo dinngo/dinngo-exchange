@@ -337,13 +337,7 @@ contract Dinngo is
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
         require(_isValidUser(user));
-        _verifySig(
-            user,
-            _getMigrationHash(migration),
-            _getMigrationR(migration),
-            _getMigrationS(migration),
-            _getMigrationV(migration)
-        );
+        _verifySig2(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
             uint256 balance = balances[token][user];

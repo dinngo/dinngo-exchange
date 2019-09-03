@@ -22,8 +22,10 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
     const tokenID2 = new BN('11');
     const tokenID3 = new BN('23');
     const depositValue = ether('0.1');
-    const migration1 = '0x15ddf6a61e62aaa16e0be4328850414f188ae687755cad262cd971de571439b887a72fa86c8490370b4498d9afe1d75e876174ccf8018a14fd9da87756fb8c8a0100000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
-    const migration2 = '0x75ec1c777383273eb634c579f4235161d721658fc7bc209f88ff392090622e34d3cf89a5a2de798c0d5dd21beddb67d16663ca0de2e59233f6fbc99484013322010017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const migration1 = '0x00000000000b471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const sig1 = '0x87a72fa86c8490370b4498d9afe1d75e876174ccf8018a14fd9da87756fb8c8a15ddf6a61e62aaa16e0be4328850414f188ae687755cad262cd971de571439b801';
+    const migration2 = '0x0017000b00000000000c471c92f915ae766c4964eedc300e5b8ff41e443c';
+    const sig2 = '0xd3cf89a5a2de798c0d5dd21beddb67d16663ca0de2e59233f6fbc9948401332275ec1c777383273eb634c579f4235161d721658fc7bc209f88ff392090622e3401';
 
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
@@ -58,7 +60,7 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             expect(etherTarget).to.be.bignumber.eq('0');
             expect(etherOld).to.eq(depositValue.toString());
             expect(etherNew).to.eq('0');
-            const receipt = await this.dinngo.migrateByAdmin(migration1, { from: admin });
+            const receipt = await this.dinngo.migrateByAdmin(migration1, sig1, { from: admin });
             console.log(receipt.receipt.gasUsed);
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user1);
             etherTarget = await this.target.balances.call(ZERO_ADDRESS, user1);
@@ -71,16 +73,16 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         });
 
         it('when sent by owner', async function () {
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, { from: owner }));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1, { from: owner }));
         });
 
         it('when sent by non-admin', async function () {
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1));
         });
 
         it('when user is removed', async function () {
             await this.dinngo.removeUser(user1, { from: admin });
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, { from: admin }));
+            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }));
         })
     });
 
@@ -133,7 +135,7 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             expect(token2New).to.be.bignumber.eq('0');
 
             await this.dinngo.setUserBalance(user2, tokenContract, depositValue);
-            const receipt = await this.dinngo.migrateByAdmin(migration2, { from: admin });
+            const receipt = await this.dinngo.migrateByAdmin(migration2, sig2, { from: admin });
             console.log(receipt.receipt.gasUsed);
 
             etherDinngo = await this.dinngo.balances.call(ZERO_ADDRESS, user2);

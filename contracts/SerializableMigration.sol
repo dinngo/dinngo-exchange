@@ -14,7 +14,6 @@ contract SerializableMigration {
 
     uint constant public MIGRATION_1_SIZE = 24;
     uint constant public TOKENID_SIZE = 2;
-    uint constant public SIGNATURE_SIZE = 65;
     uint8 constant internal _MASK_IS_ETH = 0x01;
 
     /**
@@ -41,7 +40,7 @@ contract SerializableMigration {
      * @return n The migrate token amount
      */
     function _getMigrationCount(bytes memory ser_data) internal pure returns (uint256 n) {
-        n = (ser_data.length - SIGNATURE_SIZE - MIGRATION_1_SIZE) / TOKENID_SIZE;
+        n = (ser_data.length - MIGRATION_1_SIZE) / TOKENID_SIZE;
     }
 
     /**
@@ -56,38 +55,11 @@ contract SerializableMigration {
     }
 
     /**
-     * @notice Get v from the serialized migration data
-     * @param ser_data Serialized migration data
-     * @return v Signature v
-     */
-    function _getMigrationV(bytes memory ser_data) internal pure returns (uint8 v) {
-        v = ser_data.toUint8(SIGNATURE_SIZE - 1);
-    }
-
-    /**
-     * @notice Get r from the serialized migration data
-     * @param ser_data Serialized migration data
-     * @return r Signature r
-     */
-    function _getMigrationR(bytes memory ser_data) internal pure returns (bytes32 r) {
-        r = ser_data.toBytes32(SIGNATURE_SIZE - 33);
-    }
-
-    /**
-     * @notice Get s from the serialized migration data
-     * @param ser_data Serialized migration data
-     * @return s Signature s
-     */
-    function _getMigrationS(bytes memory ser_data) internal pure returns (bytes32 s) {
-        s = ser_data.toBytes32(SIGNATURE_SIZE - 65);
-    }
-
-    /**
      * @notice Get hash from the serialized migration data
      * @param ser_data Serialized migration data
      * @return hash Migration hash without signature
      */
     function _getMigrationHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
-        hash = keccak256(ser_data.slice(65, ser_data.length - SIGNATURE_SIZE));
+        hash = keccak256(ser_data);
     }
 }
