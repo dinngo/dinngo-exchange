@@ -3,6 +3,7 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "bytes/BytesLib.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
@@ -30,6 +31,7 @@ contract Dinngo is
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using BytesLib for bytes;
 
     uint256 public processTime;
 
@@ -397,15 +399,16 @@ contract Dinngo is
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes calldata orders, bytes calldata signature) external {
+    function settle(bytes calldata orders, bytes calldata signatures) external {
         // Deal with the order list
         uint256 nOrder = _getOrderCount(orders);
         // Get the first order as the taker order
         bytes memory takerOrder = _getOrder(orders, 0);
-        uint256 totalAmountBase = _getOrderAmountBase(takerOrder);
-        uint256 takerAmountBase = totalAmountBase.sub(orderFills[_getOrderHash(takerOrder)]);
-        uint256 fillAmountQuote = 0;
-        uint256 restAmountBase = takerAmountBase;
+        uint256[4] memory amounts; // [totalAmountBase, takerAmountBase, fillAmountQuote, restAmountBase]
+        amounts[0] = _getOrderAmountBase(takerOrder);
+        amounts[1] = amounts[0].sub(orderFills[_getOrderHash(takerOrder)]);
+        amounts[2] = 0;
+        amounts[3] = amounts[1];
         bool fBuy = _isOrderBuy(takerOrder);
         // Parse maker orders
         for (uint i = 1; i < nOrder; i++) {
@@ -415,24 +418,26 @@ contract Dinngo is
             uint256 makerAmountBase = _getOrderAmountBase(makerOrder);
             // Calculate the amount to be executed
             uint256 amountBase = makerAmountBase.sub(orderFills[_getOrderHash(makerOrder)]);
-            amountBase = amountBase <= restAmountBase? amountBase : restAmountBase;
+            amountBase = amountBase <= amounts[3]? amountBase : amounts[3];
             uint256 amountQuote = _getOrderAmountQuote(makerOrder).mul(amountBase).div(makerAmountBase);
-            restAmountBase = restAmountBase.sub(amountBase);
-            fillAmountQuote = fillAmountQuote.add(amountQuote);
+            amounts[3] = amounts[3].sub(amountBase);
+            amounts[2] = amounts[2].add(amountQuote);
             // Trade amountBase and amountQuote for maker order
-            _trade(amountBase, amountQuote, makerOrder);
+            bytes memory sig = signatures.slice(i.mul(65), 65);
+            _trade(amountBase, amountQuote, makerOrder, sig);
         }
         // Sum the trade amount and check
-        takerAmountBase = takerAmountBase.sub(restAmountBase);
+        amounts[1] = amounts[1].sub(amounts[3]);
         if (fBuy) {
-            require(fillAmountQuote.mul(totalAmountBase)
-                <= _getOrderAmountQuote(takerOrder).mul(takerAmountBase));
+            require(amounts[2].mul(amounts[0])
+                <= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
         } else {
-            require(fillAmountQuote.mul(totalAmountBase)
-                >= _getOrderAmountQuote(takerOrder).mul(takerAmountBase));
+            require(amounts[2].mul(amounts[0])
+                >= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
         }
         // Trade amountBase and amountQuote for taker order
-        _trade(takerAmountBase, fillAmountQuote, takerOrder);
+        bytes memory sig = signatures.slice(0, 65);
+        _trade(amounts[1], amounts[2], takerOrder, sig);
     }
 
     /**
@@ -469,7 +474,7 @@ contract Dinngo is
      * @param amountQuote The amount to be requested
      * @param order The order that triggered the trading
      */
-    function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order) internal {
+    function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order, bytes memory signature) internal {
         require(amountBase != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
@@ -482,7 +487,8 @@ contract Dinngo is
         require(_isValidUser(user));
         // Trade and fee setting
         if (orderFills[hash] == 0) {
-            _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
+            //_verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
+            _verifySig2(user, hash, signature);
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
         bool fBuy = _isOrderBuy(order);

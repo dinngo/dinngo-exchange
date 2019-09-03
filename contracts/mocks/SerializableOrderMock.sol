@@ -46,18 +46,6 @@ contract SerializableOrderMock is SerializableOrder{
         return _getOrderGasFee(ser_data);
     }
 
-    function getOrderVMock(bytes calldata ser_data) external pure returns (uint8 v) {
-        return _getOrderV(ser_data);
-    }
-
-    function getOrderRMock(bytes calldata ser_data) external pure returns (bytes32 r) {
-        return _getOrderR(ser_data);
-    }
-
-    function getOrderSMock(bytes calldata ser_data) external pure returns (bytes32 s) {
-        return _getOrderS(ser_data);
-    }
-
     function getOrderHashMock(bytes calldata ser_data) external pure returns (bytes32 hash) {
         return _getOrderHash(ser_data);
     }

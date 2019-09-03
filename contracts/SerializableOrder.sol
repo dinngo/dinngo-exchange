@@ -12,8 +12,7 @@ contract SerializableOrder {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-    uint constant public ORDER_SIZE = 206;
-    uint constant public UNSIGNED_ORDER_SIZE = 141;
+    uint constant public ORDER_SIZE = 141;
     uint8 constant internal _MASK_IS_BUY = 0x01;
     uint8 constant internal _MASK_IS_MAIN = 0x02;
 
@@ -108,39 +107,12 @@ contract SerializableOrder {
     }
 
     /**
-     * @notice Get v from the serialized order data
-     * @param ser_data Serialized order data
-     * @return v Signature v
-     */
-    function _getOrderV(bytes memory ser_data) internal pure returns (uint8 v) {
-        v = ser_data.toUint8(ORDER_SIZE - 142);
-    }
-
-    /**
-     * @notice Get r from the serialized order data
-     * @param ser_data Serialized order data
-     * @return r Signature r
-     */
-    function _getOrderR(bytes memory ser_data) internal pure returns (bytes32 r) {
-        r = ser_data.toBytes32(ORDER_SIZE - 174);
-    }
-
-    /**
-     * @notice Get s from the serialized order data
-     * @param ser_data Serialized order data
-     * @return s Signature s
-     */
-    function _getOrderS(bytes memory ser_data) internal pure returns (bytes32 s) {
-        s = ser_data.toBytes32(ORDER_SIZE - 206);
-    }
-
-    /**
      * @notice Get hash from the serialized order data
      * @param ser_data Serialized order data
      * @return hash Order hash without signature
      */
     function _getOrderHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
-        hash = keccak256(ser_data.slice(65, UNSIGNED_ORDER_SIZE));
+        hash = keccak256(ser_data);
     }
 
     /**
