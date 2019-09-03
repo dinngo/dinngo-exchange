@@ -12,8 +12,7 @@ contract SerializableWithdrawal {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-    uint constant public WITHDRAWAL_SIZE = 140;
-    uint constant public UNSIGNED_WITHDRAWAL_SIZE = 75;
+    uint constant public WITHDRAWAL_SIZE = 75;
     uint8 constant internal _MASK_IS_ETH = 0x01;
 
     /**
@@ -71,38 +70,11 @@ contract SerializableWithdrawal {
     }
 
     /**
-     * @notice Get v from the serialized withdrawal data
-     * @param ser_data Serialized withdrawal data
-     * @return v Signature v
-     */
-    function _getWithdrawalV(bytes memory ser_data) internal pure returns (uint8 v) {
-        v = ser_data.toUint8(WITHDRAWAL_SIZE - 76);
-    }
-
-    /**
-     * @notice Get r from the serialized withdrawal data
-     * @param ser_data Serialized withdrawal data
-     * @return r Signature r
-     */
-    function _getWithdrawalR(bytes memory ser_data) internal pure returns (bytes32 r) {
-        r = ser_data.toBytes32(WITHDRAWAL_SIZE - 108);
-    }
-
-    /**
-     * @notice Get s from the serialized withdrawal data
-     * @param ser_data Serialized withdrawal data
-     * @return s Signature s
-     */
-    function _getWithdrawalS(bytes memory ser_data) internal pure returns (bytes32 s) {
-        s = ser_data.toBytes32(WITHDRAWAL_SIZE - 140);
-    }
-
-    /**
      * @notice Get hash from the serialized withdrawal data
      * @param ser_data Serialized withdrawal data
      * @return hash Withdrawal hash without signature
      */
     function _getWithdrawalHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
-        hash = keccak256(ser_data.slice(65, UNSIGNED_WITHDRAWAL_SIZE));
+        hash = keccak256(ser_data);
     }
 }

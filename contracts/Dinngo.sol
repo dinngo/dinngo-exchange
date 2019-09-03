@@ -15,7 +15,12 @@ import "./migrate/Migratable.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigration, SerializableTransferral {
+contract Dinngo is
+    SerializableOrder,
+    SerializableWithdrawal,
+    SerializableMigration,
+    SerializableTransferral
+{
     // Storage alignment
     address private _owner;
     mapping (address => bool) private admins;
@@ -296,7 +301,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes calldata withdrawal) external {
+    function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -304,13 +309,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
         uint256 balance = balances[token][user].sub(amount);
         require(_isValidUser(user));
-        _verifySig(
-            user,
-            _getWithdrawalHash(withdrawal),
-            _getWithdrawalR(withdrawal),
-            _getWithdrawalS(withdrawal),
-            _getWithdrawalV(withdrawal)
-        );
+        _verifySig2(user, _getWithdrawalHash(withdrawal), signature);
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
         } else {
@@ -333,7 +332,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event Migrate will be emitted after execution.
      * @param migration The serialized migration data
      */
-    function migrateByAdmin(bytes calldata migration) external {
+    function migrateByAdmin(bytes calldata migration, bytes calldata signature) external {
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
@@ -364,8 +363,8 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event transfer will be emitted after execution.
      * @param transferral The serialized transferral data.
      */
-
-    function transferByAdmin(bytes calldata transferral) external {
+/*
+    function transferByAdmin(bytes calldata transferral, bytes calldata signature) external {
         address from = _getTransferralFrom(transferral);
         _verifySig(
             from,
@@ -397,13 +396,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(feeDGO);
         }
     }
+*/
 
     /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes calldata orders) external {
+    function settle(bytes calldata orders, bytes calldata signature) external {
         // Deal with the order list
         uint256 nOrder = _getOrderCount(orders);
         // Get the first order as the taker order
@@ -559,6 +559,33 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * @param v The signature V
      */
     function _verifySig(address user, bytes32 hash, bytes32 r, bytes32 s, uint8 v) internal pure {
+        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+        if (v < 27) {
+            v += 27;
+        }
+        require(v == 27 || v == 28);
+
+        address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
+        require(user == sigAddr);
+    }
+
+    function _verifySig2(address user, bytes32 hash, bytes memory signature) internal pure {
+        // Divide the signature in r, s and v variables
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        // ecrecover takes the signature parameters, and the only way to get them
+        // currently is to use assembly.
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
+        }
+
+        require(uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0);
+
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (v < 27) {
             v += 27;

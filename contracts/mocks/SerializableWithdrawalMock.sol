@@ -30,18 +30,6 @@ contract SerializableWithdrawalMock is SerializableWithdrawal {
         return _getWithdrawalFee(ser_data);
     }
 
-    function getWithdrawalVMock(bytes calldata ser_data) external pure returns (uint8 v) {
-        return _getWithdrawalV(ser_data);
-    }
-
-    function getWithdrawalRMock(bytes calldata ser_data) external pure returns (bytes32 r) {
-        return _getWithdrawalR(ser_data);
-    }
-
-    function getWithdrawalSMock(bytes calldata ser_data) external pure returns (bytes32 s) {
-        return _getWithdrawalS(ser_data);
-    }
-
     function getWithdrawalHashMock(bytes calldata ser_data) external pure returns (bytes32 hash) {
         return _getWithdrawalHash(ser_data);
     }
