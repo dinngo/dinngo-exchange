@@ -7,6 +7,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 import "./SerializableMigration.sol";
+import "./SerializableTransferral.sol";
 import "./migrate/Migratable.sol";
 
 /**
@@ -14,7 +15,7 @@ import "./migrate/Migratable.sol";
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigration {
+contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigration, SerializableTransferral {
     // Storage alignment
     address private _owner;
     mapping (address => bool) private admins;
@@ -363,21 +364,37 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event transfer will be emitted after execution.
      * @param transferral The serialized transferral data.
      */
+
     function transferByAdmin(bytes calldata transferral) external {
         address from = _getTransferralFrom(transferral);
-        uint256 nTo = _getTransferralToAmount(transferral);
         _verifySig(
             from,
+            _getTransferralHash(transferral),
             _getTransferralR(transferral),
             _getTransferralS(transferral),
             _getTransferralV(transferral)
         );
-        for (uint256 i = 0; i < nTo; i++) {
+        bool fFeeMain = _isTransferralFeeMain(transferral);
+        uint256 feeDGO = 0;
+        for (uint256 i = 0; i < _getTransferralCount(transferral); i++) {
             address to = _getTransferralTo(transferral, i);
-            address token = _getTransferralToken(transferral, i);
+            address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
             uint256 amount = _getTransferralAmount(transferral, i);
-            balances[token][from] = balances[token][from].sub(amount);
-            balances[token][to] = balances[token][to].add(amount);
+            uint256 fee = _getTransferralFee(transferral, i);
+
+            if (fFeeMain) {
+                balances[token][from] = balances[token][from].sub(amount).sub(fee);
+                balances[token][to] = balances[token][to].add(amount);
+                balances[token][address(0)] = balances[token][address(0)].add(fee);
+            } else {
+                balances[token][from] = balances[token][from].sub(amount);
+                balances[token][to] = balances[token][to].add(amount);
+                feeDGO = feeDGO.add(fee);
+            }
+        }
+        if (!fFeeMain) {
+            balances[DGOToken][from] = balances[DGOToken][from].sub(feeDGO);
+            balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(feeDGO);
         }
     }
 

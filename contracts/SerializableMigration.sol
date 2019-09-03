@@ -41,7 +41,7 @@ contract SerializableMigration {
      * @return n The migrate token amount
      */
     function _getMigrationCount(bytes memory ser_data) internal pure returns (uint256 n) {
-        n = (ser_data.length - SIGNATURE_SIZE - MIGRATION_1_SIZE) / 2;
+        n = (ser_data.length - SIGNATURE_SIZE - MIGRATION_1_SIZE) / TOKENID_SIZE;
     }
 
     /**
