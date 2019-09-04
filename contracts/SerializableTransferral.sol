@@ -12,7 +12,7 @@ contract SerializableTransferral {
     using SafeMath for uint256;
     using BytesLib for bytes;
 
-    uint constant public TRANSFERRAL_1_SIZE = 53;
+    uint constant public TRANSFERRAL_1_SIZE = 25;
     uint constant public RECEIVER_SIZE = 86;
     uint8 constant internal _MASK_IS_ETH = 0x01;
 
@@ -22,7 +22,7 @@ contract SerializableTransferral {
      * @return from User address
      */
     function _getTransferralFrom(bytes memory ser_data) internal pure returns (address from) {
-        from = ser_data.toAddress(ser_data.length - 4);
+        from = ser_data.toAddress(ser_data.length - 20);
     }
 
     /**
@@ -31,7 +31,7 @@ contract SerializableTransferral {
      * @return fETH Is the fee paid in transferral token or DGO
      */
     function _isTransferralFeeMain(bytes memory ser_data) internal pure returns (bool fFeeETH) {
-        fFeeETH = (ser_data.toUint8(ser_data.length - 5) & _MASK_IS_ETH != 0);
+        fFeeETH = (ser_data.toUint8(ser_data.length - 21) & _MASK_IS_ETH != 0);
     }
 
     /**
@@ -40,7 +40,7 @@ contract SerializableTransferral {
      * @return nonce Nonce
      */
     function _getTransferralNonce(bytes memory ser_data) internal pure returns (uint256 nonce) {
-        nonce = ser_data.toUint(ser_data.length - 37);
+        nonce = ser_data.toUint32(ser_data.length - 25);
     }
 
     /**
@@ -60,7 +60,7 @@ contract SerializableTransferral {
      */
     function _getTransferralTo(bytes memory ser_data, uint index) internal pure returns (address to) {
         require(index < _getTransferralCount(ser_data));
-        to = ser_data.toAddress(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index + 1)) - 20);
+        to = ser_data.toAddress(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index)) - 20);
     }
 
     /**
@@ -71,7 +71,7 @@ contract SerializableTransferral {
      */
     function _getTransferralTokenID(bytes memory ser_data, uint index) internal pure returns (uint256 token) {
         require(index < _getTransferralCount(ser_data));
-        token = ser_data.toUint16(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index + 1)) - 22);
+        token = ser_data.toUint16(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index)) - 22);
     }
 
     /**
@@ -82,7 +82,7 @@ contract SerializableTransferral {
      */
     function _getTransferralAmount(bytes memory ser_data, uint index) internal pure returns (uint256 amount) {
         require(index < _getTransferralCount(ser_data));
-        amount = ser_data.toUint(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index + 1)) - 54);
+        amount = ser_data.toUint(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index)) - 54);
     }
 
     /**
@@ -93,7 +93,7 @@ contract SerializableTransferral {
      */
     function _getTransferralFee(bytes memory ser_data, uint index) internal pure returns (uint256 fee) {
         require(index < _getTransferralCount(ser_data));
-        fee = ser_data.toUint(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index + 1)) - 86);
+        fee = ser_data.toUint(ser_data.length - TRANSFERRAL_1_SIZE - (RECEIVER_SIZE.mul(index)) - 86);
     }
 
     /**

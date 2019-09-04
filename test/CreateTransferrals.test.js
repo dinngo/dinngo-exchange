@@ -9,7 +9,7 @@ function getHash(hex) {
 function getSender(from, config, nonce) {
     const from_h = utils.padLeft(utils.toHex(from), 40);
     const config_h = utils.padLeft(utils.toHex(config), 2);
-    const nonce_h = utils.padLeft(utils.toHex(nonce), 64);
+    const nonce_h = utils.padLeft(utils.toHex(nonce), 8);
 
     return (
         nonce_h +
@@ -62,14 +62,38 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
             let transferralHex = (receiver1Hex + senderHex.slice(2));
             let hash = getHash(transferralHex);
             let sgn = await web3.eth.sign(hash, user1);
-            let r = sgn.slice(0, 66);
-            let s = '0x' + sgn.slice(66, 130);
-            let v = '0x' + sgn.slice(130, 132);
-            let ser_hex = s + v.slice(2) + r.slice(2) + receiver1Hex.slice(2) + senderHex.slice(2);
+            let ser_hex = receiver1Hex + senderHex.slice(2);
             console.log(hash);
-            console.log(r);
-            console.log(s);
-            console.log(v);
+            console.log(sgn);
+            console.log(ser_hex);
+        });
+    });
+
+    describe('Multiple transferral', function () {
+        it('hex1', async function () {
+            let senderHex = getSender(
+                user1,
+                config1,
+                nonce1
+            );
+            let receiver1Hex = getReceiver(
+                user2,
+                tokenID1,
+                amount1,
+                fee1
+            );
+            let receiver2Hex = getReceiver(
+                user3,
+                tokenID2,
+                amount2,
+                fee2
+            );
+            let transferralHex = (receiver2Hex + receiver1Hex.slice(2) + senderHex.slice(2));
+            let hash = getHash(transferralHex);
+            let sgn = await web3.eth.sign(hash, user1);
+            let ser_hex = transferralHex;
+            console.log(hash);
+            console.log(sgn);
             console.log(ser_hex);
         });
     });
