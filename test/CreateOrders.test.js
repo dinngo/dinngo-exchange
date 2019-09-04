@@ -101,6 +101,7 @@ contract('SerializableOrder for buying taker', function ([_, user1, user2, user3
     const gasFee5 = ether('1');
     const nonce5 = 5;
 
+/*
     describe('single order', async function () {
         it('hex1', async function () {
             const hash = getHash(
@@ -377,6 +378,7 @@ contract('SerializableOrder for buying taker', function ([_, user1, user2, user3
             console.log(sgn1 + sgn2.slice(2) + sgn3.slice(2) + sgn4.slice(2) + sgn5.slice(2));
         });
     });
+*/
 });
 
 contract('SerializableOrder for selling taker', function ([_, user1, user2, user3, user4, user5]) {
@@ -420,6 +422,7 @@ contract('SerializableOrder for selling taker', function ([_, user1, user2, user
     const gasFee4 = ether('0.001');
     const nonce4 = 4;
 
+/*
     describe('multiple orders', async function () {
         it('hex_1_2_3_4_5', async function () {
             let hash1 = getHash(
@@ -525,4 +528,5 @@ contract('SerializableOrder for selling taker', function ([_, user1, user2, user
             console.log(sgn1 + sgn4.slice(2));
         });
     });
+*/
 });

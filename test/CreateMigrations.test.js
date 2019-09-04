@@ -74,6 +74,7 @@ contract('SerializableMigration', function ([_, user1, user2, deployer]) {
     const token3 = 23;
     const config2 = 0;
 
+/*
     describe('single migration', async function () {
         it('hex1', async function () {
             let hash = getHash1(
@@ -115,4 +116,5 @@ contract('SerializableMigration', function ([_, user1, user2, deployer]) {
             console.log(this.Target.address);
         });
     });
+*/
 });

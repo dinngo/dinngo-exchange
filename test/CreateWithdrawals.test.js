@@ -53,6 +53,7 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
     const fee2 = ether('1');
     const nonce2 = 2;
 
+/*
     describe('single withdrawal', async function () {
         it('hex1', async function () {
             let hash = getHash(
@@ -100,4 +101,5 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
             console.log(sgn);
         });
     });
+*/
 });
