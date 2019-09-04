@@ -14,7 +14,6 @@ contract SerializableTransferral {
 
     uint constant public TRANSFERRAL_1_SIZE = 53;
     uint constant public RECEIVER_SIZE = 86;
-    uint constant public SIGNATURE_SIZE = 65;
     uint8 constant internal _MASK_IS_ETH = 0x01;
 
     /**
@@ -50,7 +49,7 @@ contract SerializableTransferral {
      * @return n The transferral receiver amount
      */
     function _getTransferralCount(bytes memory ser_data) internal pure returns (uint256 n) {
-        n = (ser_data.length - SIGNATURE_SIZE - TRANSFERRAL_1_SIZE) / RECEIVER_SIZE;
+        n = (ser_data.length - TRANSFERRAL_1_SIZE) / RECEIVER_SIZE;
     }
 
     /**
@@ -98,38 +97,11 @@ contract SerializableTransferral {
     }
 
     /**
-     * @notice Get v from the serialized transferral data
-     * @param ser_data Serialized transferral data
-     * @return v Signature v
-     */
-    function _getTransferralV(bytes memory ser_data) internal pure returns (uint8 v) {
-        v = ser_data.toUint8(SIGNATURE_SIZE - 1);
-    }
-
-    /**
-     * @notice Get r from the serialized transferral data
-     * @param ser_data Serialized transferral data
-     * @return r Signature r
-     */
-    function _getTransferralR(bytes memory ser_data) internal pure returns (bytes32 r) {
-        r = ser_data.toBytes32(SIGNATURE_SIZE - 33);
-    }
-
-    /**
-     * @notice Get s from the serialized transferral data
-     * @param ser_data Serialized transferral data
-     * @return s Signature s
-     */
-    function _getTransferralS(bytes memory ser_data) internal pure returns (bytes32 s) {
-        s = ser_data.toBytes32(SIGNATURE_SIZE - 65);
-    }
-
-    /**
      * @notice Get hash from the serialized transferral data
      * @param ser_data Serialized transferral data
      * @return hash Transferral hash without signature
      */
     function _getTransferralHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
-        hash = keccak256(ser_data.slice(65, ser_data.length - SIGNATURE_SIZE));
+        hash = keccak256(ser_data);
     }
 }

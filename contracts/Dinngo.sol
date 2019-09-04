@@ -311,7 +311,7 @@ contract Dinngo is
         address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
         uint256 balance = balances[token][user].sub(amount);
         require(_isValidUser(user));
-        _verifySig2(user, _getWithdrawalHash(withdrawal), signature);
+        _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
         } else {
@@ -339,7 +339,7 @@ contract Dinngo is
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
         require(_isValidUser(user));
-        _verifySig2(user, _getWithdrawalHash(migration), signature);
+        _verifySig(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
             uint256 balance = balances[token][user];
@@ -359,24 +359,17 @@ contract Dinngo is
      * Event transfer will be emitted after execution.
      * @param transferral The serialized transferral data.
      */
-/*
     function transferByAdmin(bytes calldata transferral, bytes calldata signature) external {
         address from = _getTransferralFrom(transferral);
-        _verifySig(
-            from,
-            _getTransferralHash(transferral),
-            _getTransferralR(transferral),
-            _getTransferralS(transferral),
-            _getTransferralV(transferral)
-        );
         bool fFeeMain = _isTransferralFeeMain(transferral);
         uint256 feeDGO = 0;
-        for (uint256 i = 0; i < _getTransferralCount(transferral); i++) {
+        uint256 nTransferral = _getTransferralCount(transferral);
+        _verifySig(from, _getTransferralHash(transferral), signature);
+        for (uint256 i = 0; i < nTransferral; i++) {
             address to = _getTransferralTo(transferral, i);
             address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
             uint256 amount = _getTransferralAmount(transferral, i);
             uint256 fee = _getTransferralFee(transferral, i);
-
             if (fFeeMain) {
                 balances[token][from] = balances[token][from].sub(amount).sub(fee);
                 balances[token][to] = balances[token][to].add(amount);
@@ -392,7 +385,6 @@ contract Dinngo is
             balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(feeDGO);
         }
     }
-*/
 
     /**
      * @notice The settle function for orders. First order is taker order and the followings
@@ -487,8 +479,7 @@ contract Dinngo is
         require(_isValidUser(user));
         // Trade and fee setting
         if (orderFills[hash] == 0) {
-            //_verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
-            _verifySig2(user, hash, signature);
+            _verifySig(user, hash, signature);
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
         bool fBuy = _isOrderBuy(order);
@@ -550,26 +541,7 @@ contract Dinngo is
         return tokenRanks[token] != 0;
     }
 
-    /**
-     * @notice Verify if the data is signed by the given user and signature
-     * @param user The signing user
-     * @param hash The data hash to be verified
-     * @param r The signature R
-     * @param s The signature S
-     * @param v The signature V
-     */
-    function _verifySig(address user, bytes32 hash, bytes32 r, bytes32 s, uint8 v) internal pure {
-        // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
-        if (v < 27) {
-            v += 27;
-        }
-        require(v == 27 || v == 28);
-
-        address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
-        require(user == sigAddr);
-    }
-
-    function _verifySig2(address user, bytes32 hash, bytes memory signature) internal pure {
+    function _verifySig(address user, bytes32 hash, bytes memory signature) internal pure {
         // Divide the signature in r, s and v variables
         bytes32 r;
         bytes32 s;

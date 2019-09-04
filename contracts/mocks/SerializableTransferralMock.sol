@@ -35,18 +35,6 @@ contract SerializableTransferralMock is SerializableTransferral {
         return _getTransferralFee(ser_data, index);
     }
 
-    function getTransferralV(bytes calldata ser_data) external pure returns (uint8 v) {
-        return _getTransferralV(ser_data);
-    }
-
-    function getTransferralR(bytes calldata ser_data) external pure returns (bytes32 r) {
-        return _getTransferralR(ser_data);
-    }
-
-    function getTransferralS(bytes calldata ser_data) external pure returns (bytes32 s) {
-        return _getTransferralS(ser_data);
-    }
-
     function getTransferralHash(bytes calldata ser_data) external pure returns (bytes32 hash) {
         return _getTransferralHash(ser_data);
     }
