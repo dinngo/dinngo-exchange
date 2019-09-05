@@ -276,11 +276,11 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     /**
      * @notice The transfer function that can only be triggered by owner.
      * Event Transfer will be emitted afer execution.
-     * @param transferral The serialized transferral data.
+     * @param transferal The serialized transferal data.
      */
-    function transferByAdmin(bytes calldata transferral, bytes calldata signature) external onlyAdmin {
+    function transferByAdmin(bytes calldata transferal, bytes calldata signature) external onlyAdmin {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
-            abi.encodeWithSignature("transferByAdmin(bytes,bytes)", transferral, signature)
+            abi.encodeWithSignature("transferByAdmin(bytes,bytes)", transferal, signature)
         );
         require(ok);
         ret.errorHandler();
