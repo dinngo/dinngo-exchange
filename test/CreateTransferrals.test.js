@@ -46,6 +46,7 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
     const amount2 = ether('0.2');
     const fee2 = ether('0.02');
 
+/*
     describe('Single transferral', function () {
         it('hex1', async function () {
             let senderHex = getSender(
@@ -73,8 +74,8 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
         it('hex1', async function () {
             let senderHex = getSender(
                 user1,
-                config1,
-                nonce1
+                config2,
+                nonce2
             );
             let receiver1Hex = getReceiver(
                 user2,
@@ -97,4 +98,5 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
             console.log(ser_hex);
         });
     });
+*/
 });
