@@ -10,7 +10,6 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
-/*
 contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
@@ -210,7 +209,6 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
         });
     });
 });
-*/
 
 contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, tokenContract]) {
     beforeEach(async function () {
