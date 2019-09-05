@@ -10,6 +10,7 @@ import "./SerializableWithdrawal.sol";
 import "./SerializableMigration.sol";
 import "./SerializableTransferral.sol";
 import "./migrate/Migratable.sol";
+import "./contractSign/IContractSign.sol";
 
 /**
  * @title Dinngo
@@ -372,7 +373,11 @@ contract Dinngo is
         bool fFeeMain = _isTransferralFeeMain(transferral);
         uint256 feeDGO = 0;
         uint256 nTransferral = _getTransferralCount(transferral);
-        _verifySig(from, _getTransferralHash(transferral), signature);
+        if (signature.length != 0) {
+            _verifySig(from, _getTransferralHash(transferral), signature);
+        } else {
+            require(IContractSign(from).signed(_getTransferralHash(transferral)));
+        }
         for (uint256 i = 0; i < nTransferral; i++) {
             address to = _getTransferralTo(transferral, i);
             address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
