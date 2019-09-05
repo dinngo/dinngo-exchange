@@ -71,6 +71,14 @@ contract Dinngo is
         address tokenFee,
         uint256 amountFee
     );
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        address token,
+        uint256 amount,
+        address feeToken,
+        uint256 feeAmount
+    );
     // On/Off by _isEventUserOn()
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
@@ -374,10 +382,14 @@ contract Dinngo is
                 balances[token][from] = balances[token][from].sub(amount).sub(fee);
                 balances[token][to] = balances[token][to].add(amount);
                 balances[token][address(0)] = balances[token][address(0)].add(fee);
+                if (_isEventFundsOn())
+                    emit Transfer(from, to, token, amount, token, fee);
             } else {
                 balances[token][from] = balances[token][from].sub(amount);
                 balances[token][to] = balances[token][to].add(amount);
                 feeDGO = feeDGO.add(fee);
+                if (_isEventFundsOn())
+                    emit Transfer(from, to, token, amount, DGOToken, fee);
             }
         }
         if (!fFeeMain) {
