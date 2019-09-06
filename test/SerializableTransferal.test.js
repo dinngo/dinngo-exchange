@@ -28,6 +28,34 @@ contract('SerializableTransferal', function ([_, user1, user2, user3]) {
     const hash2 = '0xea500b2a34512f2fcfad496100d6b62e0a57295e9f1ab72e63dfe2def74e183a';
     const serializedHex2 = '0x00000000000000000000000000000000000000000000000000470de4df82000000000000000000000000000000000000000000000000000002c68af0bb140000000b821aea9a577a9b44299b9c15c88cf3087f3b5544000000000000000000000000000000000000000000000000002386f26fc10000000000000000000000000000000000000000000000000000016345785d8a00000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000201f17f52151ebef6c7334fad080c5704d77216b732';
 
+    describe('serialize single', function () {
+        it('get single hash', async function () {
+            const data = await this.SerializableTransferal.getTransferalHash.call(
+                user1,
+                config1,
+                nonce1,
+                [user2],
+                [tokenID1],
+                [amount1],
+                [fee1]
+            );
+            expect(data).to.eq(hash1);
+        });
+
+        it('get multiple hash', async function () {
+            const data = await this.SerializableTransferal.getTransferalHash.call(
+                user1,
+                config1,
+                nonce2,
+                [user2, user3],
+                [tokenID1, tokenID2],
+                [amount1, amount2],
+                [fee1, fee2]
+            );
+            expect(data).to.eq(hash2);
+        });
+    })
+
     describe('deserialize single', function () {
         it('get from address', async function () {
             const transferalData = await this.SerializableTransferal.getTransferalFromMock.call(serializedHex1);

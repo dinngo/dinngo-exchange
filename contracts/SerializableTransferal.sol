@@ -104,4 +104,25 @@ contract SerializableTransferal {
     function _getTransferalHash(bytes memory ser_data) internal pure returns (bytes32 hash) {
         hash = keccak256(ser_data);
     }
+
+    /**
+     * @notice Get hash from the transferal parameters
+     */
+    function getTransferalHash(
+        address from,
+        uint8 config,
+        uint32 nonce,
+        address[] memory tos,
+        uint16[] memory tokenIDs,
+        uint256[] memory amounts,
+        uint256[] memory fees
+    ) public pure returns (bytes32 hash) {
+        uint256 count = tos.length;
+        bytes memory ser;
+        for (uint256 i = 0; i < count; i++) {
+            ser = abi.encodePacked(fees[i], amounts[i], tokenIDs[i], tos[i], ser);
+        }
+        ser = abi.encodePacked(ser, nonce, config, from);
+        hash = _getTransferalHash(ser);
+    }
 }
