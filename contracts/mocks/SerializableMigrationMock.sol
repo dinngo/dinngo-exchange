@@ -22,18 +22,6 @@ contract SerializableMigrationMock is SerializableMigration {
         return _getMigrationTokenID(ser_data, index);
     }
 
-    function getMigrationVMock(bytes calldata ser_data) external pure returns (uint8 v) {
-        return _getMigrationV(ser_data);
-    }
-
-    function getMigrationRMock(bytes calldata ser_data) external pure returns (bytes32 r) {
-        return _getMigrationR(ser_data);
-    }
-
-    function getMigrationSMock(bytes calldata ser_data) external pure returns (bytes32 s) {
-        return _getMigrationS(ser_data);
-    }
-
     function getMigrationHashMock(bytes calldata ser_data) external pure returns (bytes32 hash) {
         return _getMigrationHash(ser_data);
     }

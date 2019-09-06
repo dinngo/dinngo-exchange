@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [unreleased]
 
 ### Added
+- Implement internal transfer.
 - A new role `walletOwner` is created.
 - `extractFee(uint256 amount)` is implemented to extract the collected fee(ether). Can only be executed by wallet owner.
 - `extractTokenFee(address token, uint256 amount)` is implemented to extract the collected fee(token). Can only be executed by wallet owner.

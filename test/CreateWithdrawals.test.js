@@ -20,7 +20,7 @@ function getHash(userID, tokenID, amount, config, fee, nonce) {
     );
 }
 
-function getHex(userID, tokenID, amount, config, fee, nonce, r, s, v) {
+function getHex(userID, tokenID, amount, config, fee, nonce) {
     const userID_h = utils.padLeft(utils.toHex(userID), 8);
     const tokenID_h = utils.padLeft(utils.toHex(tokenID), 4);
     const amount_h = utils.padLeft(utils.toHex(amount), 64);
@@ -29,10 +29,7 @@ function getHex(userID, tokenID, amount, config, fee, nonce, r, s, v) {
     const nonce_h = utils.padLeft(utils.toHex(nonce), 8);
 
     return (
-        s +
-        r.slice(2) +
-        v.slice(2) +
-        fee_h.slice(2) +
+        fee_h +
         nonce_h.slice(2) +
         config_h.slice(2) +
         amount_h.slice(2) +
@@ -68,9 +65,6 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
                 nonce1
             );
             let sgn = await web3.eth.sign(hash, user1);
-            let r = sgn.slice(0,66);
-            let s = '0x' + sgn.slice(66,130);
-            let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user1ID,
                 token1,
@@ -78,15 +72,10 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
                 config1,
                 fee1,
                 nonce1,
-                r,
-                s,
-                v
             );
             console.log(hash);
-            console.log(r);
-            console.log(s);
-            console.log(v);
             console.log(ser_hex);
+            console.log(sgn);
         });
 
         it('hex2', async function () {
@@ -99,9 +88,6 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
                 nonce2
             );
             let sgn = await web3.eth.sign(hash, user2);
-            let r = sgn.slice(0,66);
-            let s = '0x' + sgn.slice(66,130);
-            let v = '0x' + sgn.slice(130,132);
             let ser_hex = getHex(
                 user2ID,
                 token2,
@@ -109,15 +95,10 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
                 config2,
                 fee2,
                 nonce2,
-                r,
-                s,
-                v
             );
             console.log(hash);
-            console.log(r);
-            console.log(s);
-            console.log(v);
             console.log(ser_hex);
+            console.log(sgn);
         });
     });
 */

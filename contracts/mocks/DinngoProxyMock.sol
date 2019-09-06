@@ -24,6 +24,14 @@ contract DinngoProxyMock is DinngoProxy {
         address tokenFee,
         uint256 amountFee
     );
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        address token,
+        uint256 amount,
+        address feeToken,
+        uint256 feeAmount
+    );
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
 

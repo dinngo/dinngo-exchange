@@ -177,11 +177,37 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 it('by admin', async function () {
                     const balance = ether('3');
                     await this.dinngo.setUserBalance(tokenWallet, ZERO_ADDRESS, ether('1'));
-                    const withdrawal1 = '0x723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b0000000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
+                    const withdrawal1 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
+                    const sig1 = '0x7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e00';
                     await this.dinngo.deposit({ from: user1, value: balance });
-                    const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, { from: admin });
+                    const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
                     inLogs(logs, 'Withdraw');
                 });
+            });
+
+            it('Transfer', async function () {
+                const rank = new BN('1');
+                const balance = ether('1000');
+
+                const config1 = new BN('1');
+                const nonce1 = new BN('1');
+                const config2 = new BN('1');
+                const nonce2 = new BN('2');
+
+                const tokenID1 = new BN('0');
+                const amount1 = ether('0.1');
+                const fee1 = ether('0.01');
+
+                await this.dinngo.setToken(tokenID1, ZERO_ADDRESS, rank);
+                await this.dinngo.setUserBalance(user1, ZERO_ADDRESS, balance);
+                await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
+                await this.dinngo.setUserBalance(ZERO_ADDRESS, ZERO_ADDRESS, balance);
+
+                const hex1 = '0x000000000000000000000000000000000000000000000000002386f26fc10000000000000000000000000000000000000000000000000000016345785d8a00000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000101f17f52151ebef6c7334fad080c5704d77216b732';
+                const sig1 = '0x5ffa1c000d6adade324b3157fc27a4378cf221ca527fd7ef0b3470685fc9b0893e5d95c042b3f156fdb013a0f85d73cb69eeaadbc2aafa4969f06604bd47e7d800';
+
+                const { logs } = await this.dinngo.transferByAdmin(hex1, sig1, { from: admin });
+                inLogs(logs, 'Transfer');
             });
 
             it('settle', async function () {
@@ -198,8 +224,10 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 await this.dinngo.setUserBalance(user2, token, balance);
                 await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
                 const orders1_2 =
-                    '0x206bc639aadd5c6c4487b4cc8f7675bd8e806989ffb018207bf1afe223f3f9e87ccac8cd5a8ba0ba07cdd360c2bf5ad09e09d785557d8f7214572ca099fd04450100000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c';
-                const { logs } = await this.dinngo.settle(orders1_2, { from: admin });
+                    '0x00000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000b00000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c';
+                const sigs1_2 =
+                    '0x7ccac8cd5a8ba0ba07cdd360c2bf5ad09e09d785557d8f7214572ca099fd0445206bc639aadd5c6c4487b4cc8f7675bd8e806989ffb018207bf1afe223f3f9e8013620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003215cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b01';
+                const { logs } = await this.dinngo.settle(orders1_2, sigs1_2, { from: admin });
                 inLogs(logs, 'Trade');
             });
         });
@@ -264,11 +292,37 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 it('by admin', async function () {
                     const balance = ether('3');
                     await this.dinngo.setUserBalance(tokenWallet, ZERO_ADDRESS, ether('1'));
-                    const withdrawal1 = '0x723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b0000000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
+                    const withdrawal1 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
+                    const sig1 = '0x7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e00';
                     await this.dinngo.deposit({ from: user1, value: balance });
-                    const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, { from: admin });
+                    const { logs } = await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
                     expect(logs.length).to.eq(0);
                 });
+            });
+
+            it('Transfer', async function () {
+                const rank = new BN('1');
+                const balance = ether('1000');
+
+                const config1 = new BN('1');
+                const nonce1 = new BN('1');
+                const config2 = new BN('1');
+                const nonce2 = new BN('2');
+
+                const tokenID1 = new BN('0');
+                const amount1 = ether('0.1');
+                const fee1 = ether('0.01');
+
+                await this.dinngo.setToken(tokenID1, ZERO_ADDRESS, rank);
+                await this.dinngo.setUserBalance(user1, ZERO_ADDRESS, balance);
+                await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
+                await this.dinngo.setUserBalance(ZERO_ADDRESS, ZERO_ADDRESS, balance);
+
+                const hex1 = '0x000000000000000000000000000000000000000000000000002386f26fc10000000000000000000000000000000000000000000000000000016345785d8a00000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000101f17f52151ebef6c7334fad080c5704d77216b732';
+                const sig1 = '0x5ffa1c000d6adade324b3157fc27a4378cf221ca527fd7ef0b3470685fc9b0893e5d95c042b3f156fdb013a0f85d73cb69eeaadbc2aafa4969f06604bd47e7d800';
+
+                const { logs } = await this.dinngo.transferByAdmin(hex1, sig1, { from: admin });
+                expect(logs.length).to.eq(0);
             });
 
             it('settle', async function () {
@@ -285,8 +339,10 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 await this.dinngo.setUserBalance(user2, token, balance);
                 await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
                 const orders1_2 =
-                    '0x206bc639aadd5c6c4487b4cc8f7675bd8e806989ffb018207bf1afe223f3f9e87ccac8cd5a8ba0ba07cdd360c2bf5ad09e09d785557d8f7214572ca099fd04450100000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000b5cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b3620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003210100000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c';
-                const { logs } = await this.dinngo.settle(orders1_2, { from: admin });
+                    '0x00000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000de0b6b3a764000000000001030000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000056bc75e2d63100000000b0000000b00000000000000000000000000000000000000000000000000038d7ea4c68000000000000000000000000000000000000000000000000000016345785d8a00000000000202000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000008ac7230489e80000000b0000000c';
+                const sigs1_2 =
+                    '0x7ccac8cd5a8ba0ba07cdd360c2bf5ad09e09d785557d8f7214572ca099fd0445206bc639aadd5c6c4487b4cc8f7675bd8e806989ffb018207bf1afe223f3f9e8013620137ce74643e47f0c0225a43b433d48fc0e44dbeaf53f92bea446a1c003215cf7ebade4232d752b01f797193d7d9ea60de04083ba43d9ae36fc0be5709f2b01';
+                const { logs } = await this.dinngo.settle(orders1_2, sigs1_2, { from: admin });
                 expect(logs.length).to.eq(0);
             });
         });

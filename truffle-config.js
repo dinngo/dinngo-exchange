@@ -17,22 +17,19 @@ module.exports = {
         development: {
             host: "localhost",
             port: 8545,
-            network_id: "*", // Match any network id
-            gasPrice: 0x01      // <-- Use this low gas price
-        },
-        coverage: {
-            host: "localhost",
-            port: 8555,
             network_id: "*",
-            gasPrice: 0x01
-        }
+            gasPrice: 0x01,
+            gas: 4712388
+        },
     },
     compilers: {
         solc: {
             version: "0.5.11",
-            optimizer: {
-                enabled: true,
-                runs: 200
+            settings: {
+                optimizer: {
+                    enabled: true,
+                    runs: 200
+                }
             }
         }
     }

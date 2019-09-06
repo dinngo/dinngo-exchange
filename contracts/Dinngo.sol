@@ -3,18 +3,26 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
+import "bytes/BytesLib.sol";
 
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 import "./SerializableMigration.sol";
+import "./SerializableTransferal.sol";
 import "./migrate/Migratable.sol";
+import "./sign/ISign.sol";
 
 /**
  * @title Dinngo
  * @author Ben Huang
  * @notice Main exchange contract for Dinngo
  */
-contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigration {
+contract Dinngo is
+    SerializableOrder,
+    SerializableWithdrawal,
+    SerializableMigration,
+    SerializableTransferal
+{
     // Storage alignment
     address private _owner;
     mapping (address => bool) private admins;
@@ -24,6 +32,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using BytesLib for bytes;
 
     uint256 public processTime;
 
@@ -62,6 +71,14 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         uint256 amountQuote,
         address tokenFee,
         uint256 amountFee
+    );
+    event Transfer(
+        address indexed from,
+        address indexed to,
+        address token,
+        uint256 amount,
+        address feeToken,
+        uint256 feeAmount
     );
     // On/Off by _isEventUserOn()
     event Lock(address indexed user, uint256 lockTime);
@@ -295,7 +312,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes calldata withdrawal) external {
+    function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -303,13 +320,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
         uint256 balance = balances[token][user].sub(amount);
         require(_isValidUser(user));
-        _verifySig(
-            user,
-            _getWithdrawalHash(withdrawal),
-            _getWithdrawalR(withdrawal),
-            _getWithdrawalS(withdrawal),
-            _getWithdrawalV(withdrawal)
-        );
+        _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
         } else {
@@ -332,18 +343,12 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * Event Migrate will be emitted after execution.
      * @param migration The serialized migration data
      */
-    function migrateByAdmin(bytes calldata migration) external {
+    function migrateByAdmin(bytes calldata migration, bytes calldata signature) external {
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
         require(_isValidUser(user));
-        _verifySig(
-            user,
-            _getMigrationHash(migration),
-            _getMigrationR(migration),
-            _getMigrationS(migration),
-            _getMigrationV(migration)
-        );
+        _verifySig(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
             uint256 balance = balances[token][user];
@@ -359,19 +364,60 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
     }
 
     /**
+     * @notice The transfer function that can only be triggered by admin.
+     * Event transfer will be emitted after execution.
+     * @param transferal The serialized transferal data.
+     */
+    function transferByAdmin(bytes calldata transferal, bytes calldata signature) external {
+        address from = _getTransferalFrom(transferal);
+        bool fFeeMain = _isTransferalFeeMain(transferal);
+        uint256 feeDGO = 0;
+        uint256 nTransferal = _getTransferalCount(transferal);
+        if (signature.length == 65) {
+            _verifySig(from, _getTransferalHash(transferal), signature);
+        } else {
+            require(ISign(from).signed(_getTransferalHash(transferal)));
+        }
+        for (uint256 i = 0; i < nTransferal; i++) {
+            address to = _getTransferalTo(transferal, i);
+            address token = tokenID_Address[_getTransferalTokenID(transferal, i)];
+            uint256 amount = _getTransferalAmount(transferal, i);
+            uint256 fee = _getTransferalFee(transferal, i);
+            if (fFeeMain) {
+                balances[token][from] = balances[token][from].sub(amount).sub(fee);
+                balances[token][to] = balances[token][to].add(amount);
+                balances[token][address(0)] = balances[token][address(0)].add(fee);
+                if (_isEventFundsOn())
+                    emit Transfer(from, to, token, amount, token, fee);
+            } else {
+                balances[token][from] = balances[token][from].sub(amount);
+                balances[token][to] = balances[token][to].add(amount);
+                feeDGO = feeDGO.add(fee);
+                if (_isEventFundsOn())
+                    emit Transfer(from, to, token, amount, DGOToken, fee);
+            }
+        }
+        if (!fFeeMain) {
+            balances[DGOToken][from] = balances[DGOToken][from].sub(feeDGO);
+            balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(feeDGO);
+        }
+    }
+
+    /**
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes calldata orders) external {
+    function settle(bytes calldata orders, bytes calldata signatures) external {
         // Deal with the order list
         uint256 nOrder = _getOrderCount(orders);
         // Get the first order as the taker order
         bytes memory takerOrder = _getOrder(orders, 0);
-        uint256 totalAmountBase = _getOrderAmountBase(takerOrder);
-        uint256 takerAmountBase = totalAmountBase.sub(orderFills[_getOrderHash(takerOrder)]);
-        uint256 fillAmountQuote = 0;
-        uint256 restAmountBase = takerAmountBase;
+        uint256[4] memory amounts; // [totalAmountBase, takerAmountBase, fillAmountQuote, restAmountBase]
+        amounts[0] = _getOrderAmountBase(takerOrder);
+        amounts[1] = amounts[0].sub(orderFills[_getOrderHash(takerOrder)]);
+        amounts[2] = 0;
+        amounts[3] = amounts[1];
         bool fBuy = _isOrderBuy(takerOrder);
         // Parse maker orders
         for (uint i = 1; i < nOrder; i++) {
@@ -381,24 +427,26 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
             uint256 makerAmountBase = _getOrderAmountBase(makerOrder);
             // Calculate the amount to be executed
             uint256 amountBase = makerAmountBase.sub(orderFills[_getOrderHash(makerOrder)]);
-            amountBase = amountBase <= restAmountBase? amountBase : restAmountBase;
+            amountBase = amountBase <= amounts[3]? amountBase : amounts[3];
             uint256 amountQuote = _getOrderAmountQuote(makerOrder).mul(amountBase).div(makerAmountBase);
-            restAmountBase = restAmountBase.sub(amountBase);
-            fillAmountQuote = fillAmountQuote.add(amountQuote);
+            amounts[3] = amounts[3].sub(amountBase);
+            amounts[2] = amounts[2].add(amountQuote);
             // Trade amountBase and amountQuote for maker order
-            _trade(amountBase, amountQuote, makerOrder);
+            bytes memory sig = signatures.slice(i.mul(65), 65);
+            _trade(amountBase, amountQuote, makerOrder, sig);
         }
         // Sum the trade amount and check
-        takerAmountBase = takerAmountBase.sub(restAmountBase);
+        amounts[1] = amounts[1].sub(amounts[3]);
         if (fBuy) {
-            require(fillAmountQuote.mul(totalAmountBase)
-                <= _getOrderAmountQuote(takerOrder).mul(takerAmountBase));
+            require(amounts[2].mul(amounts[0])
+                <= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
         } else {
-            require(fillAmountQuote.mul(totalAmountBase)
-                >= _getOrderAmountQuote(takerOrder).mul(takerAmountBase));
+            require(amounts[2].mul(amounts[0])
+                >= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
         }
         // Trade amountBase and amountQuote for taker order
-        _trade(takerAmountBase, fillAmountQuote, takerOrder);
+        bytes memory sig = signatures.slice(0, 65);
+        _trade(amounts[1], amounts[2], takerOrder, sig);
     }
 
     /**
@@ -435,7 +483,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
      * @param amountQuote The amount to be requested
      * @param order The order that triggered the trading
      */
-    function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order) internal {
+    function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order, bytes memory signature) internal {
         require(amountBase != 0);
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
@@ -448,7 +496,7 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         require(_isValidUser(user));
         // Trade and fee setting
         if (orderFills[hash] == 0) {
-            _verifySig(user, hash, _getOrderR(order), _getOrderS(order), _getOrderV(order));
+            _verifySig(user, hash, signature);
             amountFee = amountFee.add(_getOrderGasFee(order));
         }
         bool fBuy = _isOrderBuy(order);
@@ -510,15 +558,23 @@ contract Dinngo is SerializableOrder, SerializableWithdrawal, SerializableMigrat
         return tokenRanks[token] != 0;
     }
 
-    /**
-     * @notice Verify if the data is signed by the given user and signature
-     * @param user The signing user
-     * @param hash The data hash to be verified
-     * @param r The signature R
-     * @param s The signature S
-     * @param v The signature V
-     */
-    function _verifySig(address user, bytes32 hash, bytes32 r, bytes32 s, uint8 v) internal pure {
+    function _verifySig(address user, bytes32 hash, bytes memory signature) internal pure {
+        // Divide the signature in r, s and v variables
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+
+        // ecrecover takes the signature parameters, and the only way to get them
+        // currently is to use assembly.
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
+        }
+
+        require(uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0);
+
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (v < 27) {
             v += 27;

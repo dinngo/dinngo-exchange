@@ -265,9 +265,22 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
      */
-    function withdrawByAdmin(bytes calldata withdrawal) external onlyAdmin {
+    function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external onlyAdmin {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
-            abi.encodeWithSignature("withdrawByAdmin(bytes)", withdrawal)
+            abi.encodeWithSignature("withdrawByAdmin(bytes,bytes)", withdrawal, signature)
+        );
+        require(ok);
+        ret.errorHandler();
+    }
+
+    /**
+     * @notice The transfer function that can only be triggered by owner.
+     * Event Transfer will be emitted afer execution.
+     * @param transferal The serialized transferal data.
+     */
+    function transferByAdmin(bytes calldata transferal, bytes calldata signature) external onlyAdmin {
+        (bool ok, bytes memory ret) = _implementation().delegatecall(
+            abi.encodeWithSignature("transferByAdmin(bytes,bytes)", transferal, signature)
         );
         require(ok);
         ret.errorHandler();
@@ -278,9 +291,9 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
      * are maker orders.
      * @param orders The serialized orders.
      */
-    function settle(bytes calldata orders) external onlyAdmin {
+    function settle(bytes calldata orders, bytes calldata signature) external onlyAdmin {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
-            abi.encodeWithSignature("settle(bytes)", orders)
+            abi.encodeWithSignature("settle(bytes,bytes)", orders, signature)
         );
         require(ok);
         ret.errorHandler();
@@ -290,9 +303,9 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
      * @notice The migrate function that can only be triggered by admin.
      * @param migration The serialized migration data
      */
-    function migrateByAdmin(bytes calldata migration) external onlyAdmin {
+    function migrateByAdmin(bytes calldata migration, bytes calldata signature) external onlyAdmin {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
-            abi.encodeWithSignature("migrateByAdmin(bytes)", migration)
+            abi.encodeWithSignature("migrateByAdmin(bytes,bytes)", migration, signature)
         );
         require(ok);
         ret.errorHandler();
