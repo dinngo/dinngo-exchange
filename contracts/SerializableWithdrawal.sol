@@ -13,7 +13,7 @@ contract SerializableWithdrawal {
     using BytesLib for bytes;
 
     uint constant public WITHDRAWAL_SIZE = 75;
-    uint8 constant internal _MASK_IS_ETH = 0x01;
+    uint8 constant internal _MASK_IS_MAIN = 0x01;
 
     /**
      * @notice Get user ID from the serialized withdrawal data
@@ -45,10 +45,10 @@ contract SerializableWithdrawal {
     /**
      * @notice Check if the fee is paid by main token
      * @param ser_data Serialized withdrawal data
-     * @return fETH Is the fee paid in ETH or DGO
+     * @return fFeeMain Is the fee paid in withdraw token or DGO
      */
-    function _isWithdrawalFeeETH(bytes memory ser_data) internal pure returns (bool fFeeETH) {
-        fFeeETH = (ser_data.toUint8(WITHDRAWAL_SIZE - 39) & _MASK_IS_ETH != 0);
+    function _isWithdrawalFeeMain(bytes memory ser_data) internal pure returns (bool fFeeMain) {
+        fFeeMain = (ser_data.toUint8(WITHDRAWAL_SIZE - 39) & _MASK_IS_MAIN != 0);
     }
 
     /**
