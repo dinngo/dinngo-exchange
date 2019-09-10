@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [2.0.0] - 2019-09-10
 ### Added
 - Transferal hash calculator.
 - Implement internal transfer.
