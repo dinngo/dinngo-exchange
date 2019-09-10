@@ -413,40 +413,38 @@ contract Dinngo is
         uint256 nOrder = _getOrderCount(orders);
         // Get the first order as the taker order
         bytes memory takerOrder = _getOrder(orders, 0);
-        uint256[4] memory amounts; // [totalAmountBase, takerAmountBase, fillAmountQuote, restAmountBase]
-        amounts[0] = _getOrderAmountBase(takerOrder);
-        amounts[1] = amounts[0].sub(orderFills[_getOrderHash(takerOrder)]);
-        amounts[2] = 0;
-        amounts[3] = amounts[1];
+        uint256[4] memory takerAmounts; //[takerAmountBase, restAmountBase, fillAmountBase, fillAmountQuote]
+        takerAmounts[0] = _getOrderAmountBase(takerOrder);
+        takerAmounts[1] = takerAmounts[0].sub(orderFills[_getOrderHash(takerOrder)]);
+        takerAmounts[2] = takerAmounts[1];
+        takerAmounts[3] = 0;
         bool fBuy = _isOrderBuy(takerOrder);
         // Parse maker orders
-        for (uint i = 1; i < nOrder; i++) {
+        for (uint256 i = 1; i < nOrder; i++) {
             // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
             require(fBuy != _isOrderBuy(makerOrder));
             uint256 makerAmountBase = _getOrderAmountBase(makerOrder);
-            // Calculate the amount to be executed
+            uint256 makerAmountQuote = _getOrderAmountQuote(makerOrder);
+            if (fBuy) {
+                require(makerAmountQuote <= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]));
+            } else {
+                require(makerAmountQuote >= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]));
+            }
             uint256 amountBase = makerAmountBase.sub(orderFills[_getOrderHash(makerOrder)]);
-            amountBase = amountBase <= amounts[3]? amountBase : amounts[3];
-            uint256 amountQuote = _getOrderAmountQuote(makerOrder).mul(amountBase).div(makerAmountBase);
-            amounts[3] = amounts[3].sub(amountBase);
-            amounts[2] = amounts[2].add(amountQuote);
+            amountBase = (amountBase <= takerAmounts[1])? amountBase : takerAmounts[1];
+            uint256 amountQuote = makerAmountQuote.mul(amountBase).div(makerAmountBase);
+            takerAmounts[1] = takerAmounts[1].sub(amountBase);
+            takerAmounts[3] = takerAmounts[3].add(amountQuote);
             // Trade amountBase and amountQuote for maker order
             bytes memory sig = signatures.slice(i.mul(65), 65);
             _trade(amountBase, amountQuote, makerOrder, sig);
         }
-        // Sum the trade amount and check
-        amounts[1] = amounts[1].sub(amounts[3]);
-        if (fBuy) {
-            require(amounts[2].mul(amounts[0])
-                <= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
-        } else {
-            require(amounts[2].mul(amounts[0])
-                >= _getOrderAmountQuote(takerOrder).mul(amounts[1]));
-        }
+        // Sum the trade amount
+        takerAmounts[2] = takerAmounts[2].sub(takerAmounts[1]);
         // Trade amountBase and amountQuote for taker order
         bytes memory sig = signatures.slice(0, 65);
-        _trade(amounts[1], amounts[2], takerOrder, sig);
+        _trade(takerAmounts[2], takerAmounts[3], takerOrder, sig);
     }
 
     /**
