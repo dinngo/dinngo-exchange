@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Changed
+- Change the price checking to per maker order.
 
 ## [2.0.0] - 2019-09-10
 ### Added
