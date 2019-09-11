@@ -347,12 +347,12 @@ contract Dinngo is
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
-        require(_isValidUser(user));
+        require(_isValidUser(user), "user invalid");
         _verifySig(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
             uint256 balance = balances[token][user];
-            require(balance != 0);
+            require(balance != 0, "0 amount");
             balances[token][user] = 0;
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);

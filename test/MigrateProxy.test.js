@@ -73,16 +73,25 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         });
 
         it('when sent by owner', async function () {
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1, { from: owner }));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1, { from: owner }),
+                'sender not admin'
+            );
         });
 
         it('when sent by non-admin', async function () {
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1),
+                'sender not admin'
+            );
         });
 
         it('when user is removed', async function () {
             await this.dinngo.removeUser(user1, { from: admin });
-            await expectRevert.unspecified(this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }),
+                'user invalid'
+            );
         })
     });
 
