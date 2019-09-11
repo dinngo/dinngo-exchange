@@ -266,7 +266,7 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
             abi.encodeWithSignature("withdrawByAdmin(bytes,bytes)", withdrawal, signature)
         );
-        require(ok);
+        require(ok, string(ret));
     }
 
     /**
@@ -278,7 +278,7 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
             abi.encodeWithSignature("transferByAdmin(bytes,bytes)", transferal, signature)
         );
-        require(ok);
+        require(ok, string(ret));
     }
 
     /**
@@ -290,7 +290,7 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
             abi.encodeWithSignature("settle(bytes,bytes)", orders, signature)
         );
-        require(ok);
+        require(ok, string(ret));
     }
 
     /**
@@ -301,7 +301,7 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         (bool ok, bytes memory ret) = _implementation().delegatecall(
             abi.encodeWithSignature("migrateByAdmin(bytes,bytes)", migration, signature)
         );
-        require(ok);
+        require(ok, string(ret));
     }
 
     /**
