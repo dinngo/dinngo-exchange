@@ -119,11 +119,17 @@ contract('Transfer', function ([_, user1, user2, user3, owner, admin, dinngoWall
         });
 
         it('wrong signature', async function () {
-            await expectRevert.unspecified(this.dinngo.transferByAdmin(hex1, sig2, { from: admin }));
+            await expectRevert(
+                this.dinngo.transferByAdmin(hex1, sig2, { from: admin }),
+                'sig failed'
+            );
         });
 
         it('sent by non-admin', async function () {
-            await expectRevert.unspecified(this.dinngo.transferByAdmin(hex1, sig1));
+            await expectRevert(
+                this.dinngo.transferByAdmin(hex1, sig1),
+                'sender not admin'
+            );
         });
 
         it('insufficient funds', async function () {

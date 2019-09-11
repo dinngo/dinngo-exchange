@@ -376,7 +376,7 @@ contract Dinngo is
         if (signature.length == 65) {
             _verifySig(from, _getTransferalHash(transferal), signature);
         } else {
-            require(ISign(from).signed(_getTransferalHash(transferal)));
+            require(ISign(from).signed(_getTransferalHash(transferal)), 'contract sign failed');
         }
         for (uint256 i = 0; i < nTransferal; i++) {
             address to = _getTransferalTo(transferal, i);
