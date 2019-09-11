@@ -319,7 +319,7 @@ contract Dinngo is
         uint256 amountFee = _getWithdrawalFee(withdrawal);
         address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
         uint256 balance = balances[token][user].sub(amount);
-        require(_isValidUser(user));
+        require(_isValidUser(user), "user invalid");
         _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         if (tokenFee == token) {
             balance = balance.sub(amountFee);
@@ -580,7 +580,7 @@ contract Dinngo is
         require(v == 27 || v == 28);
 
         address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
-        require(user == sigAddr);
+        require(user == sigAddr, "sig failed");
     }
 
     /**
