@@ -3,7 +3,6 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 import "./Administrable.sol";
-import "./ec/ErrorHandler.sol";
 import "./proxy/Proxy.sol";
 
 
@@ -13,8 +12,6 @@ import "./proxy/Proxy.sol";
  * @notice Main exchange contract for Dinngo
  */
 contract DinngoProxy is Ownable, Administrable, Proxy {
-    using ErrorHandler for bytes;
-
     uint256 public processTime;
 
     mapping (address => mapping (address => uint256)) public balances;
@@ -270,7 +267,6 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
             abi.encodeWithSignature("withdrawByAdmin(bytes,bytes)", withdrawal, signature)
         );
         require(ok);
-        ret.errorHandler();
     }
 
     /**
@@ -283,7 +279,6 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
             abi.encodeWithSignature("transferByAdmin(bytes,bytes)", transferal, signature)
         );
         require(ok);
-        ret.errorHandler();
     }
 
     /**
@@ -296,7 +291,6 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
             abi.encodeWithSignature("settle(bytes,bytes)", orders, signature)
         );
         require(ok);
-        ret.errorHandler();
     }
 
     /**
@@ -308,7 +302,6 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
             abi.encodeWithSignature("migrateByAdmin(bytes,bytes)", migration, signature)
         );
         require(ok);
-        ret.errorHandler();
     }
 
     /**
