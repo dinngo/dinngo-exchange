@@ -423,13 +423,19 @@ contract Dinngo is
         for (uint256 i = 1; i < nOrder; i++) {
             // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
-            require(fBuy != _isOrderBuy(makerOrder));
+            require(fBuy != _isOrderBuy(makerOrder), "buy/buy or sell/sell");
             uint256 makerAmountBase = _getOrderAmountBase(makerOrder);
             uint256 makerAmountQuote = _getOrderAmountQuote(makerOrder);
             if (fBuy) {
-                require(makerAmountQuote <= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]));
+                require(
+                    makerAmountQuote <= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]),
+                    "buy high"
+                );
             } else {
-                require(makerAmountQuote >= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]));
+                require(
+                    makerAmountQuote >= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]),
+                    "sell low"
+                );
             }
             uint256 amountBase = makerAmountBase.sub(orderFills[_getOrderHash(makerOrder)]);
             amountBase = (amountBase <= takerAmounts[1])? amountBase : takerAmounts[1];
@@ -482,7 +488,7 @@ contract Dinngo is
      * @param order The order that triggered the trading
      */
     function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order, bytes memory signature) internal {
-        require(amountBase != 0);
+        require(amountBase != 0, "0 amount base");
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
         bytes32 hash = _getOrderHash(order);
@@ -491,7 +497,7 @@ contract Dinngo is
         address tokenFee;
         uint256 amountFee =
             _getOrderHandleFee(order).mul(amountBase).div(_getOrderAmountBase(order));
-        require(_isValidUser(user));
+        require(_isValidUser(user), "user invalid");
         // Trade and fee setting
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, signature);

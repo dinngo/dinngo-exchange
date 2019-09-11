@@ -436,30 +436,48 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
 
         it('taker invalid', async function () {
             await this.dinngo.removeUser(user2, { from: admin });
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2, { from: admin }));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
+                'user invalid'
+            );
         });
 
         it('maker invalid', async function () {
             await this.dinngo.removeUser(user1, { from: admin });
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2, { from: admin }));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
+                'user invalid'
+            );
         });
 
         it('taker order filled', async function () {
             await this.dinngo.fillOrder(hash1, amountBase1);
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2, { from: admin }));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
+                '0 amount base'
+            );
         });
 
         it('maker order filled', async function () {
             await this.dinngo.fillOrder(hash2, amountBase2);
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2, { from: admin }));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
+                '0 amount base'
+            );
         });
 
         it('from owner', async function () {
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2, { from: owner }));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2, { from: owner }),
+                'sender not admin'
+            );
         });
 
         it('Not admin', async function () {
-            await expectRevert.unspecified(this.dinngo.settle(orders1_2, sigs1_2));
+            await expectRevert(
+                this.dinngo.settle(orders1_2, sigs1_2),
+                'sender not admin'
+            );
         });
     });
 
