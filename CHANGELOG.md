@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Added
+- Version information.
+
 ### Changed
 - Change the price checking to per maker order.
 - Update error message handler.

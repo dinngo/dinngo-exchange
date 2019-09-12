@@ -84,6 +84,8 @@ contract Dinngo is
     event Lock(address indexed user, uint256 lockTime);
     event Unlock(address indexed user);
 
+    uint256 constant public version = 2;
+
     uint8 constant internal _MASK_EVENT_USER = 0x01;
     uint8 constant internal _MASK_EVENT_TOKEN = 0x02;
     uint8 constant internal _MASK_EVENT_FUNDS = 0x04;
