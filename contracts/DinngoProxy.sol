@@ -26,6 +26,8 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     address public DGOToken;
     uint8 public eventConf;
 
+    uint256 constant public version = 2;
+
     /**
      * @dev User ID 0 is the management wallet.
      * Token ID 0 is ETH (address 0). Token ID 1 is DGO.

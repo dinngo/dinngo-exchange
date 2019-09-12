@@ -34,6 +34,21 @@ contract Proxy is Ownable {
     }
 
     /**
+     * @notice Return the version information of implementation
+     * @return version The version
+     */
+    function implementationVersion() external view returns (uint256 version){
+        (bool ok, bytes memory ret) = _implementation().staticcall(
+            abi.encodeWithSignature("version()")
+        );
+        require(ok);
+        assembly {
+            version := mload(add(add(ret, 0x20), 0))
+        }
+        return version;
+    }
+
+    /**
      * @dev Set the implementation address in the storage slot.
      * @param implementation The new implementation address.
      */

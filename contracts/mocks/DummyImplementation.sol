@@ -9,6 +9,8 @@ contract DummyImplementation {
     string public text;
     uint256[] public values;
 
+    uint256 constant public version = 1;
+
     function initializeNonPayable() public {
         value = 10;
     }
@@ -35,21 +37,16 @@ contract DummyImplementation {
         return true;
     }
 
-    function version() public pure returns (string memory) {
-        return "V1";
-    }
-
     function reverts() public pure {
         require(false);
     }
 }
 
 contract DummyImplementationV2 is DummyImplementation {
+    uint256 constant public version = 2;
+
     function migrate(uint256 newVal) payable public {
         value = newVal;
     }
 
-    function version() public pure returns (string memory) {
-        return "V2";
-    }
 }

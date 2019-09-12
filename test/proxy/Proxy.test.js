@@ -22,6 +22,10 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
             expect(await this.proxy.implementation.call()).to.eq(this.implementation.address);
         });
 
+        it('get implementation version', async function () {
+            expect(await this.proxy.implementationVersion.call()).to.be.bignumber.eq('1');
+        });
+
         describe('upgrade' , function () {
             beforeEach(async function () {
                 this.implementationV2 = await DummyImplementationV2.new();
@@ -31,11 +35,13 @@ contract('Proxy', function ([_, nonContractAddress, owner]) {
                 const { logs } = await this.proxy.upgrade(this.implementationV2.address, { from: owner });
                 inLogs(logs, 'Upgraded', { implementation: this.implementationV2.address });
                 expect(await this.proxy.implementation.call()).to.be.equal(this.implementationV2.address);
+                expect(await this.proxy.implementationVersion.call()).to.be.bignumber.eq('2');
             });
 
             it('by non-owner', async function () {
                 await expectRevert.unspecified(this.proxy.upgrade(this.implementationV2.address));
                 expect(await this.proxy.implementation.call()).to.be.equal(this.implementation.address);
+                expect(await this.proxy.implementationVersion.call()).to.be.bignumber.eq('1');
             });
         });
     });
