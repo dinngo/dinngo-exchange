@@ -8,7 +8,7 @@ import "bytes/BytesLib.sol";
 import "./SerializableOrder.sol";
 import "./SerializableWithdrawal.sol";
 import "./SerializableMigration.sol";
-import "./SerializableTransferal.sol";
+import "./SerializableTransferral.sol";
 import "./migrate/Migratable.sol";
 import "./sign/ISign.sol";
 
@@ -21,7 +21,7 @@ contract Dinngo is
     SerializableOrder,
     SerializableWithdrawal,
     SerializableMigration,
-    SerializableTransferal
+    SerializableTransferral
 {
     // Storage alignment
     address private _owner;
@@ -368,23 +368,23 @@ contract Dinngo is
     /**
      * @notice The transfer function that can only be triggered by admin.
      * Event transfer will be emitted after execution.
-     * @param transferal The serialized transferal data.
+     * @param transferral The serialized transferral data.
      */
-    function transferByAdmin(bytes calldata transferal, bytes calldata signature) external {
-        address from = _getTransferalFrom(transferal);
-        bool fFeeMain = _isTransferalFeeMain(transferal);
+    function transferByAdmin(bytes calldata transferral, bytes calldata signature) external {
+        address from = _getTransferralFrom(transferral);
+        bool fFeeMain = _isTransferralFeeMain(transferral);
         uint256 feeDGO = 0;
-        uint256 nTransferal = _getTransferalCount(transferal);
+        uint256 nTransferral = _getTransferralCount(transferral);
         if (signature.length == 65) {
-            _verifySig(from, _getTransferalHash(transferal), signature);
+            _verifySig(from, _getTransferralHash(transferral), signature);
         } else {
-            require(ISign(from).signed(_getTransferalHash(transferal)), 'contract sign failed');
+            require(ISign(from).signed(_getTransferralHash(transferral)), 'contract sign failed');
         }
-        for (uint256 i = 0; i < nTransferal; i++) {
-            address to = _getTransferalTo(transferal, i);
-            address token = tokenID_Address[_getTransferalTokenID(transferal, i)];
-            uint256 amount = _getTransferalAmount(transferal, i);
-            uint256 fee = _getTransferalFee(transferal, i);
+        for (uint256 i = 0; i < nTransferral; i++) {
+            address to = _getTransferralTo(transferral, i);
+            address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
+            uint256 amount = _getTransferralAmount(transferral, i);
+            uint256 fee = _getTransferralFee(transferral, i);
             if (fFeeMain) {
                 balances[token][from] = balances[token][from].sub(amount).sub(fee);
                 balances[token][to] = balances[token][to].add(amount);
