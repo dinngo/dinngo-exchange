@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [2.0.1] - 2019-09-23
 ### Added
 - Version information.
 - Implement getTransferralHash in proxy.
