@@ -331,4 +331,26 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         );
         require(ok);
     }
+
+    /**
+     * @notice Get hash from the transferral parameters.
+     */
+    function getTransferralHash(
+        address from,
+        uint8 config,
+        uint32 nonce,
+        address[] calldata tos,
+        uint16[] calldata tokenIDs,
+        uint256[] calldata amounts,
+        uint256[] calldata fees
+    ) external view returns (bytes32 hash) {
+        (bool ok, bytes memory ret) = _implementation().staticcall(
+            abi.encodeWithSignature(
+                "getTransferralHash(address,uint8,uint32,address[],uint16[],uint256[],uint256[])",
+                from, config, nonce, tos, tokenIDs, amounts, fees
+            )
+        );
+        require(ok);
+        hash = abi.decode(ret, (bytes32));
+    }
 }

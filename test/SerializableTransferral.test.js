@@ -3,11 +3,15 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
+const Dinngo = artifacts.require('Dinngo');
+const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SerializableTransferralMock = artifacts.require('SerializableTransferralMock');
 
 contract('SerializableTransferral', function ([_, user1, user2, user3]) {
     beforeEach(async function () {
         this.SerializableTransferral = await SerializableTransferralMock.new();
+        this.dinngoImpl = await Dinngo.new();
+        this.dinngo = await DinngoProxyMock.new(_, _, this.dinngoImpl.address);
     });
 
     const config1 = new BN('1');
@@ -30,7 +34,7 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
 
     describe('serialize single', function () {
         it('get single hash', async function () {
-            const data = await this.SerializableTransferral.getTransferralHash.call(
+            const data = await this.dinngo.getTransferralHash.call(
                 user1,
                 config1,
                 nonce1,
@@ -43,7 +47,7 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
         });
 
         it('get multiple hash', async function () {
-            const data = await this.SerializableTransferral.getTransferralHash.call(
+            const data = await this.dinngo.getTransferralHash.call(
                 user1,
                 config1,
                 nonce2,
@@ -54,7 +58,7 @@ contract('SerializableTransferral', function ([_, user1, user2, user3]) {
             );
             expect(data).to.eq(hash2);
         });
-    })
+    });
 
     describe('deserialize single', function () {
         it('get from address', async function () {
