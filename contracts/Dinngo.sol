@@ -198,7 +198,7 @@ contract Dinngo is
         require(token != address(0));
         require(rank != 0);
         require(tokenRanks[token] != 0);
-        require(tokenRanks[token] != rank);
+        require(tokenRanks[token] < rank);
         tokenRanks[token] = rank;
     }
 
@@ -317,6 +317,9 @@ contract Dinngo is
     function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
         require(_isValidUser(user), "user invalid");
+        uint256 nonce = _getWithdrawalNonce(withdrawal);
+        require(nonce == userRanks[user], "nonce invalid");
+        userRanks[user] = nonce.add(1);
         _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -382,9 +385,13 @@ contract Dinngo is
         uint256 nTransferral = _getTransferralCount(transferral);
         if (signature.length == 65) {
             _verifySig(from, _getTransferralHash(transferral), signature);
+            require(_isValidUser(from), "user invalid");
         } else {
             require(ISign(from).signed(_getTransferralHash(transferral)), 'contract sign failed');
         }
+        uint256 nonce = _getTransferralNonce(transferral);
+        require(nonce == userRanks[from], "nonce invalid");
+        userRanks[from] = nonce.add(1);
         for (uint256 i = 0; i < nTransferral; i++) {
             address to = _getTransferralTo(transferral, i);
             address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
