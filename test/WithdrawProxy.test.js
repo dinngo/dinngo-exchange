@@ -348,7 +348,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when sending a repeated withdrawal', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),

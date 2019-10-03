@@ -40,8 +40,8 @@ contract Dinngo is
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (address => uint256) public userRanks;
-    mapping (address => uint256) public tokenRanks;
+    mapping (address => uint256) public nonces;
+    mapping (address => uint256) public ranks;
     mapping (address => uint256) public lockTimes;
 
     address public walletOwner;
@@ -120,39 +120,15 @@ contract Dinngo is
      */
     function addUser(uint256 id, address payable user) external {
         require(user != address(0));
-        require(userRanks[user] == 0);
+        require(ranks[user] == 0);
         require(id < 2**32);
         if (userID_Address[id] == address(0))
             userID_Address[id] = user;
         else
             require(userID_Address[id] == user);
-        userRanks[user] = 1;
+        ranks[user] = 1;
         if (_isEventUserOn())
             emit AddUser(id, user);
-    }
-
-    /**
-     * @notice Remove the address from the user list.
-     * @dev The user rank is set to 0 to remove the user.
-     * @param user The user address to be added
-     */
-    function removeUser(address user) external {
-        require(user != address(0));
-        require(userRanks[user] != 0);
-        userRanks[user] = 0;
-    }
-
-    /**
-     * @notice Update the rank of user. Can only be called by owner.
-     * @param user The user address
-     * @param rank The rank to be assigned
-     */
-    function updateUserRank(address user, uint256 rank) external {
-        require(user != address(0));
-        require(rank != 0);
-        require(userRanks[user] != 0);
-        require(userRanks[user] != rank);
-        userRanks[user] = rank;
     }
 
     /**
@@ -167,39 +143,39 @@ contract Dinngo is
      */
     function addToken(uint256 id, address token) external {
         require(token != address(0));
-        require(tokenRanks[token] == 0);
+        require(ranks[token] == 0);
         require(id < 2**16);
         if (tokenID_Address[id] == address(0))
             tokenID_Address[id] = token;
         else
             require(tokenID_Address[id] == token);
-        tokenRanks[token] = 1;
+        ranks[token] = 1;
         if (_isEventTokenOn())
             emit AddToken(id, token);
     }
 
     /**
-     * @notice Remove the token to the token list.
-     * @dev The token rank is set to 0 to remove the token.
-     * @param token The token contract address to be removed.
+     * @notice Update the rank of user or token.
+     * @param addr The address to be updated.
+     * @param rank The rank to be assigned.
      */
-    function removeToken(address token) external {
-        require(token != address(0));
-        require(tokenRanks[token] != 0);
-        tokenRanks[token] = 0;
+    function updateRank(address addr, uint256 rank) external {
+        require(addr != address(0));
+        require(rank != 0);
+        require(ranks[addr] != 0);
+        require(ranks[addr] != rank);
+        ranks[addr] = rank;
     }
 
     /**
-     * @notice Update the rank of token. Can only be called by owner.
-     * @param token The token contract address.
-     * @param rank The rank to be assigned.
+     * @notice Remove the user or token.
+     * @dev The rank is set to 0 to remove.
+     * @param addr The address to be removed.
      */
-    function updateTokenRank(address token, uint256 rank) external {
-        require(token != address(0));
-        require(rank != 0);
-        require(tokenRanks[token] != 0);
-        require(tokenRanks[token] < rank);
-        tokenRanks[token] = rank;
+    function remove(address addr) external {
+        require(addr != address(0));
+        require(ranks[addr] != 0);
+        ranks[addr] = 0;
     }
 
     /**
@@ -224,7 +200,7 @@ contract Dinngo is
     function depositToken(address token, uint256 amount) external {
         require(token != address(0));
         require(!_isLocking(msg.sender));
-        require(_isValidToken(token));
+        require(_isValid(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].add(amount);
         if (_isEventFundsOn())
@@ -239,7 +215,7 @@ contract Dinngo is
      */
     function withdraw(uint256 amount) external {
         require(_isLocked(msg.sender));
-        require(_isValidUser(msg.sender));
+        require(_isValid(msg.sender));
         require(amount > 0);
         balances[address(0)][msg.sender] = balances[address(0)][msg.sender].sub(amount);
         if (_isEventFundsOn())
@@ -256,8 +232,8 @@ contract Dinngo is
     function withdrawToken(address token, uint256 amount) external {
         require(token != address(0));
         require(_isLocked(msg.sender));
-        require(_isValidUser(msg.sender));
-        require(_isValidToken(token));
+        require(_isValid(msg.sender));
+        require(_isValid(token));
         require(amount > 0);
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         if (_isEventFundsOn())
@@ -316,10 +292,10 @@ contract Dinngo is
      */
     function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
-        require(_isValidUser(user), "user invalid");
+        require(_isValid(user), "user invalid");
         uint256 nonce = _getWithdrawalNonce(withdrawal);
-        require(nonce == userRanks[user], "nonce invalid");
-        userRanks[user] = nonce.add(1);
+        require(nonce > nonces[user], "nonce invalid");
+        nonces[user] = nonce;
         _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
@@ -357,7 +333,7 @@ contract Dinngo is
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
-        require(_isValidUser(user), "user invalid");
+        require(_isValid(user), "user invalid");
         _verifySig(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
@@ -385,13 +361,13 @@ contract Dinngo is
         uint256 nTransferral = _getTransferralCount(transferral);
         if (signature.length == 65) {
             _verifySig(from, _getTransferralHash(transferral), signature);
-            require(_isValidUser(from), "user invalid");
+            require(_isValid(from), "user invalid");
         } else {
             require(ISign(from).signed(_getTransferralHash(transferral)), 'contract sign failed');
         }
         uint256 nonce = _getTransferralNonce(transferral);
-        require(nonce == userRanks[from], "nonce invalid");
-        userRanks[from] = nonce.add(1);
+        require(nonce > nonces[from], "nonce invalid");
+        nonces[from] = nonce;
         for (uint256 i = 0; i < nTransferral; i++) {
             address to = _getTransferralTo(transferral, i);
             address token = tokenID_Address[_getTransferralTokenID(transferral, i)];
@@ -511,7 +487,7 @@ contract Dinngo is
         address tokenFee;
         uint256 amountFee =
             _getOrderHandleFee(order).mul(amountBase).div(_getOrderAmountBase(order));
-        require(_isValidUser(user), "user invalid");
+        require(_isValid(user), "user invalid");
         // Trade and fee setting
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, signature);
@@ -560,20 +536,11 @@ contract Dinngo is
     }
 
     /**
-     * @dev Check if the user is valid
-     * @param user The user address to be checked.
+     * @dev Check if the user or token is valid
+     * @param addr The address to be checked.
      */
-    function _isValidUser(address user) internal view returns (bool) {
-        return userRanks[user] != 0;
-    }
-
-    /**
-     * @dev Check if the token is valid
-     * @param token The token address to be checked.
-     */
-
-    function _isValidToken(address token) internal view returns (bool) {
-        return tokenRanks[token] != 0;
+    function _isValid(address addr) internal view returns (bool) {
+        return ranks[addr] != 0;
     }
 
     function _verifySig(address user, bytes32 hash, bytes memory signature) internal pure {

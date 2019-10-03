@@ -40,7 +40,7 @@ contract('SerializableTransferral', function ([_, user1, user2, user3, user4, ad
     const config2 = 1;
     const nonce2 = 2;
     const config3 = 1;
-    const nonce3 = 0;
+    const nonce3 = 3;
 
     const tokenID1 = 0;
     const amount1 = ether('0.1');

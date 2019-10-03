@@ -18,8 +18,8 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     mapping (bytes32 => uint256) public orderFills;
     mapping (uint256 => address payable) public userID_Address;
     mapping (uint256 => address) public tokenID_Address;
-    mapping (address => uint256) public userRanks;
-    mapping (address => uint256) public tokenRanks;
+    mapping (address => uint256) public nonces;
+    mapping (address => uint256) public ranks;
     mapping (address => uint256) public lockTimes;
 
     address public walletOwner;
@@ -43,9 +43,9 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         processTime = 90 days;
         walletOwner = _walletOwner;
         tokenID_Address[0] = address(0);
-        tokenRanks[address(0)] = 1;
+        ranks[address(0)] = 1;
         tokenID_Address[1] = _dinngoToken;
-        tokenRanks[_dinngoToken] = 1;
+        ranks[_dinngoToken] = 1;
         DGOToken = _dinngoToken;
         eventConf = 0xff;
     }
@@ -82,23 +82,23 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     /**
      * @notice Remove the address from the user list.
      * @dev The user rank is set to 0 to remove the user.
-     * @param user The user address to be added
+     * @param user The user address to be removed
      */
     function removeUser(address user) external onlyAdmin {
         (bool ok,) = _implementation().delegatecall(
-            abi.encodeWithSignature("removeUser(address)", user)
+            abi.encodeWithSignature("remove(address)", user)
         );
         require(ok);
     }
 
     /**
-     * @notice Update the rank of user. Can only be called by owner.
+     * @notice Update the rank of user. Can only be called by admin.
      * @param user The user address
      * @param rank The rank to be assigned
      */
     function updateUserRank(address user, uint256 rank) external onlyAdmin {
         (bool ok,) = _implementation().delegatecall(
-            abi.encodeWithSignature("updateUserRank(address,uint256)",user, rank)
+            abi.encodeWithSignature("updateRank(address,uint256)", user, rank)
         );
         require(ok);
     }
@@ -120,13 +120,13 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     }
 
     /**
-     * @notice Remove the token to the token list.
+     * @notice Remove the token from the token list.
      * @dev The token rank is set to 0 to remove the token.
      * @param token The token contract address to be removed.
      */
     function removeToken(address token) external onlyOwner {
         (bool ok,) = _implementation().delegatecall(
-            abi.encodeWithSignature("removeToken(address)", token)
+            abi.encodeWithSignature("remove(address)", token)
         );
         require(ok);
     }
@@ -138,7 +138,7 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
      */
     function updateTokenRank(address token, uint256 rank) external onlyOwner {
         (bool ok,) = _implementation().delegatecall(
-            abi.encodeWithSignature("updateTokenRank(address,uint256)", token, rank)
+            abi.encodeWithSignature("updateRank(address,uint256)", token, rank)
         );
         require(ok);
     }

@@ -14,12 +14,12 @@ contract DinngoMock is Dinngo {
 
     function setUser(uint256 userID, address payable user, uint8 rank) external {
         userID_Address[userID] = user;
-        userRanks[user] = rank;
+        ranks[user] = rank;
     }
 
     function setToken(uint256 tokenID, address token, uint8 rank) external {
         tokenID_Address[tokenID] = token;
-        tokenRanks[token] = rank;
+        ranks[token] = rank;
     }
 
 }
