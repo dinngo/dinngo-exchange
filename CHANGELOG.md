@@ -7,11 +7,15 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Version information.
 - Implement getTransferralHash in proxy.
+- Nonce verification on transferral and withdrawal data.
 
 ### Changed
 - Change the price checking to per maker order.
 - Update error message handler.
 - Change the withdraw fee from ETH to the withdraw token.
+- Combine the userRanks and tokenRanks to ranks.
+- Combine removeUser and removeToken in implementation contract. (Does not change the function call through proxy)
+- Combine updateUserRank and updateTokenRank in implementation contract. (Does not change the function call through proxy)
 
 ## [2.0.0] - 2019-09-10
 ### Added
