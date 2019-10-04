@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Change the price checking to per maker order.
 - Update error message handler.
+- Change the withdraw fee from ETH to the withdraw token.
 
 ## [2.0.0] - 2019-09-10
 ### Added

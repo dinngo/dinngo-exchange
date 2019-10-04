@@ -316,23 +316,28 @@ contract Dinngo is
      */
     function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
+        require(_isValidUser(user), "user invalid");
+        _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
         uint256 amount = _getWithdrawalAmount(withdrawal);
         uint256 amountFee = _getWithdrawalFee(withdrawal);
-        address tokenFee = _isWithdrawalFeeETH(withdrawal)? address(0) : DGOToken;
-        uint256 balance = balances[token][user].sub(amount);
-        require(_isValidUser(user), "user invalid");
-        _verifySig(user, _getWithdrawalHash(withdrawal), signature);
-        if (tokenFee == token) {
-            balance = balance.sub(amountFee);
+        bool fFeeMain = _isWithdrawalFeeMain(withdrawal);
+
+        if (fFeeMain) {
+            balances[token][user] = balances[token][user].sub(amount).sub(amountFee);
+            balances[token][address(0)] = balances[token][address(0)].add(amountFee);
         } else {
-            balances[tokenFee][user] = balances[tokenFee][user].sub(amountFee);
+            balances[token][user] = balances[token][user].sub(amount);
+            balances[DGOToken][user] = balances[DGOToken][user].sub(amountFee);
+            balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(amountFee);
         }
-        balances[tokenFee][address(0)] =
-            balances[tokenFee][address(0)].add(amountFee);
-        balances[token][user] = balance;
-        if (_isEventFundsOn())
-            emit Withdraw(token, user, amount, balance, tokenFee, amountFee);
+        if (_isEventFundsOn()) {
+            if (fFeeMain)
+                emit Withdraw(token, user, amount, balances[token][user], token, amountFee);
+            else
+                emit Withdraw(token, user, amount, balances[token][user], DGOToken, amountFee);
+        }
+
         if (token == address(0)) {
             user.transfer(amount);
         } else {

@@ -10,10 +10,10 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
-contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
+contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
-        this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
+        this.dinngo = await DinngoProxyMock.new(tokenWallet, DGOToken, this.dinngoImpl.address, { from: owner });
     });
 
     const depositValue = ether('10');
@@ -210,31 +210,38 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, tokenContract]) {
     });
 });
 
-contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, tokenContract]) {
+contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, DGOToken]) {
     beforeEach(async function () {
-        this.dinngoImpl = await Dinngo.new(tokenWallet, tokenContract, { from: owner });
-        this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
+        this.dinngoImpl = await Dinngo.new(tokenWallet, DGOToken, { from: owner });
+        this.dinngo = await DinngoProxyMock.new(tokenWallet, DGOToken, this.dinngoImpl.address, { from: owner });
         await this.dinngo.activateAdmin(admin, { from: owner });
         await this.dinngo.deactivateAdmin(owner, { from: owner });
         await this.dinngo.setUserBalance(tokenWallet, ZERO_ADDRESS, ether('1'));
-        await this.dinngo.setUserBalance(tokenWallet, tokenContract, ether('1'));
+        await this.dinngo.setUserBalance(tokenWallet, DGOToken, ether('1'));
     });
 
     const userId1 = new BN('11');
     const userId2 = new BN('12');
+    const userId3 = new BN('12');
     const rank = new BN('1');
     const tokenId1 = new BN('0');
     const tokenId2 = new BN('11');
+    const tokenId3 = new BN('11');
     const amount1 = ether('1');
     const amount2 = ether('2');
+    const amount3 = ether('2');
     const fee1 = ether('0.001');
     const fee2 = ether('1');
+    const fee3 = ether('1');
     const nonce1 = new BN('1');
     const nonce2 = new BN('2');
+    const nonce3 = new BN('3');
     const withdrawal1 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
     const withdrawal2 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000002000000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
+    const withdrawal3 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000003010000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
     const sig1 = '0x7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e00';
     const sig2 = '0x7d8e7629e2da8f3e4e077c4972e1906035d7fde9d4eef94b25fdc546d29079b31a38f8dc02826cf210f7586c003a826432f3f5f9de0d90290a56fba81cbc6ec301';
+    const sig3 = '0x5a5769a519df2d9b7f0578727c60a90bb7b768df480470563b43e69bb36adef5530287441d143ff3011353f03a2f048850c652950d9aab4be7733975caae595c01';
     let balance = ether('0');
 
     beforeEach(async function() {
@@ -306,7 +313,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         });
     });
 
-    describe('token', function () {
+    describe('token DGO fee', function () {
         beforeEach(async function () {
             this.token = await SimpleToken.new({ from: user2 });
             await this.dinngo.setToken(tokenId2, this.token.address, rank);
@@ -315,16 +322,16 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when normal', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: DGOToken, amountFee: fee2 });
         });
 
         it('when normal count gas', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const receipt = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
@@ -332,7 +339,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when sent by non-admin', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2),
                 'sender not admin'
@@ -343,7 +350,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             const amount = amount2.sub(ether('0.1'));
             await this.token.approve(this.dinngo.address, amount, { from: user2 });
             await this.dinngo.depositToken(this.token.address, amount, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
                 'subtraction overflow'
@@ -353,7 +360,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when user is removed', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
@@ -361,22 +368,69 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             );
         });
 
-        it('when fee is paid in DGO', async function () {
+        it('when fee is insufficient', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
-            const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
-            balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
-            expect(await this.dinngo.balances.call(tokenContract, user2)).to.be.bignumber.eq(ether('3').sub(fee2));
+            await this.dinngo.setUserBalance(user2, DGOToken, ether('0.0001'));
+            await expectRevert.unspecified(this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }));
+        });
+    });
+
+    describe('token main fee', function () {
+        beforeEach(async function () {
+            this.token = await SimpleToken.new({ from: user2 });
+            await this.dinngo.setToken(tokenId3, this.token.address, rank);
+        });
+
+        it('when normal', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            const { logs } = await this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin });
+            balance = balance.sub(amount3).sub(fee3);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount3, balance: balance, tokenFee: this.token.address, amountFee: fee3 });
+        });
+
+        it('when normal count gas', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            const receipt = await this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin });
+            console.log(receipt.receipt.gasUsed);
+        });
+
+        it('when sent by non-owner', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await expectRevert(
+                this.dinngo.withdrawByAdmin(withdrawal3, sig3),
+                'sender not admin'
+            );
+        });
+
+        it('when user balance is not sufficient', async function () {
+            const amount = amount3.sub(ether('0.1'));
+            await this.token.approve(this.dinngo.address, amount, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, amount, { from: user2 });
+            await expectRevert(
+                this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin }),
+                'subtraction overflow'
+            );
+        });
+
+        it('when user is removed', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.removeUser(user2, { from: admin });
+            await expectRevert(
+                this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin }),
+                'user invalid'
+            );
         });
 
         it('when fee is insufficient', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
-            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, ether('0.0001'));
+            await this.dinngo.depositToken(this.token.address, balance.sub(ether('0.1')), { from: user2 });
             await expectRevert(
-                this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
+                this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin }),
                 'subtraction overflow'
             );
         });
@@ -391,16 +445,16 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when normal', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: DGOToken, amountFee: fee2 });
         });
 
         it('when normal count gas', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const receipt = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             console.log(receipt.receipt.gasUsed);
         });
@@ -408,7 +462,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when sent by non-admin', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2),
                 'sender not admin'
@@ -419,7 +473,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             const amount = amount2.sub(ether('0.1'));
             await this.token.approve(this.dinngo.address, amount, { from: user2 });
             await this.dinngo.depositToken(this.token.address, amount, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
                 'subtraction overflow'
@@ -429,7 +483,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when user is removed', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
@@ -440,17 +494,17 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when fee is paid in DGO', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             balance = balance.sub(amount2);
-            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: tokenContract, amountFee: fee2 });
-            expect(await this.dinngo.balances.call(tokenContract, user2)).to.be.bignumber.eq(ether('3').sub(fee2));
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: DGOToken, amountFee: fee2 });
+            expect(await this.dinngo.balances.call(DGOToken, user2)).to.be.bignumber.eq(ether('3').sub(fee2));
         });
 
         it('when fee is insufficient', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, tokenContract, ether('0.0001'));
+            await this.dinngo.setUserBalance(user2, DGOToken, ether('0.0001'));
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
                 'subtraction overflow'

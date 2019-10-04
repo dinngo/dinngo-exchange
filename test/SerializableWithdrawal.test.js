@@ -35,8 +35,8 @@ contract('SerializableWithdrawal', function ([_, user1]) {
             expect(withdrawalData).to.be.bignumber.eq(amount);
         });
 
-        it('is fee ETH', async function () {
-            const withdrawalData = await this.SerializableWithdrawal.isWithdrawalFeeETHMock.call(serializedHex);
+        it('is fee main', async function () {
+            const withdrawalData = await this.SerializableWithdrawal.isWithdrawalFeeMainMock.call(serializedHex);
             expect(withdrawalData).to.eq(true);
         });
 
