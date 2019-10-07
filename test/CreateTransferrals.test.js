@@ -34,12 +34,13 @@ function getReceiver(to, tokenID, amount, fee) {
     );
 }
 
-/*
 contract('SerializableTransferral', function ([_, user1, user2, user3, user4, admin, deployer]) {
     const config1 = 1;
     const nonce1 = 1;
     const config2 = 1;
     const nonce2 = 2;
+    const config3 = 1;
+    const nonce3 = 3;
 
     const tokenID1 = 0;
     const amount1 = ether('0.1');
@@ -49,6 +50,11 @@ contract('SerializableTransferral', function ([_, user1, user2, user3, user4, ad
     const amount2 = ether('0.2');
     const fee2 = ether('0.02');
 
+    const tokenID3 = 0;
+    const amount3 = ether('0.1');
+    const fee3 = ether('0');
+
+/*
     describe('Single transferral', function () {
         it('hex1', async function () {
             let senderHex = getSender(
@@ -68,28 +74,6 @@ contract('SerializableTransferral', function ([_, user1, user2, user3, user4, ad
             let ser_hex = receiver1Hex + senderHex.slice(2);
             console.log(hash);
             console.log(sgn);
-            console.log(ser_hex);
-        });
-    });
-
-    describe('Single transferral from contract', function () {
-        it('hex1', async function () {
-            this.order = await Order.new({ from: deployer });
-            let senderHex = getSender(
-                this.order.address,
-                config1,
-                nonce1
-            );
-            let receiver1Hex = getReceiver(
-                user2,
-                tokenID1,
-                amount1,
-                fee1
-            );
-            let transferralHex = (receiver1Hex + senderHex.slice(2));
-            let hash = getHash(transferralHex);
-            let ser_hex = receiver1Hex + senderHex.slice(2);
-            console.log(hash);
             console.log(ser_hex);
         });
     });
@@ -122,5 +106,27 @@ contract('SerializableTransferral', function ([_, user1, user2, user3, user4, ad
             console.log(ser_hex);
         });
     });
-});
+
+    describe('Single transferral from contract', function () {
+        it('hex1', async function () {
+            this.order = await Order.new({ from: deployer });
+            let senderHex = getSender(
+                this.order.address,
+                config3,
+                nonce3
+            );
+            let receiver3Hex = getReceiver(
+                user2,
+                tokenID3,
+                amount3,
+                fee3
+            );
+            let transferralHex = (receiver3Hex + senderHex.slice(2));
+            let hash = getHash(transferralHex);
+            let ser_hex = receiver3Hex + senderHex.slice(2);
+            console.log(hash);
+            console.log(ser_hex);
+        });
+    });
 */
+});

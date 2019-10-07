@@ -25,7 +25,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
             it('normal', async function () {
                 const { logs } = await this.dinngo.addUser(userId1, user, { from: admin });
                 inLogs(logs, 'AddUser', { userID: userId1, user: user });
-                expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank1);
+                expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank1);
             });
 
             it('assigning (2**32 - 1) to id ', async function () {
@@ -56,14 +56,14 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
                 await this.dinngo.removeUser(user, { from: admin });
                 const { logs } = await this.dinngo.addUser(userId1, user, { from: admin });
                 inLogs(logs, 'AddUser', { userID: userId1, user: user });
-                expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank1);
+                expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank1);
             });
 
             it('removed with different address', async function () {
                 await this.dinngo.setUser(userId1, user, rank1);
                 await this.dinngo.removeUser(user, { from: admin });
                 await expectRevert.unspecified(this.dinngo.addUser(userId1, someone, { from: admin }));
-                expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(new BN('0'));
+                expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(new BN('0'));
             });
         });
     });
@@ -71,9 +71,9 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
     describe('update rank', function () {
         it('when normal', async function () {
             await this.dinngo.addUser(userId1, user, { from: admin });
-            expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank1);
+            expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank1);
             await this.dinngo.updateUserRank(user, rank2, { from: admin });
-            expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank2);
+            expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank2);
         });
 
         it('when user not exist', async function () {
@@ -82,13 +82,13 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
 
         it('when assigning same rank', async function () {
             await this.dinngo.addUser(userId1, user, { from: admin });
-            expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank1);
+            expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank1);
             await expectRevert.unspecified(this.dinngo.updateUserRank(user, rank1, { from: admin }));
         });
 
         it('called by owner', async function () {
             await this.dinngo.addUser(userId1, user, { from: admin });
-            expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(rank1);
+            expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(rank1);
             await expectRevert.unspecified(this.dinngo.updateUserRank(user, rank2, { from: owner }));
         });
     });
@@ -97,7 +97,7 @@ contract('User', function ([_, user, owner, admin, tokenWallet, tokenContract, u
         it('when normal', async function () {
             await this.dinngo.setUser(userId1, user, rank1);
             await this.dinngo.removeUser(user, { from: admin });
-            expect(await this.dinngo.userRanks.call(user)).to.be.bignumber.eq(new BN('0'));
+            expect(await this.dinngo.ranks.call(user)).to.be.bignumber.eq(new BN('0'));
             expect(await this.dinngo.userID_Address.call(userId1)).to.eq(user);
         });
 

@@ -245,8 +245,8 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
     let balance = ether('0');
 
     beforeEach(async function() {
-        await this.dinngo.setUser(userId1, user1, rank);
-        await this.dinngo.setUser(userId2, user2, rank);
+        await this.dinngo.setUser(userId1, user1, nonce1);
+        await this.dinngo.setUser(userId2, user2, nonce2);
         balance = ether('3')
     });
 
@@ -262,6 +262,15 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.deposit({ from: user1, value: balance });
             const receipt = await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
             console.log(receipt.receipt.gasUsed);
+        });
+
+        it('when sending a repeated withdrawal', async function () {
+            await this.dinngo.deposit({ from: user1, value: balance });
+            await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
+            await expectRevert(
+                this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin }),
+                'nonce invalid'
+            );
         });
 
         it('when sent by owner', async function () {
@@ -334,6 +343,17 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, DGOToken, balance);
             const receipt = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             console.log(receipt.receipt.gasUsed);
+        });
+
+        it('when sending a repeated withdrawal', async function () {
+            await this.token.approve(this.dinngo.address, balance, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
+            await this.dinngo.setUserBalance(user2, DGOToken, balance);
+            await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
+            await expectRevert(
+                this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
+                'nonce invalid'
+            );
         });
 
         it('when sent by non-admin', async function () {

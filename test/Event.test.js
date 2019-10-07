@@ -186,6 +186,7 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
             });
 
             it('Transfer', async function () {
+                const userId = new BN('11');
                 const rank = new BN('1');
                 const balance = ether('1000');
 
@@ -198,6 +199,7 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 const amount1 = ether('0.1');
                 const fee1 = ether('0.01');
 
+                await this.dinngo.setUser(userId, user1, rank);
                 await this.dinngo.setToken(tokenID1, ZERO_ADDRESS, rank);
                 await this.dinngo.setUserBalance(user1, ZERO_ADDRESS, balance);
                 await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
@@ -301,6 +303,7 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
             });
 
             it('Transfer', async function () {
+                const userId = new BN('11');
                 const rank = new BN('1');
                 const balance = ether('1000');
 
@@ -313,6 +316,7 @@ contract('Event switch', function ([_, user1, user2, deployer, owner, admin, tok
                 const amount1 = ether('0.1');
                 const fee1 = ether('0.01');
 
+                await this.dinngo.setUser(userId, user1, rank);
                 await this.dinngo.setToken(tokenID1, ZERO_ADDRESS, rank);
                 await this.dinngo.setUserBalance(user1, ZERO_ADDRESS, balance);
                 await this.dinngo.setUserBalance(user2, ZERO_ADDRESS, balance);
