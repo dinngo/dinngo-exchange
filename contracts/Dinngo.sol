@@ -350,6 +350,22 @@ contract Dinngo is
     }
 
     /**
+     * @notice The migration handler
+     * @param user The user address to receive the migrated amount.
+     * @param token The token address to be migrated.
+     * @param amount The amount to be migrated.
+     */
+    function migrateTo(address user, address token, uint256 amount) payable external {
+        balances[token][user] = balances[token][user].add(amount);
+        if (token == address(0)) {
+            require(msg.value == amount);
+        } else {
+            _isValid(token);
+            IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+        }
+    }
+
+    /**
      * @notice The transfer function that can only be triggered by admin.
      * Event transfer will be emitted after execution.
      * @param transferral The serialized transferral data.

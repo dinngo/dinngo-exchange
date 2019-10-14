@@ -307,6 +307,19 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
     }
 
     /**
+     * @notice The migration handler
+     * @param user The user address to receive the migrated amount.
+     * @param token The token address to be migrated.
+     * @param amount The amount to be migrated.
+     */
+    function migrateTo(address user, address token, uint256 amount) payable external {
+        (bool ok,) = _implementation().delegatecall(
+            abi.encodeWithSignature("migrateTo(address,address,uint256)", user, token, amount)
+        );
+        require(ok);
+    }
+
+    /**
      * @notice Announce lock of the sender
      */
     function lock() external {
