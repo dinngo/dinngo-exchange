@@ -5,13 +5,13 @@ const { expect } = require('chai');
 
 const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
-const DummyTarget = artifacts.require('DummyTarget');
 const SimpleToken = artifacts.require('SimpleToken');
 
 
 contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWallet, tokenContract]) {
     before(async function () {
-        this.target = await DummyTarget.new({ from: deployer });
+        this.dinngoImpl = await Dinngo.new();
+        this.target = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: deployer });
     });
 
     const userID1 = new BN('11');
@@ -28,7 +28,6 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
     const sig2 = '0xd3cf89a5a2de798c0d5dd21beddb67d16663ca0de2e59233f6fbc9948401332275ec1c777383273eb634c579f4235161d721658fc7bc209f88ff392090622e3401';
 
     beforeEach(async function () {
-        this.dinngoImpl = await Dinngo.new();
         this.dinngo = await DinngoProxyMock.new(tokenWallet, tokenContract, this.dinngoImpl.address, { from: owner });
         await this.dinngo.activateAdmin(admin, { from: owner });
         await this.dinngo.deactivateAdmin(owner, { from: owner });
