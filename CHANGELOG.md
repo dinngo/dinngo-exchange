@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [unreleased]
 ### Added
 - Nonce verification on transferral and withdrawal data.
+- Implement the migrateTo function for handling migration.
 
 ### Changed
 - Change the withdraw fee from ETH to the withdraw token.
