@@ -38,14 +38,13 @@ function getHex(userID, tokenID, amount, config, fee, nonce) {
     );
 }
 
-/*
 contract('SerializableWithdrawal', function ([_, user1, user2]) {
     const user1ID = 11;
     const token1 = 0;
     const amount1 = ether('1');
     const config1 = 1;
     const fee1 = ether('0.001');
-    const nonce1 = 1;
+    const nonce1 = 2;
 
     const user2ID = 12;
     const token2 = 11;
@@ -59,8 +58,9 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
     const amount3 = ether('2');
     const config3 = 1;
     const fee3 = ether('1');
-    const nonce3 = 3;
+    const nonce3 = 4;
 
+/*
     describe('single withdrawal', async function () {
         it('hex1', async function () {
             let hash = getHash(
@@ -131,5 +131,5 @@ contract('SerializableWithdrawal', function ([_, user1, user2]) {
             console.log(sgn);
         });
     });
-});
 */
+});
