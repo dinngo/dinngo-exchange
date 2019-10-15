@@ -297,24 +297,28 @@ contract Dinngo is
         require(nonce > nonces[user], "nonce invalid");
         nonces[user] = nonce;
         _verifySig(user, _getWithdrawalHash(withdrawal), signature);
-        address token = tokenID_Address[_getWithdrawalTokenID(withdrawal)];
+        uint256 tokenID = _getWithdrawalTokenID(withdrawal);
+        address token = tokenID == 0? address(0) : tokenID_Address[tokenID];
         uint256 amount = _getWithdrawalAmount(withdrawal);
         uint256 amountFee = _getWithdrawalFee(withdrawal);
+        uint256 balance = balances[token][user];
         bool fFeeMain = _isWithdrawalFeeMain(withdrawal);
 
         if (fFeeMain) {
-            balances[token][user] = balances[token][user].sub(amount).sub(amountFee);
+            balance = balance.sub(amount).sub(amountFee);
             balances[token][address(0)] = balances[token][address(0)].add(amountFee);
         } else {
-            balances[token][user] = balances[token][user].sub(amount);
+            balance = balance.sub(amount);
             balances[DGOToken][user] = balances[DGOToken][user].sub(amountFee);
             balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(amountFee);
         }
+        balances[token][user] = balance;
+
         if (_isEventFundsOn()) {
             if (fFeeMain)
-                emit Withdraw(token, user, amount, balances[token][user], token, amountFee);
+                emit Withdraw(token, user, amount, balance, token, amountFee);
             else
-                emit Withdraw(token, user, amount, balances[token][user], DGOToken, amountFee);
+                emit Withdraw(token, user, amount, balance, DGOToken, amountFee);
         }
 
         if (token == address(0)) {
