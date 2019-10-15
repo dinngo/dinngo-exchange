@@ -10,6 +10,7 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
+/*
 contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
@@ -209,6 +210,7 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
         });
     });
 });
+*/
 
 contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, DGOToken]) {
     beforeEach(async function () {
@@ -233,21 +235,25 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
     const fee1 = ether('0.001');
     const fee2 = ether('1');
     const fee3 = ether('1');
-    const nonce1 = new BN('1');
+    const nonce1 = new BN('2');
     const nonce2 = new BN('2');
     const nonce3 = new BN('3');
     const withdrawal1 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000001010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
     const withdrawal2 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000002000000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
     const withdrawal3 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000003010000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
+    const withdrawal4 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000002010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
+    const withdrawal5 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000004010000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
     const sig1 = '0x7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e00';
     const sig2 = '0x7d8e7629e2da8f3e4e077c4972e1906035d7fde9d4eef94b25fdc546d29079b31a38f8dc02826cf210f7586c003a826432f3f5f9de0d90290a56fba81cbc6ec301';
     const sig3 = '0x5a5769a519df2d9b7f0578727c60a90bb7b768df480470563b43e69bb36adef5530287441d143ff3011353f03a2f048850c652950d9aab4be7733975caae595c01';
+    const sig4 = '0xaf22944995534818566ddc91ebc69a24850298855fad0d31420ab9c9dbdda4443e6a52a8010946b47473a14bfa6600a6372a8309fb26243b0f7f311fed53068a00';
+    const sig5 = '0xf4d59e8e77ae7f5aec8e70840c1878c069bb9ce6248d43a2e6d3e23a0121e07c154a7a92ada4577717eceaf604e68e0e1210ad2b2b96b4e8a8d9acec7ecb9d1801';
     let balance = ether('0');
 
     beforeEach(async function() {
-        await this.dinngo.setUser(userId1, user1, nonce1);
-        await this.dinngo.setUser(userId2, user2, nonce2);
-        balance = ether('3')
+        await this.dinngo.setUser(userId1, user1, rank);
+        await this.dinngo.setUser(userId2, user2, rank);
+        balance = ether('7')
     });
 
     describe('ether', function () {
@@ -260,8 +266,10 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
 
         it('when normal count gas', async function () {
             await this.dinngo.deposit({ from: user1, value: balance });
-            const receipt = await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
-            console.log(receipt.receipt.gasUsed);
+            const receipt1 = await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
+            console.log(receipt1.receipt.gasUsed);
+            const receipt2 = await this.dinngo.withdrawByAdmin(withdrawal4, sig4, { from: admin });
+            console.log(receipt2.receipt.gasUsed);
         });
 
         it('when sending a repeated withdrawal', async function () {
@@ -413,8 +421,10 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when normal count gas', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            const receipt = await this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin });
-            console.log(receipt.receipt.gasUsed);
+            const receipt1 = await this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin });
+            console.log(receipt1.receipt.gasUsed);
+            const receipt2 = await this.dinngo.withdrawByAdmin(withdrawal5, sig5, { from: admin });
+            console.log(receipt2.receipt.gasUsed);
         });
 
         it('when sent by non-owner', async function () {
@@ -447,8 +457,8 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         });
 
         it('when fee is insufficient', async function () {
-            await this.token.approve(this.dinngo.address, balance, { from: user2 });
-            await this.dinngo.depositToken(this.token.address, balance.sub(ether('0.1')), { from: user2 });
+            await this.token.approve(this.dinngo.address, amount3, { from: user2 });
+            await this.dinngo.depositToken(this.token.address, amount3, { from: user2 });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin }),
                 'subtraction overflow'
@@ -514,11 +524,11 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         it('when fee is paid in DGO', async function () {
             await this.token.approve(this.dinngo.address, balance, { from: user2 });
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
-            await this.dinngo.setUserBalance(user2, DGOToken, balance);
+            await this.dinngo.setUserBalance(user2, DGOToken, ether('1'));
             const { logs } = await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             balance = balance.sub(amount2);
             inLogs(logs, 'Withdraw', { token: this.token.address, user: user2, amount: amount2, balance: balance, tokenFee: DGOToken, amountFee: fee2 });
-            expect(await this.dinngo.balances.call(DGOToken, user2)).to.be.bignumber.eq(ether('3').sub(fee2));
+            expect(await this.dinngo.balances.call(DGOToken, user2)).to.be.bignumber.eq(ether('1').sub(fee2));
         });
 
         it('when fee is insufficient', async function () {

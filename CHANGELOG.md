@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Nonce verification on transferral and withdrawal data.
 - Implement the migrateTo function for handling migration.
+- Upgrade solidity to 0.5.12.
 
 ### Changed
 - Change the withdraw fee from ETH to the withdraw token.

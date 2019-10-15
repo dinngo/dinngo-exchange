@@ -50,6 +50,10 @@ contract DinngoProxyMock is DinngoProxy {
         ranks[user] = rank;
     }
 
+    function setUserNonce(address user, uint256 nonce) external {
+        nonces[user] = nonce;
+    }
+
     function setToken(uint256 tokenID, address token, uint8 rank) external {
         tokenID_Address[tokenID] = token;
         ranks[token] = rank;
