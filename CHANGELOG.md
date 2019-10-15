@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [2.1.0] - 2019-10-15
 ### Added
 - Nonce verification on transferral and withdrawal data.
 - Implement the migrateTo function for handling migration.
