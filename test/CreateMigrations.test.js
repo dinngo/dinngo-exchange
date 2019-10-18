@@ -60,6 +60,7 @@ function getHex3(target, userID, tokenID1, tokenID2, tokenID3) {
     );
 }
 
+/*
 contract('SerializableMigration', function ([_, user1, user2, deployer]) {
     before(async function () {
         this.Target = await DummyTarget.new({ from: deployer });
@@ -72,9 +73,9 @@ contract('SerializableMigration', function ([_, user1, user2, deployer]) {
     const token1 = 0;
     const token2 = 11;
     const token3 = 23;
+    const tokenBad = 66;
     const config2 = 0;
 
-/*
     describe('single migration', async function () {
         it('hex1', async function () {
             let hash = getHash1(
@@ -115,6 +116,42 @@ contract('SerializableMigration', function ([_, user1, user2, deployer]) {
             console.log(sgn);
             console.log(this.Target.address);
         });
+
+        it('hex3', async function () {
+            let hash = getHash1(
+                this.Target.address,
+                user2ID,
+                token2,
+            );
+            let sgn = await web3.eth.sign(hash, user2);
+            let ser_hex = getHex1(
+                this.Target.address,
+                user2ID,
+                token2
+            );
+            console.log(hash);
+            console.log(ser_hex);
+            console.log(sgn);
+            console.log(this.Target.address);
+        });
+
+        it('hex4', async function () {
+            let hash = getHash1(
+                this.Target.address,
+                user2ID,
+                tokenBad,
+            );
+            let sgn = await web3.eth.sign(hash, user2);
+            let ser_hex = getHex1(
+                this.Target.address,
+                user2ID,
+                tokenBad
+            );
+            console.log(hash);
+            console.log(ser_hex);
+            console.log(sgn);
+            console.log(this.Target.address);
+        });
     });
-*/
 });
+*/
