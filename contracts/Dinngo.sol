@@ -347,7 +347,7 @@ contract Dinngo is
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);
             } else {
-                IERC20(token).approve(target, balance);
+                IERC20(token).safeApprove(target, balance);
                 Migratable(target).migrateTo(user, token, balance);
             }
         }

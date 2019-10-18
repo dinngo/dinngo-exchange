@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+### Fixed
+- Incompatible token handling.
 
 ## [2.1.0] - 2019-10-15
 ### Added
