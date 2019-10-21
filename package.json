@@ -1,6 +1,6 @@
 {
   "name": "dinngo-exchange",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "",
   "main": "truffle-config.js",
   "directories": {
@@ -20,15 +20,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "openzeppelin-solidity": "^2.3.0"
+    "openzeppelin-solidity": "2.3.0"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^3.0.0",
-    "ganache-cli": "^6.6.0",
-    "openzeppelin-test-helpers": "^0.4.2",
-    "solhint": "^2.2.0",
-    "truffle": "^5.0.31"
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "chai-bignumber": "3.0.0",
+    "ganache-cli": "6.6.0",
+    "openzeppelin-test-helpers": "0.4.2",
+    "solhint": "2.2.0",
+    "truffle": "5.0.31"
   }
 }

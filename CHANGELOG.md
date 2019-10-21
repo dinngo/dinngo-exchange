@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [2.1.1] - 2019-10-21
+### Changed
+- Fix solc version to 0.5.12.
+
 ### Fixed
 - Incompatible token handling.
 
