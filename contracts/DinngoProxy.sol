@@ -50,13 +50,6 @@ contract DinngoProxy is Ownable, Administrable, Proxy {
         eventConf = 0xff;
     }
 
-    /**
-     * @dev All ether directly sent to contract will be refunded
-     */
-    function() external payable {
-        revert();
-    }
-
     function setEvent(uint8 conf) external onlyAdmin {
         (bool ok,) = _implementation().delegatecall(
             abi.encodeWithSignature("setEvent(uint8)", conf)
