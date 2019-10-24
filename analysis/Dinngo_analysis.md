@@ -77,7 +77,7 @@ Dinngo is a hybrid-based exchange, which enables a single party to place order a
 
 ## <a id="heading-3.1"/> 3.1 Source Code
 
-The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `dc324d5e4f2a1aea5a356ff6878a640c235bc0cf`.
+The Dinngo smart contract source code was made available in the [dinngo-exchange/contracts](https://github.com/Dinngo/dinngo-exchange) Github repository. The code was analyzed as of commit `dc324d5e4f2a1aea5a356ff6878a640c235bc0cf`. Updated as of commit `b85f580933c37cf3170b7e4cef055735a0ccbeda`.
 
 The following Solidity source files (with SHA1 sums) were audited:
 
@@ -176,8 +176,8 @@ Except static and dynamic tests performed by [Mythril-classic](#heading-3.2.3), 
 ### <a id="heading-4.3.1"/> 4.3.1 Number of Issues
 |          | LOW | MEDIUM | HIGH | CRITICAL |
 |:---------|:---:|:------:|:----:|:--------:|
-| Open     |  2  |    0   |   1  |     0    |
-| Resolved |  0  |    0   |   0  |     0    |
+| Open     |  0  |    0   |   0  |     0    |
+| Resolved |  2  |    0   |   1  |     0    |
 | Closed   |  0  |    2   |   2  |     0    |
 
 ### <a id="heading-4.3.2"/> 4.3.2 Issues by Level
@@ -185,32 +185,35 @@ Except static and dynamic tests performed by [Mythril-classic](#heading-3.2.3), 
 |--------|---------------------------------|--------|----------|
 | Dinngo | Uninitialized storage variables | Closed   | High     |
 | DinngoProxy | Locked money | Closed   | High     |
-| Dinngo | Could potentially lead to re-entrancy vulnerability | Open   | High     |
+| Dinngo | Could potentially lead to re-entrancy vulnerability | Resolved   | High     |
 | Dinngo | Functions declared as constant/pure/view changing the state or using assembly code | Closed | Medium |
 | Proxy | Functions declared as constant/pure/view changing the state or using assembly code | Closed | Medium |
-| Dinngo | Redundant fallback function | Open | Low |
-| DinngoProxy | Redundant fallback function | Open | Low |
+| Dinngo | Redundant fallback function | Resolved | Low |
+| DinngoProxy | Redundant fallback function | Resolved | Low |
 
 ### <a id="heading-4.3.3"/> 4.3.3 Issue Details
 * Dinngo
     * High
         * **[Closed]** Uninitialized storage variables (Dinngo.sol#48)  
 Contract *Dinngo* is the implementation of execution logic. Which means that the function should not be directly called. The storage parameters is just for alignment with the calling proxy contract.
-        * **[Open]** Re-entrancy vulnerability (Dinngo.sol#377-414)  
-The design pattern in function could potentially lead to re-entrancy vulnerability. This might happens when verifying if the transferral is acknowledged by a contract, though the function can only be called by admin.
+        * **[Resolved]** Re-entrancy vulnerability (Dinngo.sol#377-414)  
+The design pattern in function could potentially lead to re-entrancy vulnerability. This might happens when verifying if the transferral is acknowledged by a contract, though the function can only be called by admin.  
+*Update: resolved in commit `fd926262344bebec0aad342ce12335a89ddc6eaa`*  
     * Medium
         * **[Closed]** Function declared as pure using assembly code (Dinngo.sol#566-591)  
-Functions that do not read from the state of modify it can be declared as pure. Assembly codes can potentially break this rule. However, the assembly here simple separate and verifies the signature. This does not encounter the described situation.
+Functions that do not read from the state of modify it can be declared as pure. Assembly codes can potentially break this rule. However, the assembly here simply separates and verifies the signature. This does not encounter the described situation.
     * Low
-        * **[Open]** Redundant fallback function (Dinngo.sol#96-98)  
-The payment rejection fallback is redundant. Starting from Solidity 0.4.0, contracts without a fallback function automatically revert payments.
+        * **[Resolved]** Redundant fallback function (Dinngo.sol#96-98)  
+The payment rejection fallback is redundant. Starting from Solidity 0.4.0, contracts without a fallback function automatically revert payments.  
+*Update: resolved in commit `fd926262344bebec0aad342ce12335a89ddc6eaa`*  
 * DinngoProxy
     * High
         * **[Closed]** Locked money (DinngoProxy.sol#14-369)  
 Contracts programmed to receive ether should implement a way to withdraw it. *DinngoProxy* is a proxy contract. The withdrawing function is implemented in *Dinngo* to be called by through `withdraw()` and `withdrawByAdmin()`.
     * Low
-        * **[Open]** Redundant fallbock function (DinngoProxy.sol#56-58)  
-The payment rejection fallback is redundant. Starting from Solidity 0.4.0, contracts without a fallback function automatically revert payments.
+        * **[Resolved]** Redundant fallbock function (DinngoProxy.sol#56-58)  
+The payment rejection fallback is redundant. Starting from Solidity 0.4.0, contracts without a fallback function automatically revert payments.  
+*Update: resolved in commit `fd926262344bebec0aad342ce12335a89ddc6eaa`*  
 * Proxy
     * Medium
         * **[Closed]** Function declared as view using assembly code (proxy/Proxy.sol#40-49, proxy/Proxy.sol#69-75)  
