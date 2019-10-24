@@ -3,16 +3,19 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+## [2.1.2] - 2019-10-24
+### Fixed
+- Fix potential reentrancy vulnerability.
+
+### Removed
+- Redundant fallback function.
+
 ## [2.1.1] - 2019-10-21
 ### Changed
 - Fix solc version to 0.5.12.
 
 ### Fixed
 - Incompatible token handling.
-- Fix potential reentrancy vulnerability.
-
-### Removed
-- Redundant fallback function.
 
 ## [2.1.0] - 2019-10-15
 ### Added
