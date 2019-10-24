@@ -372,12 +372,6 @@ contract Dinngo is
         bool fFeeMain = _isTransferralFeeMain(transferral);
         uint256 feeDGO = 0;
         uint256 nTransferral = _getTransferralCount(transferral);
-        if (signature.length == 65) {
-            _verifySig(from, _getTransferralHash(transferral), signature);
-            require(_isValid(from), "user invalid");
-        } else {
-            require(ISign(from).signed(_getTransferralHash(transferral)), 'contract sign failed');
-        }
         uint256 nonce = _getTransferralNonce(transferral);
         require(nonce > nonces[from], "nonce invalid");
         nonces[from] = nonce;
@@ -403,6 +397,13 @@ contract Dinngo is
         if (!fFeeMain) {
             balances[DGOToken][from] = balances[DGOToken][from].sub(feeDGO);
             balances[DGOToken][address(0)] = balances[DGOToken][address(0)].add(feeDGO);
+        }
+        bytes32 hash = _getTransferralHash(transferral);
+        if (signature.length == 65) {
+            _verifySig(from, hash, signature);
+            require(_isValid(from), "user invalid");
+        } else {
+            require(ISign(from).signed(hash), 'contract sign failed');
         }
     }
 
