@@ -91,13 +91,6 @@ contract Dinngo is
     uint8 constant internal _MASK_EVENT_FUNDS = 0x04;
 
     /**
-     * @dev All ether directly sent to contract will be refunded
-     */
-    function() external payable {
-        revert();
-    }
-
-    /**
      * @dev bit 0: user event
      *      bit 1: token event
      *      bit 2: funds event
