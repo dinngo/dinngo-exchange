@@ -285,9 +285,9 @@ contract Dinngo is
      */
     function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
-        require(_isValid(user), "user invalid");
+        require(_isValid(user), "400.4");
         uint256 nonce = _getWithdrawalNonce(withdrawal);
-        require(nonce > nonces[user], "nonce invalid");
+        require(nonce > nonces[user], "400.5");
         nonces[user] = nonce;
         _verifySig(user, _getWithdrawalHash(withdrawal), signature);
         uint256 tokenID = _getWithdrawalTokenID(withdrawal);
@@ -330,12 +330,12 @@ contract Dinngo is
         address target = _getMigrationTarget(migration);
         address user = userID_Address[_getMigrationUserID(migration)];
         uint256 nToken = _getMigrationCount(migration);
-        require(_isValid(user), "user invalid");
+        require(_isValid(user), "400.4");
         _verifySig(user, _getWithdrawalHash(migration), signature);
         for (uint i = 0; i < nToken; i++) {
             address token = tokenID_Address[_getMigrationTokenID(migration, i)];
             uint256 balance = balances[token][user];
-            require(balance != 0, "0 amount");
+            require(balance != 0, "400.5");
             balances[token][user] = 0;
             if (token == address(0)) {
                 Migratable(target).migrateTo.value(balance)(user, token, balance);
@@ -373,7 +373,7 @@ contract Dinngo is
         uint256 feeDGO = 0;
         uint256 nTransferral = _getTransferralCount(transferral);
         uint256 nonce = _getTransferralNonce(transferral);
-        require(nonce > nonces[from], "nonce invalid");
+        require(nonce > nonces[from], "400.5");
         nonces[from] = nonce;
         for (uint256 i = 0; i < nTransferral; i++) {
             address to = _getTransferralTo(transferral, i);
@@ -401,9 +401,9 @@ contract Dinngo is
         bytes32 hash = _getTransferralHash(transferral);
         if (signature.length == 65) {
             _verifySig(from, hash, signature);
-            require(_isValid(from), "user invalid");
+            require(_isValid(from), "400.4");
         } else {
-            require(ISign(from).signed(hash), 'contract sign failed');
+            require(ISign(from).signed(hash), "400.6");
         }
     }
 
@@ -427,18 +427,18 @@ contract Dinngo is
         for (uint256 i = 1; i < nOrder; i++) {
             // Get ith order as the maker order
             bytes memory makerOrder = _getOrder(orders, i);
-            require(fBuy != _isOrderBuy(makerOrder), "buy/buy or sell/sell");
+            require(fBuy != _isOrderBuy(makerOrder), "400.5");
             uint256 makerAmountBase = _getOrderAmountBase(makerOrder);
             uint256 makerAmountQuote = _getOrderAmountQuote(makerOrder);
             if (fBuy) {
                 require(
                     makerAmountQuote <= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]),
-                    "buy high"
+                    "400.6"
                 );
             } else {
                 require(
                     makerAmountQuote >= _getOrderAmountQuote(takerOrder).mul(makerAmountBase).div(takerAmounts[0]),
-                    "sell low"
+                    "400.7"
                 );
             }
             uint256 amountBase = makerAmountBase.sub(orderFills[_getOrderHash(makerOrder)]);
@@ -492,7 +492,7 @@ contract Dinngo is
      * @param order The order that triggered the trading
      */
     function _trade(uint256 amountBase, uint256 amountQuote, bytes memory order, bytes memory signature) internal {
-        require(amountBase != 0, "0 amount base");
+        require(amountBase != 0, "400.8");
         // Get parameters
         address user = userID_Address[_getOrderUserID(order)];
         bytes32 hash = _getOrderHash(order);
@@ -501,7 +501,7 @@ contract Dinngo is
         address tokenFee;
         uint256 amountFee =
             _getOrderHandleFee(order).mul(amountBase).div(_getOrderAmountBase(order));
-        require(_isValid(user), "user invalid");
+        require(_isValid(user), "400.4");
         // Trade and fee setting
         if (orderFills[hash] == 0) {
             _verifySig(user, hash, signature);
@@ -572,16 +572,16 @@ contract Dinngo is
             v := byte(0, mload(add(signature, 0x60)))
         }
 
-        require(uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0);
+        require(uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0, "400.1");
 
         // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
         if (v < 27) {
             v += 27;
         }
-        require(v == 27 || v == 28);
+        require(v == 27 || v == 28, "400.2");
 
         address sigAddr = ecrecover(hash.toEthSignedMessageHash(), v, r, s);
-        require(user == sigAddr, "sig failed");
+        require(user == sigAddr, "400.3");
     }
 
     /**
