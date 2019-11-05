@@ -10,7 +10,6 @@ const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 
-/*
 contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
@@ -210,7 +209,6 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
         });
     });
 });
-*/
 
 contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, DGOToken]) {
     beforeEach(async function () {
@@ -277,7 +275,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin }),
-                'nonce invalid'
+                '400.5'
             );
         });
 
@@ -285,7 +283,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.deposit({ from: user1, value: balance });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: owner }),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -293,7 +291,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.deposit({ from: user1, value: balance });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal1, sig1),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -310,7 +308,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.removeUser(user1, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal1, sig1, { from: admin }),
-                "user invalid"
+                '400.4'
             );
         });
 
@@ -360,7 +358,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
-                'nonce invalid'
+                '400.5'
             );
         });
 
@@ -370,7 +368,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -392,7 +390,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
-                'user invalid'
+                '400.4'
             );
         });
 
@@ -432,7 +430,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.depositToken(this.token.address, balance, { from: user2 });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal3, sig3),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -452,7 +450,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal3, sig3, { from: admin }),
-                'user invalid'
+                '400.4'
             );
         });
 
@@ -495,7 +493,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.setUserBalance(user2, DGOToken, balance);
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -517,7 +515,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.withdrawByAdmin(withdrawal2, sig2, { from: admin }),
-                'user invalid'
+                '400.4'
             );
         });
 
