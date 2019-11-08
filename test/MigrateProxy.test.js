@@ -82,14 +82,14 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         it('when sent by owner', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration1, sig1, { from: owner }),
-                'sender not admin'
+                '403.1'
             );
         });
 
         it('when sent by non-admin', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration1, sig1),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -97,9 +97,17 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             await this.dinngo.removeUser(user1, { from: admin });
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }),
-                'user invalid'
+                '400.4'
             );
-        })
+        });
+
+        it('when migrating zero amount', async function () {
+            await this.dinngo.setUserBalance(user1, ZERO_ADDRESS, ether('0'));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }),
+                '400.5'
+            );
+        });
     });
 
     describe('single token', function () {
@@ -137,14 +145,14 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         it('when sent by owner', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration3, sig3, { from: owner }),
-                'sender not admin'
+                '403.1'
             );
         });
 
         it('when sent by non-admin', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration3, sig3),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -152,9 +160,17 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration3, sig3, { from: admin }),
-                'user invalid'
+                '400.4'
             );
-        })
+        });
+
+        it('when migrating zero amount', async function () {
+            await this.dinngo.setUserBalance(user1, this.token1.address, ether('0'));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }),
+                '400.5'
+            );
+        });
     });
 
     describe('single bad token', function () {
@@ -192,14 +208,14 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
         it('when sent by owner', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration4, sig4, { from: owner }),
-                'sender not admin'
+                '403.1'
             );
         });
 
         it('when sent by non-admin', async function () {
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration4, sig4),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -207,9 +223,17 @@ contract('Migrate', function ([_, user1, user2, deployer, owner, admin, tokenWal
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.migrateByAdmin(migration4, sig4, { from: admin }),
-                'user invalid'
+                '400.4'
             );
-        })
+        });
+
+        it('when migrating zero amount', async function () {
+            await this.dinngo.setUserBalance(user1, this.tokenBad.address, ether('0'));
+            await expectRevert(
+                this.dinngo.migrateByAdmin(migration1, sig1, { from: admin }),
+                '400.5'
+            );
+        });
     });
 
     describe('multiple tokens', function () {

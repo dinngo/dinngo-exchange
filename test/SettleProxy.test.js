@@ -438,7 +438,7 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             await this.dinngo.removeUser(user2, { from: admin });
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
-                'user invalid'
+                '400.4'
             );
         });
 
@@ -446,7 +446,7 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             await this.dinngo.removeUser(user1, { from: admin });
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
-                'user invalid'
+                '400.4'
             );
         });
 
@@ -454,7 +454,7 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             await this.dinngo.fillOrder(hash1, amountBase1);
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
-                '0 amount base'
+                '400.8'
             );
         });
 
@@ -462,21 +462,21 @@ contract('Settle', function ([_, user1, user2, user3, user4, user5, owner, dinng
             await this.dinngo.fillOrder(hash2, amountBase2);
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2, { from: admin }),
-                '0 amount base'
+                '400.8'
             );
         });
 
         it('from owner', async function () {
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2, { from: owner }),
-                'sender not admin'
+                '403.1'
             );
         });
 
         it('Not admin', async function () {
             await expectRevert(
                 this.dinngo.settle(orders1_2, sigs1_2),
-                'sender not admin'
+                '403.1'
             );
         });
     });

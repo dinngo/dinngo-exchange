@@ -105,7 +105,7 @@ contract('Transfer', function ([_, user1, user2, user3, owner, admin, dinngoWall
             await this.dinngo.transferByAdmin(hex1, sig1, { from: admin });
             await expectRevert(
                 this.dinngo.transferByAdmin(hex1, sig1, { from: admin }),
-                'nonce invalid'
+                '400.5'
             );
         });
 
@@ -144,14 +144,14 @@ contract('Transfer', function ([_, user1, user2, user3, owner, admin, dinngoWall
         it('wrong signature', async function () {
             await expectRevert(
                 this.dinngo.transferByAdmin(hex1, sig2, { from: admin }),
-                'sig failed'
+                '400.3'
             );
         });
 
         it('sent by non-admin', async function () {
             await expectRevert(
                 this.dinngo.transferByAdmin(hex1, sig1),
-                'sender not admin'
+                '403.1'
             );
         });
 
@@ -232,7 +232,7 @@ contract('Transfer', function ([_, user1, user2, user3, owner, admin, dinngoWall
             await this.dinngo.transferByAdmin(hex2, sig2, { from: admin });
             await expectRevert(
                 this.dinngo.transferByAdmin(hex2, sig2, { from: admin }),
-                'nonce invalid'
+                '400.5'
             );
         });
     });
