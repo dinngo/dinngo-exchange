@@ -282,6 +282,8 @@ contract Dinngo is
      * @notice The withdraw function that can only be triggered by owner.
      * Event Withdraw will be emitted after execution.
      * @param withdrawal The serialized withdrawal data
+     * @dev 400.4 Invalid user
+     * @dev 400.5 Invalid nonce
      */
     function withdrawByAdmin(bytes calldata withdrawal, bytes calldata signature) external {
         address payable user = userID_Address[_getWithdrawalUserID(withdrawal)];
@@ -325,6 +327,8 @@ contract Dinngo is
      * @notice The migrate function the can only triggered by admin.
      * Event Migrate will be emitted after execution.
      * @param migration The serialized migration data
+     * @dev 400.4 Invalid user
+     * @dev 400.5 Migrating amount is 0
      */
     function migrateByAdmin(bytes calldata migration, bytes calldata signature) external {
         address target = _getMigrationTarget(migration);
@@ -366,6 +370,9 @@ contract Dinngo is
      * @notice The transfer function that can only be triggered by admin.
      * Event transfer will be emitted after execution.
      * @param transferral The serialized transferral data.
+     * @dev 400.4 Invalid user
+     * @dev 400.5 Invalid nonce
+     * @dev 400.6 Contract acknowledgement failed
      */
     function transferByAdmin(bytes calldata transferral, bytes calldata signature) external {
         address from = _getTransferralFrom(transferral);
@@ -411,6 +418,11 @@ contract Dinngo is
      * @notice The settle function for orders. First order is taker order and the followings
      * are maker orders.
      * @param orders The serialized orders.
+     * @dev 400.4 Invalid user
+     * @dev 400.5 Matching same order type (buy/buy or sell/sell)
+     * @dev 400.6 Buying price too high
+     * @dev 400.7 Selling price too low
+     * @dev 400.8 Matching a finalized order
      */
     function settle(bytes calldata orders, bytes calldata signatures) external {
         // Deal with the order list
@@ -557,6 +569,11 @@ contract Dinngo is
         return ranks[addr] != 0;
     }
 
+    /**
+     * @dev 400.1 Signature invalid (Value too large)
+     * @dev 400.2 Signature invalid (V value error)
+     * @dev 400.3 Signature invalid (Address not match)
+     */
     function _verifySig(address user, bytes32 hash, bytes memory signature) internal pure {
         // Divide the signature in r, s and v variables
         bytes32 r;

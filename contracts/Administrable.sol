@@ -33,6 +33,7 @@ contract Administrable {
 
     /**
      * @dev Throws if called by non-admin.
+     * @dev 403.1 Sender is not admin
      */
     modifier onlyAdmin() {
         require(isAdmin(), "403.1");
