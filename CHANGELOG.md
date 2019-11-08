@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+- Implement the status code
 
 ## [2.1.2] - 2019-10-24
 ### Fixed
