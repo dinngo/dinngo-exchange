@@ -231,7 +231,11 @@ contract Dinngo is
         balances[token][msg.sender] = balances[token][msg.sender].sub(amount);
         if (_isEventFundsOn())
             emit Withdraw(token, msg.sender, amount, balances[token][msg.sender], address(0), 0);
-        IERC20(token).safeTransfer(msg.sender, amount);
+        if (token == tokenID_Address[10000]) {
+            IERC20(token).transfer(msg.sender, amount);
+        } else {
+            IERC20(token).safeTransfer(msg.sender, amount);
+        }
     }
 
     /**
@@ -257,7 +261,12 @@ contract Dinngo is
         require(msg.sender ==  walletOwner);
         require(token != address(0));
         balances[token][address(0)] = balances[token][address(0)].sub(amount);
-        IERC20(token).safeTransfer(msg.sender, amount);
+
+        if (token == tokenID_Address[10000]) {
+            IERC20(token).transfer(msg.sender, amount);
+        } else {
+            IERC20(token).safeTransfer(msg.sender, amount);
+        }
     }
 
     /**
@@ -318,6 +327,8 @@ contract Dinngo is
 
         if (token == address(0)) {
             user.transfer(amount);
+        } else if (tokenID == 10000) {
+            IERC20(token).transfer(user, amount);
         } else {
             IERC20(token).safeTransfer(user, amount);
         }

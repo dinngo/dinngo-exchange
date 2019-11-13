@@ -11,7 +11,6 @@ const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
 const TetherToken = artifacts.require('TetherToken');
 
-/*
 contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
     beforeEach(async function () {
         this.dinngoImpl = await Dinngo.new();
@@ -210,8 +209,71 @@ contract('Withdraw', function ([_, user, owner, tokenWallet, DGOToken]) {
             inLogs(logs, 'Withdraw', { token: this.token.address, user: user, amount: amount, balance: balance });
         });
     });
+
+    describe('tether token', function () {
+        beforeEach(async function () {
+            this.token = await TetherToken.new(new BN('10000000000000000000000'), 'Tether CNHT', 'CNHT', new BN('6'), { from: user });
+            await this.dinngo.setToken('10000', this.token.address, '1');
+            await this.dinngo.setUser(userId, user, rank);
+            await this.token.approve(this.dinngo.address, depositValue, { from: user });
+            await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
+        });
+
+        it('when normal', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(91));
+            const { logs } = await this.dinngo.withdrawToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user, amount: amount, balance: balance });
+        });
+
+        it('when user not locked', async function () {
+            const amount = ether('1');
+            await expectRevert.unspecified(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user not yet locked', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(89));
+            await expectRevert.unspecified(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when token with address 0', async function () {
+            const amount = ether('1');
+            await expectRevert.unspecified(this.dinngo.withdrawToken(ZERO_ADDRESS, amount, { from: user }));
+        });
+
+        it('when token with amount 0', async function () {
+            const amount = ether('0');
+            await expectRevert.unspecified(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user balance is not sufficient', async function () {
+            const amount = ether('11');
+            await expectRevert.unspecified(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when user is removed', async function () {
+            const amount = ether('1');
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(91));
+            await this.dinngo.removeUser(user, { from: owner });
+            await expectRevert.unspecified(this.dinngo.withdrawToken(this.token.address, amount, { from: user }));
+        });
+
+        it('when locking process time changed', async function () {
+            const amount = ether('1');
+            await this.dinngo.changeProcessTime(duration.days(80), { from: owner });
+            await this.dinngo.lock({ from: user });
+            await increase(duration.days(81));
+            const { logs } = await this.dinngo.withdrawToken(this.token.address, amount, { from: user });
+            const balance = await this.dinngo.balances.call(this.token.address, user);
+            inLogs(logs, 'Withdraw', { token: this.token.address, user: user, amount: amount, balance: balance });
+        });
+    });
 });
-*/
 
 contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet, DGOToken]) {
     beforeEach(async function () {
@@ -230,7 +292,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
     const tokenId1 = new BN('0');
     const tokenId2 = new BN('11');
     const tokenId3 = new BN('11');
-    const tokenId4 = new BN('8700');
+    const tokenId4 = new BN('10000');
     const amount1 = ether('1');
     const amount2 = ether('2');
     const amount3 = ether('2');
@@ -245,13 +307,13 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
     const withdrawal3 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000003010000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
     const withdrawal4 = '0x00000000000000000000000000000000000000000000000000038d7ea4c6800000000002010000000000000000000000000000000000000000000000000de0b6b3a764000000000000000b';
     const withdrawal5 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000004010000000000000000000000000000000000000000000000001bc16d674ec80000000b0000000c';
-    const withdrawal6 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000005010000000000000000000000000000000000000000000000001bc16d674ec8000021fc0000000c';
+    const withdrawal6 = '0x0000000000000000000000000000000000000000000000000de0b6b3a764000000000002010000000000000000000000000000000000000000000000001bc16d674ec8000027100000000c';
     const sig1 = '0x7c951ccb051dc002650c64d267dcabfcea1a552119c900bce8d59651b4d9f51b723ee62931c50b28134e8dfa9360ba3628a3a958b3529f355eff7541e0699f1e00';
     const sig2 = '0x7d8e7629e2da8f3e4e077c4972e1906035d7fde9d4eef94b25fdc546d29079b31a38f8dc02826cf210f7586c003a826432f3f5f9de0d90290a56fba81cbc6ec301';
     const sig3 = '0x5a5769a519df2d9b7f0578727c60a90bb7b768df480470563b43e69bb36adef5530287441d143ff3011353f03a2f048850c652950d9aab4be7733975caae595c01';
     const sig4 = '0xaf22944995534818566ddc91ebc69a24850298855fad0d31420ab9c9dbdda4443e6a52a8010946b47473a14bfa6600a6372a8309fb26243b0f7f311fed53068a00';
     const sig5 = '0xf4d59e8e77ae7f5aec8e70840c1878c069bb9ce6248d43a2e6d3e23a0121e07c154a7a92ada4577717eceaf604e68e0e1210ad2b2b96b4e8a8d9acec7ecb9d1801';
-    const sig6 = '0xd215cab0e63142bd9af187f94c89fafd39f6a53effa45b2eb468dd2572d30224390ab7c86c4a0099e39b6bcb8034a40f4705859f2eb66beff6ec51f0d9afd25200';
+    const sig6 = '0x1a4cb01b7e6ed5dc11020e2498672cdb8ec91e8a0941a69aafba4a67ec5f73bc335beaf0718298fe2e9999448a7323648518712fec9ca8cc4ec8b04cfccac08801';
     let balance = ether('0');
 
     beforeEach(async function() {
@@ -260,7 +322,6 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
         balance = ether('7')
     });
 
-/*
     describe('ether', function () {
         it('when normal', async function () {
             await this.dinngo.deposit({ from: user1, value: balance });
@@ -545,7 +606,7 @@ contract('WithdrawAdmin', function ([_, user1, user2, owner, admin, tokenWallet,
                 'subtraction overflow'
             );
         });
-*/
+    });
 
     describe('tether token', function () {
         beforeEach(async function () {
