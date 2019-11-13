@@ -9,6 +9,7 @@ const Dinngo = artifacts.require('Dinngo');
 const DinngoProxyMock = artifacts.require('DinngoProxyMock');
 const SimpleToken = artifacts.require('SimpleToken');
 const BadToken = artifacts.require('BadToken');
+const TetherToken = artifacts.require('TetherToken');
 
 contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenContract, newOwner]) {
     beforeEach(async function () {
@@ -111,6 +112,39 @@ contract('ExtractFee', function ([_, user, owner, deployer, tokenWallet, tokenCo
         beforeEach(async function () {
             this.token = await BadToken.new({ from: user });
             await this.dinngo.setToken('11', this.token.address, '1');
+            await this.dinngo.setUser(userId, user, rank);
+            await this.token.approve(this.dinngo.address, depositValue, { from: user });
+            await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
+            await this.dinngo.setUserBalance(ZERO_ADDRESS, this.token.address, depositValue);
+        });
+
+        it('when normal', async function () {
+            const amount = depositValue;
+            const { logs } = await this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet });
+            const balance = await this.dinngo.getWalletBalance.call(this.token.address);
+            expect(balance).to.be.bignumber.eq(ether('0'));
+        });
+
+        it('when token with address 0', async function () {
+            const amount = depositValue;
+            await expectRevert.unspecified(this.dinngo.extractTokenFee(ZERO_ADDRESS, amount, { from: tokenWallet }));
+        });
+
+        it('when token with amount 0', async function () {
+            const amount = ether('0');
+            await expectRevert.unspecified(this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet }));
+        });
+
+        it('when user balance is not sufficient', async function () {
+            const amount = exceed;
+            await expectRevert.unspecified(this.dinngo.extractTokenFee(this.token.address, amount, { from: tokenWallet }));
+        });
+    });
+
+    describe('tether token', function () {
+        beforeEach(async function () {
+            this.token = await TetherToken.new(new BN('10000000000000000000000'), 'Tether CNHT', 'CNHT', new BN('6'), { from: user });
+            await this.dinngo.setToken('10000', this.token.address, '1');
             await this.dinngo.setUser(userId, user, rank);
             await this.token.approve(this.dinngo.address, depositValue, { from: user });
             await this.dinngo.depositToken(this.token.address, depositValue, { from: user });
