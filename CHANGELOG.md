@@ -2,8 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [unreleased]
+
+## [2.2.0] - 2019-11-15
 ## Changed
-- Implement the status code
+- Implement the status code.
 - Handle the error caused by non-return transfers of token contract.
 
 ## [2.1.2] - 2019-10-24
